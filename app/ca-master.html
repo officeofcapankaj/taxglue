@@ -86,7 +86,22 @@ tr:hover { background: #f8fafc; }
   <div class="content">
     <div class="success-message" id="successMessage">CA details saved successfully!</div>
     <div class="form-card">
-      <h2 class="form-title">CA / Partner Details</h2>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #e2e8f0;">
+        <h2 class="form-title" style="margin:0;padding:0;border:none;">CA / Partner List</h2>
+        <button type="button" class="btn btn-primary" onclick="showForm()">+ Add CA</button>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Membership No.</th><th>Firm Name</th><th>Status</th><th>PAN</th><th>GSTIN</th><th>Mobile</th><th>Email</th><th>Action</th></tr>
+          </thead>
+          <tbody id="caTable"></tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="form-card" id="caFormCard">
+      <h2 class="form-title" id="caFormTitle">Add New CA / Partner</h2>
       <form id="caForm">
         <!-- Personal Details -->
         <div class="form-section">
@@ -216,28 +231,18 @@ tr:hover { background: #f8fafc; }
         </div>
         
         <div style="margin-top: 24px; display: flex; gap: 12px;">
-          <button type="submit" class="btn btn-primary">💾 Save CA Details</button>
+          <button type="submit" class="btn btn-primary" id="saveBtn">💾 Save CA Details</button>
           <button type="button" class="btn btn-outline" onclick="resetForm()">Clear Form</button>
+          <button type="button" class="btn btn-remove" id="deleteBtn" style="display:none;background:#fee2e2;color:#dc2626;" onclick="deleteCA()">🗑️ Delete CA</button>
         </div>
       </form>
-    </div>
-    
-    <div class="form-card">
-      <h2 class="form-title">CA List</h2>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr><th>Name</th><th>Membership No.</th><th>Firm Name</th><th>Status</th><th>Mobile</th><th>Email</th></tr>
-          </thead>
-          <tbody id="caTable"></tbody>
-        </table>
-      </div>
     </div>
   </div>
 </main>
 </div>
 <script>
 let caList = JSON.parse(localStorage.getItem('caList')) || []
+let editingCAId = null
 
 async function fetchPincodeDetails(prefix) {
   const pincode = document.getElementById(prefix + 'Pincode')?.value || document.getElementById('pincode')?.value
@@ -262,10 +267,62 @@ async function fetchPincodeDetails(prefix) {
   } catch (e) { console.log('Pincode API error:', e) }
 }
 
+function showForm() {
+  editingCAId = null
+  document.getElementById('caFormCard').style.display = 'block'
+  document.getElementById('caFormTitle').textContent = 'Add New CA / Partner'
+  document.getElementById('saveBtn').textContent = '💾 Save CA Details'
+  document.getElementById('deleteBtn').style.display = 'none'
+  resetForm()
+  document.getElementById('caFormCard').scrollIntoView({ behavior: 'smooth' })
+}
+
+function editCA(id) {
+  const ca = caList.find(c => c.id === id)
+  if (!ca) return
+  editingCAId = id
+  document.getElementById('caFormCard').style.display = 'block'
+  document.getElementById('caFormTitle').textContent = 'Edit CA / Partner'
+  document.getElementById('saveBtn').textContent = '💾 Update CA Details'
+  document.getElementById('deleteBtn').style.display = 'inline-flex'
+  // Fill form
+  document.getElementById('firstName').value = ca.firstName || ''
+  document.getElementById('middleName').value = ca.middleName || ''
+  document.getElementById('lastName').value = ca.lastName || ''
+  document.getElementById('fatherFirstName').value = ca.fatherFirstName || ''
+  document.getElementById('fatherMiddleName').value = ca.fatherMiddleName || ''
+  document.getElementById('fatherLastName').value = ca.fatherLastName || ''
+  document.getElementById('membershipNo').value = ca.membershipNo || ''
+  document.getElementById('membershipDate').value = ca.membershipDate || ''
+  document.getElementById('caPan').value = ca.caPan || ''
+  document.getElementById('firmPan').value = ca.firmPan || ''
+  document.getElementById('firmGstin').value = ca.firmGstin || ''
+  document.getElementById('firmName').value = ca.firmName || ''
+  document.getElementById('firmRegNo').value = ca.firmRegNo || ''
+  document.getElementById('status').value = ca.status || ''
+  document.getElementById('address').value = ca.address || ''
+  document.getElementById('pincode').value = ca.pincode || ''
+  document.getElementById('city').value = ca.city || ''
+  document.getElementById('district').value = ca.district || ''
+  document.getElementById('state').value = ca.state || ''
+  document.getElementById('country').value = ca.country || 'India'
+  document.getElementById('mobile').value = ca.mobile || ''
+  document.getElementById('email').value = ca.email || ''
+  document.getElementById('caFormCard').scrollIntoView({ behavior: 'smooth' })
+}
+
+function deleteCA() {
+  if (!editingCAId) return
+  if (!confirm('Are you sure you want to delete this CA?')) return
+  caList = caList.filter(c => c.id !== editingCAId)
+  localStorage.setItem('caList', JSON.stringify(caList))
+  renderCA()
+  showForm()
+}
+
 document.getElementById('caForm').addEventListener('submit', function(e) {
   e.preventDefault()
-  const ca = {
-    id: Date.now(),
+  const caData = {
     firstName: document.getElementById('firstName').value,
     middleName: document.getElementById('middleName').value,
     lastName: document.getElementById('lastName').value,
@@ -287,28 +344,43 @@ document.getElementById('caForm').addEventListener('submit', function(e) {
     state: document.getElementById('state').value,
     country: document.getElementById('country').value,
     mobile: document.getElementById('mobile').value,
-    email: document.getElementById('email').value,
-    createdAt: new Date().toISOString()
+    email: document.getElementById('email').value
   }
-  caList.push(ca)
+  
+  if (editingCAId) {
+    const index = caList.findIndex(c => c.id === editingCAId)
+    if (index !== -1) {
+      caData.id = editingCAId
+      caData.createdAt = caList[index].createdAt
+      caList[index] = caData
+    }
+  } else {
+    caData.id = Date.now()
+    caData.createdAt = new Date().toISOString()
+    caList.push(caData)
+  }
+  
   localStorage.setItem('caList', JSON.stringify(caList))
   document.getElementById('successMessage').classList.add('show')
   setTimeout(() => document.getElementById('successMessage').classList.remove('show'), 3000)
   renderCA()
-  resetForm()
+  showForm()
 })
 
 function resetForm() {
   document.getElementById('caForm').reset()
   document.getElementById('country').value = 'India'
+  editingCAId = null
 }
 
 function renderCA() {
   const tbody = document.getElementById('caTable')
-  if (caList.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:40px;">No CA details added yet</td></tr>'; return }
-  tbody.innerHTML = caList.map(ca => '<tr><td><strong>' + (ca.firstName || '') + ' ' + (ca.middleName || '') + ' ' + (ca.lastName || '') + '</strong></td><td>' + (ca.membershipNo || '-') + '</td><td>' + (ca.firmName || '-') + '</td><td><span class="badge badge-primary">' + (ca.status || '-') + '</span></td><td>' + (ca.mobile || '-') + '</td><td>' + (ca.email || '-') + '</td></tr>').join('')
+  if (caList.length === 0) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#94a3b8;padding:40px;">No CA details added yet</td></tr>'; return }
+  tbody.innerHTML = caList.map(ca => '<tr><td><strong>' + (ca.firstName || '') + ' ' + (ca.middleName || '') + ' ' + (ca.lastName || '') + '</strong></td><td>' + (ca.membershipNo || '-') + '</td><td>' + (ca.firmName || '-') + '</td><td><span class="badge badge-primary">' + (ca.status || '-') + '</span></td><td>' + (ca.caPan || '-') + '</td><td>' + (ca.firmGstin || '-') + '</td><td>' + (ca.mobile || '-') + '</td><td>' + (ca.email || '-') + '</td><td><button class="btn btn-outline" style="padding:6px 12px;font-size:12px;" onclick="editCA(' + ca.id + ')">✏️ Edit</button></td></tr>').join('')
 }
 
+// Initially hide form
+document.getElementById('caFormCard').style.display = 'none'
 renderCA()
 </script>
 </body>
