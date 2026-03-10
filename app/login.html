@@ -5,7 +5,7 @@
 
 <title>Login | TaxGlue</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2""></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 
@@ -71,32 +71,36 @@ const supabaseClient = createClient(
 "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
 )
 
+/* SIGNUP */
+
 async function signup(){
 
-let email=document.getElementById("email").value
-let password=document.getElementById("password").value
+let email = document.getElementById("email").value
+let password = document.getElementById("password").value
 
-const { data, error } = await supabaseClient.auth.signInWithPassword({
-email:email,
-password:password
+const { data, error } = await supabaseClient.auth.signUp({
+email: email,
+password: password
 })
 
 if(error){
 alert(error.message)
 }else{
-alert("Account created")
+alert("Account created. Please check your email to confirm.")
 }
 
 }
+
+/* LOGIN */
 
 async function login(){
 
-let email=document.getElementById("email").value
-let password=document.getElementById("password").value
+let email = document.getElementById("email").value
+let password = document.getElementById("password").value
 
-const {data,error}=await supabase.auth.signInWithPassword({
-email:email,
-password:password
+const { data, error } = await supabaseClient.auth.signInWithPassword({
+email: email,
+password: password
 })
 
 if(error){
