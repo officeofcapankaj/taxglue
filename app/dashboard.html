@@ -1,1 +1,25 @@
 
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Dashboard | TaxGlue</title>
+</head>
+
+<body>
+
+<h1>TaxGlue Dashboard</h1>
+
+<button id="logout">Logout</button>
+
+<script type="module">
+
+import "../js/app.js"
+import { logout } from "../js/auth.js"
+
+document.getElementById("logout").onclick = logout
+
+</script>
+
+</body>
+</html>
