@@ -90,6 +90,9 @@ tr:hover { background: #f8fafc; }
         <h2 class="form-title" style="margin:0;padding:0;border:none;">CA / Partner List</h2>
         <button type="button" class="btn btn-primary" onclick="showForm()">+ Add CA</button>
       </div>
+      <div style="margin-bottom: 20px;">
+        <input type="text" id="caSearch" class="form-input" placeholder="🔍 Search CA by name, membership no., firm name, PAN, GSTIN or mobile..." onkeyup="searchCA()" style="max-width: 400px;">
+      </div>
       <div class="table-container">
         <table>
           <thead>
@@ -409,10 +412,34 @@ function resetForm() {
   editingCAId = null
 }
 
-function renderCA() {
+function renderCA(filteredList = null) {
   const tbody = document.getElementById('caTable')
-  if (caList.length === 0) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#94a3b8;padding:40px;">No CA details added yet</td></tr>'; return }
-  tbody.innerHTML = caList.map(ca => '<tr><td><strong>' + (ca.firstName || '') + ' ' + (ca.middleName || '') + ' ' + (ca.lastName || '') + '</strong></td><td>' + (ca.membershipNo || '-') + '</td><td>' + (ca.firmName || '-') + '</td><td><span class="badge badge-primary">' + (ca.status || '-') + '</span></td><td>' + (ca.caPan || '-') + '</td><td>' + (ca.firmGstin || '-') + '</td><td>' + (ca.mobile || '-') + '</td><td>' + (ca.email || '-') + '</td><td><button class="btn btn-outline" style="padding:6px 12px;font-size:12px;" onclick="editCA(' + ca.id + ')">✏️ Edit</button></td></tr>').join('')
+  const list = filteredList || caList
+  if (list.length === 0) { 
+    const msg = filteredList ? 'No CA found matching your search' : 'No CA details added yet'
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#94a3b8;padding:40px;">' + msg + '</td></tr>'; 
+    return 
+  }
+  tbody.innerHTML = list.map(ca => '<tr><td><strong>' + (ca.firstName || '') + ' ' + (ca.middleName || '') + ' ' + (ca.lastName || '') + '</strong></td><td>' + (ca.membershipNo || '-') + '</td><td>' + (ca.firmName || '-') + '</td><td><span class="badge badge-primary">' + (ca.status || '-') + '</span></td><td>' + (ca.caPan || '-') + '</td><td>' + (ca.firmGstin || '-') + '</td><td>' + (ca.mobile || '-') + '</td><td>' + (ca.email || '-') + '</td><td><button class="btn btn-outline" style="padding:6px 12px;font-size:12px;" onclick="editCA(' + ca.id + ')">✏️ Edit</button></td></tr>').join('')
+}
+
+function searchCA() {
+  const searchTerm = document.getElementById('caSearch').value.toLowerCase().trim()
+  if (!searchTerm) {
+    renderCA()
+    return
+  }
+  const filtered = caList.filter(ca => {
+    const fullName = (ca.firstName || '') + ' ' + (ca.middleName || '') + ' ' + (ca.lastName || '')
+    return fullName.toLowerCase().includes(searchTerm) ||
+           (ca.membershipNo || '').toLowerCase().includes(searchTerm) ||
+           (ca.firmName || '').toLowerCase().includes(searchTerm) ||
+           (ca.caPan || '').toLowerCase().includes(searchTerm) ||
+           (ca.firmGstin || '').toLowerCase().includes(searchTerm) ||
+           (ca.mobile || '').toLowerCase().includes(searchTerm) ||
+           (ca.email || '').toLowerCase().includes(searchTerm)
+  })
+  renderCA(filtered)
 }
 
 // Initially hide form
