@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CA Master | TaxGlue</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; color: #1e293b; }
+.container { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); color: white; padding: 0; position: fixed; height: 100vh; overflow-y: auto; }
+.sidebar-header { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.logo { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.sidebar-nav { padding: 20px 12px; }
+.nav-section { margin-bottom: 24px; }
+.nav-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; }
+.sidebar a { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+.sidebar a:hover { background: rgba(255,255,255,0.1); color: white; }
+.sidebar a.active { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+.main { flex: 1; margin-left: 260px; }
+.topbar { background: white; padding: 16px 32px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.page-title { font-size: 20px; font-weight: 600; }
+.btn-back { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+.btn-back:hover { background: #e2e8f0; }
+.content { padding: 32px; }
+.form-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 32px; margin-bottom: 32px; }
+.form-title { font-size: 18px; font-weight: 600; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
+.form-section { margin-bottom: 32px; }
+.form-section-title { font-size: 16px; font-weight: 600; color: #475569; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+.form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.form-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.form-group { margin-bottom: 0; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-label { display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; }
+.form-label .required { color: #dc2626; }
+.form-input, .form-select, .form-textarea { width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; transition: all 0.2s; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+.btn-primary { background: #22c55e; color: white; }
+.btn-primary:hover { background: #16a34a; }
+.btn-outline { background: white; color: #475569; border: 1px solid #e2e8f0; }
+.btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; }
+.table-container { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+th { background: #f8fafc; padding: 14px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; }
+td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+tr:hover { background: #f8fafc; }
+.badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.badge-primary { background: #dcfce7; color: #16a34a; }
+.success-message { background: #dcfce7; color: #16a34a; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px; display: none; }
+.success-message.show { display: block; }
+@media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } .form-grid, .form-grid-2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo"><div class="logo-icon">📊</div>TaxGlue</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <a href="/app/dashboard.html">🏠 Dashboard</a>
+      <a href="/app/clients.html">👥 Clients</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Master Data</div>
+      <a href="/app/ca-master.html" class="active">🎓 CA Master</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Accounting</div>
+      <a href="/modules/trial-balance.html">📒 Trial Balance</a>
+      <a href="/modules/balance-sheet.html">⚖️ Balance Sheet</a>
+    </div>
+  </div>
+</nav>
+<main class="main">
+  <header class="topbar">
+    <h1 class="page-title">CA Master</h1>
+    <a href="/app/dashboard.html" class="btn-back">← Back to Dashboard</a>
+  </header>
+  <div class="content">
+    <div class="success-message" id="successMessage">CA details saved successfully!</div>
+    <div class="form-card">
+      <h2 class="form-title">CA / Partner Details</h2>
+      <form id="caForm">
+        <!-- Personal Details -->
+        <div class="form-section">
+          <h3 class="form-section-title">Personal Details</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">First Name <span class="required">*</span></label>
+              <input type="text" class="form-input" id="firstName" placeholder="First Name" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-input" id="middleName" placeholder="Middle Name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name <span class="required">*</span></label>
+              <input type="text" class="form-input" id="lastName" placeholder="Last Name" required>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Father's Details -->
+        <div class="form-section">
+          <h3 class="form-section-title">Father's Name</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Father's First Name</label>
+              <input type="text" class="form-input" id="fatherFirstName" placeholder="Father's First Name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Father's Middle Name</label>
+              <input type="text" class="form-input" id="fatherMiddleName" placeholder="Father's Middle Name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Father's Last Name</label>
+              <input type="text" class="form-input" id="fatherLastName" placeholder="Father's Last Name">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Membership Details -->
+        <div class="form-section">
+          <h3 class="form-section-title">Membership Details</h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Membership No. <span class="required">*</span></label>
+              <input type="text" class="form-input" id="membershipNo" placeholder="ICAI Membership Number" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Membership Date <span class="required">*</span></label>
+              <input type="date" class="form-input" id="membershipDate" required>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Firm Details -->
+        <div class="form-section">
+          <h3 class="form-section-title">Firm Details</h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Firm Name</label>
+              <input type="text" class="form-input" id="firmName" placeholder="Firm Name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Firm Registration Number</label>
+              <input type="text" class="form-input" id="firmRegNo" placeholder="Firm Registration Number">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status <span class="required">*</span></label>
+              <select class="form-select" id="status" required>
+                <option value="">Select Status</option>
+                <option value="Proprietor">Proprietor</option>
+                <option value="Partner">Partner</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Address & Contact -->
+        <div class="form-section">
+          <h3 class="form-section-title">Address & Contact</h3>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="form-label">Address</label>
+              <textarea class="form-textarea" id="address" placeholder="Enter complete address"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mobile No. <span class="required">*</span></label>
+              <input type="tel" class="form-input" id="mobile" placeholder="Mobile Number" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-mail ID</label>
+              <input type="email" class="form-input" id="email" placeholder="Email Address">
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin-top: 24px; display: flex; gap: 12px;">
+          <button type="submit" class="btn btn-primary">💾 Save CA Details</button>
+          <button type="button" class="btn btn-outline" onclick="resetForm()">Clear Form</button>
+        </div>
+      </form>
+    </div>
+    
+    <div class="form-card">
+      <h2 class="form-title">CA List</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Membership No.</th><th>Firm Name</th><th>Status</th><th>Mobile</th><th>Email</th></tr>
+          </thead>
+          <tbody id="caTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+<script>
+let caList = JSON.parse(localStorage.getItem('caList')) || []
+
+document.getElementById('caForm').addEventListener('submit', function(e) {
+  e.preventDefault()
+  const ca = {
+    id: Date.now(),
+    firstName: document.getElementById('firstName').value,
+    middleName: document.getElementById('middleName').value,
+    lastName: document.getElementById('lastName').value,
+    fatherFirstName: document.getElementById('fatherFirstName').value,
+    fatherMiddleName: document.getElementById('fatherMiddleName').value,
+    fatherLastName: document.getElementById('fatherLastName').value,
+    membershipNo: document.getElementById('membershipNo').value,
+    membershipDate: document.getElementById('membershipDate').value,
+    firmName: document.getElementById('firmName').value,
+    firmRegNo: document.getElementById('firmRegNo').value,
+    status: document.getElementById('status').value,
+    address: document.getElementById('address').value,
+    mobile: document.getElementById('mobile').value,
+    email: document.getElementById('email').value,
+    createdAt: new Date().toISOString()
+  }
+  caList.push(ca)
+  localStorage.setItem('caList', JSON.stringify(caList))
+  document.getElementById('successMessage').classList.add('show')
+  setTimeout(() => document.getElementById('successMessage').classList.remove('show'), 3000)
+  renderCA()
+  resetForm()
+})
+
+function resetForm() {
+  document.getElementById('caForm').reset()
+}
+
+function renderCA() {
+  const tbody = document.getElementById('caTable')
+  if (caList.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:40px;">No CA details added yet</td></tr>'; return }
+  tbody.innerHTML = caList.map(ca => '<tr><td><strong>' + (ca.firstName || '') + ' ' + (ca.middleName || '') + ' ' + (ca.lastName || '') + '</strong></td><td>' + (ca.membershipNo || '-') + '</td><td>' + (ca.firmName || '-') + '</td><td><span class="badge badge-primary">' + (ca.status || '-') + '</span></td><td>' + (ca.mobile || '-') + '</td><td>' + (ca.email || '-') + '</td></tr>').join('')
+}
+
+renderCA()
+</script>
+</body>
+</html>
