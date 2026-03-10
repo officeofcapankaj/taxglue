@@ -1,7 +1,10 @@
 ```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Login | TaxGlue</title>
 
@@ -10,12 +13,13 @@
 <style>
 
 body{
-font-family:Arial;
+font-family:Arial, Helvetica, sans-serif;
 background:#f4f6f9;
 display:flex;
 justify-content:center;
 align-items:center;
 height:100vh;
+margin:0;
 }
 
 .card{
@@ -24,12 +28,15 @@ padding:30px;
 border-radius:8px;
 width:320px;
 box-shadow:0 4px 20px rgba(0,0,0,0.1);
+text-align:center;
 }
 
 input{
 width:100%;
 padding:10px;
 margin:10px 0;
+border:1px solid #ccc;
+border-radius:4px;
 }
 
 button{
@@ -39,7 +46,12 @@ background:#2563eb;
 color:white;
 border:none;
 cursor:pointer;
-margin-top:5px;
+margin-top:8px;
+border-radius:4px;
+}
+
+button:hover{
+background:#1e4fd6;
 }
 
 </style>
@@ -52,15 +64,14 @@ margin-top:5px;
 
 <h2>TaxGlue Login</h2>
 
-<input id="email" placeholder="Email">
-
+<input id="email" type="email" placeholder="Email">
 <input id="password" type="password" placeholder="Password">
 
 <button onclick="login()">Login</button>
-
 <button onclick="signup()">Signup</button>
 
 </div>
+
 
 <script>
 
@@ -71,12 +82,10 @@ const supabaseClient = createClient(
 "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
 )
 
-/* SIGNUP */
-
 async function signup(){
 
-let email = document.getElementById("email").value
-let password = document.getElementById("password").value
+const email = document.getElementById("email").value
+const password = document.getElementById("password").value
 
 const { data, error } = await supabaseClient.auth.signUp({
 email: email,
@@ -86,17 +95,15 @@ password: password
 if(error){
 alert(error.message)
 }else{
-alert("Account created. Please check your email to confirm.")
+alert("Account created. You can now login.")
 }
 
 }
-
-/* LOGIN */
 
 async function login(){
 
-let email = document.getElementById("email").value
-let password = document.getElementById("password").value
+const email = document.getElementById("email").value
+const password = document.getElementById("password").value
 
 const { data, error } = await supabaseClient.auth.signInWithPassword({
 email: email,
