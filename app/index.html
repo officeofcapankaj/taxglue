@@ -8,6 +8,8 @@
 
 <title>TaxGlue Dashboard</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
 <style>
 
 body{
@@ -67,6 +69,18 @@ justify-content:space-between;
 align-items:center;
 }
 
+/* logout button */
+
+.logout{
+background:#ef4444;
+color:white;
+border:none;
+padding:6px 12px;
+border-radius:4px;
+cursor:pointer;
+margin-left:10px;
+}
+
 /* content */
 
 .content{
@@ -100,8 +114,8 @@ box-shadow:0 3px 10px rgba(0,0,0,0.05);
 
 <h2>TaxGlue</h2>
 
-<a href="#">Dashboard</a>
-<a href="#">Clients</a>
+<a href="index.html">Dashboard</a>
+<a href="clients.html">Clients</a>
 <a href="#">Accounting</a>
 <a href="#">GST</a>
 <a href="#">Compliance</a>
@@ -117,7 +131,10 @@ box-shadow:0 3px 10px rgba(0,0,0,0.05);
 
 <div>Dashboard</div>
 
-<div>CA Pankaj</div>
+<div>
+<span id="userEmail"></span>
+<button class="logout" onclick="logout()">Logout</button>
+</div>
 
 </div>
 
@@ -156,6 +173,42 @@ box-shadow:0 3px 10px rgba(0,0,0,0.05);
 </div>
 
 </div>
+
+
+<script>
+
+const supabase = supabase.createClient(
+"YOUR_SUPABASE_URL",
+"YOUR_PUBLISHABLE_KEY"
+)
+
+/* Check login */
+
+async function checkUser(){
+
+const { data } = await supabase.auth.getUser()
+
+if(!data.user){
+window.location.href="login.html"
+}else{
+document.getElementById("userEmail").innerText = data.user.email
+}
+
+}
+
+checkUser()
+
+/* Logout */
+
+async function logout(){
+
+await supabase.auth.signOut()
+
+window.location.href="login.html"
+
+}
+
+</script>
 
 </body>
 </html>
