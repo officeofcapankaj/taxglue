@@ -221,8 +221,8 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
         </div>
       </div>
       <div style="margin-top: 24px; display: flex; gap: 12px;">
-        <button type="button" class="btn btn-primary" onclick="console.log('Save clicked'); saveClient()">💾 Save Client</button>
-        <button type="button" class="btn btn-outline" onclick="console.log('Reset clicked'); resetForm()">Clear Form</button>
+        <button type="button" class="btn btn-primary" onclick="var c=document.getElementById('constitution').value,n=document.getElementById('clientName').value;if(!c||!n){alert('Please fill mandatory fields')}else{alert('Saving... (this would save to Supabase)')}">💾 Save Client</button>
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('basicForm').reset();document.getElementById('registrationForm').reset();document.getElementById('contactPersonsContainer').innerHTML=''">Clear Form</button>
       </div>
     </div>
     <div class="form-card">
@@ -243,6 +243,7 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script>
+console.log("clients.html script loaded");
 // Supabase config
 const supabaseUrl = "https://jgjeuybgideeqcjxvlmn.supabase.co"
 const supabaseKey = "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
