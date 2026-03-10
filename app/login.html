@@ -64,7 +64,9 @@ margin-top:5px;
 
 <script>
 
-const supabase = supabase.createClient(
+const { createClient } = supabase
+
+const supabaseClient = createClient(
 "https://jgjeuybgideeqcjxvlmn.supabase.co",
 "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
 )
