@@ -1005,6 +1005,29 @@ async function logout() {
   window.location.href = "login.html"
 }
 
+// Auto logout after 2 minutes of inactivity
+let idleTime = 0;
+const idleTimeout = 2 * 60 * 1000; // 2 minutes in milliseconds
+
+// Reset idle time on user activity
+document.addEventListener('mousemove', resetIdleTimer);
+document.addEventListener('keypress', resetIdleTimer);
+document.addEventListener('click', resetIdleTimer);
+document.addEventListener('scroll', resetIdleTimer);
+
+function resetIdleTimer() {
+  idleTime = 0;
+}
+
+// Check idle time every second
+setInterval(function() {
+  idleTime += 1000;
+  if (idleTime >= idleTimeout) {
+    console.log('User idle for 2 minutes, logging out...');
+    logout();
+  }
+}, 1000);
+
 checkUser()
 </script>
 </body>
