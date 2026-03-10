@@ -96,12 +96,12 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
     <div class="success-message" id="successMessage">Client saved successfully!</div>
     <div class="error-message" id="errorMessage"></div>
     <div class="tabs">
-      <button class="tab active" onclick="document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));this.classList.add('active');document.getElementById('basic').classList.add('active')">Basic Details</button>
-      <button class="tab" onclick="document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));this.classList.add('active');document.getElementById('registrations').classList.add('active')">Registrations</button>
-      <button class="tab" onclick="document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));this.classList.add('active');document.getElementById('contacts').classList.add('active')">Contact Persons</button>
+      <button class="tab active" onclick="document.querySelectorAll('.tab').forEach(b=>{b.style.background='#f1f5f9';b.style.color='#475569'});this.style.background='#22c55e';this.style.color='white';document.getElementById('basic').style.display='block';document.getElementById('registrations').style.display='none';document.getElementById('contacts').style.display='none';">Basic Details</button>
+      <button class="tab" onclick="document.querySelectorAll('.tab').forEach(b=>{b.style.background='#f1f5f9';b.style.color='#475569'});this.style.background='#22c55e';this.style.color='white';document.getElementById('basic').style.display='none';document.getElementById('registrations').style.display='block';document.getElementById('contacts').style.display='none';">Registrations</button>
+      <button class="tab" onclick="document.querySelectorAll('.tab').forEach(b=>{b.style.background='#f1f5f9';b.style.color='#475569'});this.style.background='#22c55e';this.style.color='white';document.getElementById('basic').style.display='none';document.getElementById('registrations').style.display='none';document.getElementById('contacts').style.display='block';">Contact Persons</button>
     </div>
     <div class="form-card">
-      <div id="basic" class="tab-content active">
+      <div id="basic" class="tab-content active" style="display:block;">
         <h2 class="form-title">Basic Details</h2>
         <form id="basicForm">
           <div class="form-grid">
@@ -159,7 +159,7 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
           </div>
         </form>
       </div>
-      <div id="registrations" class="tab-content">
+      <div id="registrations" class="tab-content" style="display:none;">
         <h2 class="form-title">Registrations</h2>
         <form id="registrationForm">
           <div class="form-grid-3">
@@ -184,7 +184,7 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
           </div>
         </form>
       </div>
-      <div id="contacts" class="tab-content">
+      <div id="contacts" class="tab-content" style="display:none;">
         <h2 class="form-title">Contact Persons</h2>
         <div class="contact-persons">
           <div class="contact-person-header">
@@ -230,7 +230,7 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
         <h2 class="form-title" style="margin:0;padding:0;border:none;">Client List</h2>
         <div style="display:flex;gap:12px;">
           <input type="text" id="searchInput" class="form-input" placeholder="Search by name, PAN, mobile..." oninput="searchClients()" style="width:250px;">
-          <button class="btn btn-primary tab" onclick="document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));this.classList.add('active');document.getElementById('basic').classList.add('active');resetForm()">+ Add Client</button>
+          <button class="btn btn-primary tab" onclick="document.querySelectorAll('.tab').forEach(b=>{b.style.background='#f1f5f9';b.style.color='#475569'});this.style.background='#22c55e';this.style.color='white';document.getElementById('basic').style.display='block';document.getElementById('registrations').style.display='none';document.getElementById('contacts').style.display='none';resetForm()">+ Add Client</button>
         </div>
       </div>
       <table>
