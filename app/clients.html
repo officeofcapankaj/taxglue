@@ -256,16 +256,31 @@ let uploadedFiles = []
 function switchTab(tabId) {
   console.log('switchTab called:', tabId)
   // Remove active from all tabs and contents
-  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active') })
-  document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active') })
+  var tabs = document.querySelectorAll('.tab');
+  var contents = document.querySelectorAll('.tab-content');
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].classList.remove('active');
+  }
+  for (var i = 0; i < contents.length; i++) {
+    contents[i].classList.remove('active');
+  }
   
-  // Find the clicked tab button using onclick attribute
-  const tabBtn = document.querySelector('[onclick*="switchTab"][onclick*="' + tabId + '"]')
-  if (tabBtn) tabBtn.classList.add('active')
+  // Find and activate the clicked tab button
+  var tabButtons = document.getElementsByTagName('button');
+  for (var i = 0; i < tabButtons.length; i++) {
+    if (tabButtons[i].getAttribute('onclick') && tabButtons[i].getAttribute('onclick').indexOf(tabId) > -1) {
+      tabButtons[i].classList.add('active');
+      break;
+    }
+  }
   
-  // Show corresponding content
-  const content = document.getElementById(tabId)
-  if (content) content.classList.add('active')
+  // Show corresponding content by ID
+  var content = document.getElementById(tabId);
+  console.log('Content element:', content);
+  if (content) {
+    content.classList.add('active');
+    console.log('Added active class to:', tabId);
+  }
 }
 
 // Load clients from Supabase on page load
