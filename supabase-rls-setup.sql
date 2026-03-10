@@ -30,7 +30,20 @@ CREATE TABLE clients (
 
 CREATE TABLE ca_master (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
+    firstName TEXT,
+    middleName TEXT,
+    lastName TEXT,
+    fatherFirstName TEXT,
+    fatherMiddleName TEXT,
+    fatherLastName TEXT,
+    membershipNo TEXT,
+    membershipDate TEXT,
+    caPan TEXT,
+    firmPan TEXT,
+    firmGstin TEXT,
+    firmName TEXT,
+    firmRegNo TEXT,
+    status TEXT,
     address TEXT,
     pincode TEXT,
     city TEXT,
@@ -39,10 +52,7 @@ CREATE TABLE ca_master (
     country TEXT DEFAULT 'India',
     phone TEXT,
     email TEXT,
-    panNumber TEXT,
-    gstin TEXT,
-    membershipNumber TEXT,
-    firmName TEXT,
+    whatsapp TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
