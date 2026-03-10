@@ -1,35 +1,22 @@
-async function signup() {
+import { supabase } from "./config.js"
 
-  const email = document.getElementById("signupEmail").value;
-  const password = document.getElementById("signupPassword").value;
+export async function login(email, password){
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password
-  });
+const { data, error } = await supabase.auth.signInWithPassword({
+email: email,
+password: password
+})
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
-
-  alert("Signup successful. Please check email.");
+if(error){
+alert(error.message)
+return
 }
 
-async function login() {
+window.location.href="/app/dashboard.html"
 
-  const email = document.getElementById("loginEmail").value;
-  const password = document.getElementById("loginPassword").value;
+}
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if (error) {
-    alert(error.message);
-    return;
-  }
-
-  window.location.href = "/dashboard.html";
+export async function logout(){
+await supabase.auth.signOut()
+window.location.href="/"
 }
