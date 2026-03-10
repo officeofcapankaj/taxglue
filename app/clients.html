@@ -254,32 +254,37 @@ let uploadedFiles = []
 
 // Tab switching - must be defined early
 function switchTab(tabId) {
-  console.log('switchTab called:', tabId)
-  // Remove active from all tabs and contents
-  var tabs = document.querySelectorAll('.tab');
-  var contents = document.querySelectorAll('.tab-content');
-  for (var i = 0; i < tabs.length; i++) {
-    tabs[i].classList.remove('active');
+  console.log('switchTab called with:', tabId)
+  
+  // Get all tab buttons and contents
+  var allButtons = document.getElementsByTagName('button');
+  var allContents = document.getElementsByClassName('tab-content');
+  
+  // First, deactivate ALL tabs and contents
+  for (var i = 0; i < allButtons.length; i++) {
+    if (allButtons[i].classList.contains('tab')) {
+      allButtons[i].classList.remove('active');
+    }
   }
-  for (var i = 0; i < contents.length; i++) {
-    contents[i].classList.remove('active');
+  for (var i = 0; i < allContents.length; i++) {
+    allContents[i].classList.remove('active');
   }
   
-  // Find and activate the clicked tab button
-  var tabButtons = document.getElementsByTagName('button');
-  for (var i = 0; i < tabButtons.length; i++) {
-    if (tabButtons[i].getAttribute('onclick') && tabButtons[i].getAttribute('onclick').indexOf(tabId) > -1) {
-      tabButtons[i].classList.add('active');
+  // Find the tab button that was clicked
+  for (var i = 0; i < allButtons.length; i++) {
+    var onclick = allButtons[i].getAttribute('onclick');
+    if (onclick && onclick.indexOf(tabId) !== -1 && allButtons[i].classList.contains('tab')) {
+      allButtons[i].classList.add('active');
+      console.log('Activated button:', allButtons[i].textContent);
       break;
     }
   }
   
-  // Show corresponding content by ID
+  // Show the content
   var content = document.getElementById(tabId);
-  console.log('Content element:', content);
   if (content) {
     content.classList.add('active');
-    console.log('Added active class to:', tabId);
+    console.log('Activated content:', tabId);
   }
 }
 
