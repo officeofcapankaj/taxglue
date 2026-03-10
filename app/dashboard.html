@@ -994,7 +994,14 @@ async function checkUser() {
 }
 
 async function logout() {
-  await supabase.auth.signOut()
+  try {
+    await supabase.auth.signOut()
+  } catch (e) {
+    console.log('Supabase signout error:', e)
+  }
+  // Clear localStorage
+  localStorage.clear()
+  // Redirect to login
   window.location.href = "login.html"
 }
 
