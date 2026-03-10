@@ -1,0 +1,192 @@
+```html id="2blcmx"
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Clients | TaxGlue</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#f4f6f9;
+}
+
+.container{
+display:flex;
+height:100vh;
+}
+
+.sidebar{
+width:240px;
+background:#1f2937;
+color:white;
+padding:20px;
+}
+
+.sidebar h2{
+margin-bottom:30px;
+}
+
+.sidebar a{
+display:block;
+color:white;
+text-decoration:none;
+padding:10px 0;
+}
+
+.main{
+flex:1;
+display:flex;
+flex-direction:column;
+}
+
+.topbar{
+background:white;
+padding:15px 25px;
+border-bottom:1px solid #ddd;
+}
+
+.content{
+padding:30px;
+}
+
+button{
+background:#2563eb;
+color:white;
+border:none;
+padding:10px 15px;
+border-radius:6px;
+cursor:pointer;
+}
+
+input{
+padding:8px;
+margin:5px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #ddd;
+text-align:left;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="sidebar">
+
+<h2>TaxGlue</h2>
+
+<a href="index.html">Dashboard</a>
+<a href="clients.html">Clients</a>
+<a href="#">Accounting</a>
+<a href="#">GST</a>
+<a href="#">Compliance</a>
+<a href="#">Documents</a>
+
+</div>
+
+
+<div class="main">
+
+<div class="topbar">
+
+<h3>Clients</h3>
+
+</div>
+
+<div class="content">
+
+<h3>Add Client</h3>
+
+<input id="name" placeholder="Client Name">
+<input id="pan" placeholder="PAN">
+<input id="gstin" placeholder="GSTIN">
+
+<button onclick="addClient()">Add Client</button>
+
+<h3>Client List</h3>
+
+<table>
+
+<thead>
+<tr>
+<th>Name</th>
+<th>PAN</th>
+<th>GSTIN</th>
+</tr>
+</thead>
+
+<tbody id="clientTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+let clients = JSON.parse(localStorage.getItem("clients")) || []
+
+function addClient(){
+
+let name = document.getElementById("name").value
+let pan = document.getElementById("pan").value
+let gstin = document.getElementById("gstin").value
+
+clients.push({name,pan,gstin})
+
+localStorage.setItem("clients", JSON.stringify(clients))
+
+renderClients()
+
+}
+
+function renderClients(){
+
+let table = document.getElementById("clientTable")
+
+table.innerHTML=""
+
+clients.forEach(c => {
+
+let row = `<tr>
+<td>${c.name}</td>
+<td>${c.pan}</td>
+<td>${c.gstin}</td>
+</tr>`
+
+table.innerHTML += row
+
+})
+
+}
+
+renderClients()
+
+</script>
+
+</body>
+</html>
+```
