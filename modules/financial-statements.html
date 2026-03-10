@@ -113,9 +113,10 @@ body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
           </select>
         </div>
         <div class="form-group" style="display:flex;gap:8px;align-items:flex-end;">
-          <button class="btn btn-export" onclick="exportReport('pdf')">📄 PDF</button>
-          <button class="btn btn-export" onclick="exportReport('excel')">📊 Excel</button>
-          <button class="btn btn-export" onclick="exportReport('word')">📝 Word</button>
+          <button class="btn btn-export" onclick="exportSingle('pdf')">📄 PDF</button>
+          <button class="btn btn-export" onclick="exportSingle('excel')">📊 Excel</button>
+          <button class="btn btn-export" onclick="exportSingle('word')">📝 Word</button>
+          <button class="btn btn-primary" onclick="exportAllReports()">📦 Export All</button>
         </div>
       </div>
     </div>
@@ -472,7 +473,7 @@ function renderNotes(clientName, fy) {
   </div>`
 }
 
-function exportReport(format) {
+function exportSingle(format) {
   const clientName = getClientName()
   const fy = getFY()
   const reportType = currentReport === 'bs' ? 'Balance Sheet' : currentReport === 'pl' ? 'Profit and Loss' : currentReport === 'cf' ? 'Cash Flow' : 'Notes to Accounts'
@@ -494,8 +495,219 @@ function exportReport(format) {
   }
 }
 
+// Export all reports in a single file
+async function exportAllReports() {
+  const clientName = getClientName()
+  const fy = getFY()
+  
+  if (!clientName) {
+    alert('Please select a client first')
+    return
+  }
+  
+  // Show export options modal
+  const format = prompt('Select export format:\n1. PDF (printable)\n2. Excel\n3. Word\n\nEnter 1, 2, or 3:')
+  
+  if (!format || !['1', '2', '3'].includes(format)) return
+  
+  const formatType = format === '1' ? 'pdf' : format === '2' ? 'excel' : 'word'
+  
+  if (formatType === 'excel') {
+    const wb = XLSX.utils.book_new()
+    
+    // Balance Sheet
+    const bsData = renderBalanceSheetData(clientName, fy)
+    const wsBS = XLSX.utils.aoa_to_sheet(bsData)
+    XLSX.utils.book_append_sheet(wb, wsBS, 'Balance Sheet')
+    
+    // Profit & Loss
+    const plData = renderPLData(clientName, fy)
+    const wsPL = XLSX.utils.aoa_to_sheet(plData)
+    XLSX.utils.book_append_sheet(wb, wsPL, 'Profit & Loss')
+    
+    // Cash Flow
+    const cfData = renderCFData(clientName, fy)
+    const wsCF = XLSX.utils.aoa_to_sheet(cfData)
+    XLSX.utils.book_append_sheet(wb, wsCF, 'Cash Flow')
+    
+    // Notes to Accounts
+    const notesData = renderNotesData(clientName, fy)
+    const wsNotes = XLSX.utils.aoa_to_sheet(notesData)
+    XLSX.utils.book_append_sheet(wb, wsNotes, 'Notes to Accounts')
+    
+    XLSX.writeFile(wb, `${clientName}_FinancialStatements_${fy}.xlsx`)
+    
+  } else if (formatType === 'word') {
+    const bs = document.getElementById('printableReport') ? document.getElementById('printableReport').innerHTML : ''
+    
+    // Store current report and switch to each one
+    const originalReport = currentReport
+    
+    let allContent = `<html><body>
+      <h1 style="text-align:center;">${clientName}</h1>
+      <h2 style="text-align:center;">Financial Statements</h2>
+      <h3 style="text-align:center;">FY: ${fy}</h3>
+      <br><br>`
+    
+    currentReport = 'bs'
+    allContent += '<h2>BALANCE SHEET</h2>' + renderBalanceSheet(clientName, fy)
+    
+    currentReport = 'pl'
+    allContent += '<h2>STATEMENT OF PROFIT AND LOSS</h2>' + renderPL(clientName, fy)
+    
+    currentReport = 'cf'
+    allContent += '<h2>CASH FLOW STATEMENT</h2>' + renderCashFlow(clientName, fy)
+    
+    currentReport = 'notes'
+    allContent += '<h2>NOTES TO ACCOUNTS</h2>' + renderNotes(clientName, fy)
+    
+    currentReport = originalReport
+    
+    allContent += '</body></html>'
+    
+    const blob = new Blob([allContent], { type: 'application/msword' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `${clientName}_FinancialStatements_${fy}.doc`
+    link.click()
+    
+  } else if (formatType === 'pdf') {
+    // For PDF, open print dialog with all reports
+    const originalReport = currentReport
+    
+    let printContent = '<html><head><title>Financial Statements</title>'
+    printContent += '<style>body{font-family:Arial;padding:20px;} h1{text-align:center;} h2{margin-top:30px;} table{width:100%;border-collapse:collapse;margin:20px 0;} th,td{border:1px solid #000;padding:8px;text-align:left;} .amount{text-align:right;}</style>'
+    printContent += '</head><body>'
+    
+    printContent += `<h1 style="text-align:center;">${clientName}</h1>`
+    printContent += `<h2 style="text-align:center;">Financial Statements</h2>`
+    printContent += `<h3 style="text-align:center;">FY: ${fy}</h3><br><br>`
+    
+    currentReport = 'bs'
+    printContent += '<h2>BALANCE SHEET</h2>' + renderBalanceSheet(clientName, fy).replace(/class="report-card"/g, '').replace(/class="report-title"/g, '').replace(/class="report-subtitle"/g, '').replace(/class="report-table"/g, 'border="1" cellspacing="0"').replace(/<th/g, '<th style="background:#f0f0f0;"').replace(/class="amount"/g, 'style="text-align:right;"')
+    
+    currentReport = 'pl'
+    printContent += '<h2 style="page-break-before:always;">PROFIT AND LOSS</h2>' + renderPL(clientName, fy).replace(/class="report-card"/g, '').replace(/class="report-title"/g, '').replace(/class="report-subtitle"/g, '').replace(/class="report-table"/g, 'border="1" cellspacing="0"').replace(/<th/g, '<th style="background:#f0f0f0;"').replace(/class="amount"/g, 'style="text-align:right;"')
+    
+    currentReport = 'cf'
+    printContent += '<h2 style="page-break-before:always;">CASH FLOW STATEMENT</h2>' + renderCashFlow(clientName, fy).replace(/class="report-card"/g, '').replace(/class="report-title"/g, '').replace(/class="report-subtitle"/g, '').replace(/class="report-table"/g, 'border="1" cellspacing="0"').replace(/<th/g, '<th style="background:#f0f0f0;"').replace(/class="amount"/g, 'style="text-align:right;"')
+    
+    currentReport = 'notes'
+    printContent += '<h2 style="page-break-before:always;">NOTES TO ACCOUNTS</h2>' + renderNotes(clientName, fy).replace(/class="report-card"/g, '').replace(/class="note-item"/g, 'style="border-left:3px solid #000;padding:10px;margin:10px 0;background:#f9f9f9;"')
+    
+    currentReport = originalReport
+    printContent += '</body></html>'
+    
+    const printWindow = window.open('', '_blank')
+    printWindow.document.write(printContent)
+    printWindow.document.close()
+    printWindow.print()
+  }
+}
+
+// Helper functions for Excel data
+function renderBalanceSheetData(clientName, fy) {
+  const data = [[`BALANCE SHEET - ${clientName}`], [`FY: ${fy}`], []]
+  data.push(['Sch.', 'Particulars', 'Note No.', fy, (parseInt(fy.split('-')[0]) - 1) + '-' + (parseInt(fy.split('-')[0]) - 1).toString().slice(-2)])
+  
+  BS_STRUCTURE.assets.nonCurrentAssets.forEach(item => {
+    if (item.isHeader || item.isSection) {
+      data.push([item.code, item.name, '', '', ''])
+    } else if (item.isTotal) {
+      data.push(['', item.name, '', '', ''])
+    } else {
+      data.push([item.code, item.name, '', '', ''])
+    }
+  })
+  
+  data.push(['', '', '', '', ''])
+  
+  BS_STRUCTURE.assets.currentAssets.forEach(item => {
+    if (item.isHeader || item.isSection) {
+      data.push([item.code, item.name, '', '', ''])
+    } else if (item.isTotal) {
+      data.push(['', item.name, '', '', ''])
+    } else {
+      data.push([item.code, item.name, '', '', ''])
+    }
+  })
+  
+  return data
+}
+
+function renderPLData(clientName, fy) {
+  const data = [[`STATEMENT OF PROFIT AND LOSS - ${clientName}`], [`FY: ${fy}`], []]
+  data.push(['Sch.', 'Particulars', 'Note No.', fy, (parseInt(fy.split('-')[0]) - 1) + '-' + (parseInt(fy.split('-')[0]) - 1).toString().slice(-2)])
+  
+  PL_STRUCTURE.income.forEach(item => {
+    if (item.isHeader || item.isSection || item.isTotal) {
+      data.push([item.code, item.name, '', '', ''])
+    } else {
+      data.push([item.code, item.name, '', '', ''])
+    }
+  })
+  
+  data.push(['', '', '', '', ''])
+  
+  PL_STRUCTURE.expenses.forEach(item => {
+    if (item.isHeader || item.isSection || item.isTotal) {
+      data.push([item.code, item.name, '', '', ''])
+    } else {
+      data.push([item.code, item.name, '', '', ''])
+    }
+  })
+  
+  return data
+}
+
+function renderCFData(clientName, fy) {
+  return [[`CASH FLOW STATEMENT - ${clientName}`], [`FY: ${fy}`], []]
+}
+
+function renderNotesData(clientName, fy) {
+  return [[`NOTES TO ACCOUNTS - ${clientName}`], [`FY: ${fy}`], []]
+}
+
 // Initialize
 loadClients()
+
+// Store financial data per client per FY
+let financialData = {}
+
+async function loadFinancialData(clientId, fy) {
+  try {
+    const { data } = await supabase
+      .from('trial_balance')
+      .select('*')
+      .eq('client_id', clientId)
+      .eq('fy', fy)
+    
+    if (data && data.length > 0) {
+      financialData = data[0].data || {}
+      return financialData
+    }
+  } catch (e) {
+    console.log('Error loading financial data:', e)
+  }
+  
+  // Try localStorage
+  const key = `financial_${clientId}_${fy}`
+  financialData = JSON.parse(localStorage.getItem(key)) || {}
+  return financialData
+}
+
+function saveFinancialData(clientId, fy, data) {
+  const key = `financial_${clientId}_${fy}`
+  localStorage.setItem(key, JSON.stringify(data))
+  
+  // Also save to Supabase
+  supabase.from('trial_balance').upsert({
+    client_id: clientId,
+    fy: fy,
+    data: data,
+    updated_at: new Date().toISOString()
+  }).then()
+}
 </script>
 </body>
 </html>
