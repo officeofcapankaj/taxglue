@@ -1,8 +1,8 @@
-// config.js
+// js/config.js
 
-const config = {
-    SUPABASE_URL: process.env.SUPABASE_URL,
-    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
-};
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
-module.exports = config;
+const SUPABASE_URL = "https://jgjeuybgideeqcjxvlmn.supabase.co"
+const SUPABASE_ANON_KEY = "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
+
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
