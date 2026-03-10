@@ -1,33 +1,49 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-<title>Login | TaxGlue</title>
-</head>
-
-<body>
-
-<h2>Login</h2>
-
 <input id="email" placeholder="Email">
 <input id="password" type="password" placeholder="Password">
 
 <button id="loginBtn">Login</button>
+<button id="signupBtn">Sign Up</button>
 
 <script type="module">
 
-import { login } from "../js/auth.js"
+import { supabase } from "../js/config.js"
 
-document.getElementById("loginBtn").onclick = () => {
+document.getElementById("loginBtn").onclick = async () => {
 
 const email = document.getElementById("email").value
 const password = document.getElementById("password").value
 
-login(email,password)
+const { error } = await supabase.auth.signInWithPassword({
+email,
+password
+})
+
+if(error){
+alert(error.message)
+return
+}
+
+window.location.href="/app/dashboard.html"
+
+}
+
+document.getElementById("signupBtn").onclick = async () => {
+
+const email = document.getElementById("email").value
+const password = document.getElementById("password").value
+
+const { error } = await supabase.auth.signUp({
+email,
+password
+})
+
+if(error){
+alert(error.message)
+return
+}
+
+alert("Account created. You can now login.")
 
 }
 
 </script>
-
-</body>
-</html>
