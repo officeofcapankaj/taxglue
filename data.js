@@ -20,7 +20,6 @@ const ACCOUNT_TYPES = [
    Each account type maps to standard financial statement heads
 ============================================================ */
 const ACCOUNT_HEADS = {
-const ACCOUNT_HEADS = {
   // Current Assets Heads
   'current-assets': {
     'cash-and-cash-equivalents': { label: 'Cash and Cash Equivalents', order: 1, keywords: ['cash','bank','petty cash','money market','savings account','current account'] },
