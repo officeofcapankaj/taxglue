@@ -88,7 +88,7 @@ tr:hover { background: #f8fafc; }
     <div class="form-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #e2e8f0;">
         <h2 class="form-title" style="margin:0;padding:0;border:none;">CA / Partner List</h2>
-        <button type="button" class="btn btn-primary" id="addCaBtn">+ Add CA</button>
+        <button type="button" class="btn btn-primary" id="addCaBtn" onclick="showForm(); console.log('Add CA clicked inline')">+ Add CA</button>
       </div>
       <div style="margin-bottom: 20px;">
         <input type="text" id="caSearch" class="form-input" placeholder="🔍 Search CA by name, membership no., firm name, PAN, GSTIN or mobile..." onkeyup="searchCA()" style="max-width: 400px;">
@@ -291,17 +291,36 @@ async function fetchPincodeDetails(prefix) {
 }
 
 function showForm() {
-  console.log('showForm called')
+  console.log('showForm called - showing form')
   editingCAId = null
+  
+  // Get the form card directly by ID
   const formCard = document.getElementById('caFormCard')
-  formCard.style.display = 'block'
-  formCard.style.visibility = 'visible'
-  formCard.style.opacity = '1'
-  document.getElementById('caFormTitle').textContent = 'Add New CA / Partner'
-  document.getElementById('saveBtn').textContent = '💾 Save CA Details'
-  document.getElementById('deleteBtn').style.display = 'none'
-  resetForm()
-  formCard.scrollIntoView({ behavior: 'smooth' })
+  if (formCard) {
+    formCard.style.display = 'block'
+    formCard.style.visibility = 'visible'
+    formCard.style.opacity = '1'
+    
+    // Update form title
+    const titleEl = document.getElementById('caFormTitle')
+    if (titleEl) titleEl.textContent = 'Add New CA / Partner'
+    
+    const saveBtn = document.getElementById('saveBtn')
+    if (saveBtn) saveBtn.textContent = '💾 Save CA Details'
+    
+    const deleteBtn = document.getElementById('deleteBtn')
+    if (deleteBtn) deleteBtn.style.display = 'none'
+    
+    // Reset form
+    const form = document.getElementById('caForm')
+    if (form) form.reset()
+    
+    // Scroll to form
+    formCard.scrollIntoView({ behavior: 'smooth' })
+    console.log('Form should now be visible')
+  } else {
+    console.log('ERROR: caFormCard not found!')
+  }
 }
 
 function editCA(id) {
@@ -452,9 +471,15 @@ renderCA()
 loadCAFromSupabase()
 
 // Add event listener for Add CA button
-document.getElementById('addCaBtn').addEventListener('click', function() {
-  console.log('Add CA button clicked')
-  showForm()
+document.addEventListener('DOMContentLoaded', function() {
+  const addBtn = document.getElementById('addCaBtn')
+  if (addBtn) {
+    addBtn.addEventListener('click', function(e) {
+      e.preventDefault()
+      console.log('Add CA button clicked')
+      showForm()
+    })
+  }
 })
 </script>
 </body>
