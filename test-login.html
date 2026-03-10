@@ -48,7 +48,25 @@
         }
       }
       
-      output.textContent = 'Ready. Click Login.'
+      output.textContent = 'Ready. Testing auto-login...'
+      
+      const email = "testuser@test.com"
+      const password = "TestPass123"
+      
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        })
+        
+        if (error) {
+          output.textContent = 'ERROR: ' + error.message
+        } else {
+          output.textContent = 'SUCCESS! Logged in as: ' + JSON.stringify(data.user)
+        }
+      } catch (e) {
+        output.textContent = 'EXCEPTION: ' + e.message
+      }
     } catch (e) {
       output.textContent = 'ERROR loading: ' + e.message
     }
