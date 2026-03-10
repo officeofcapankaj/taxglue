@@ -1,25 +1,13 @@
-
-<!DOCTYPE html>
-<html>
-
-<head>
-<title>Dashboard | TaxGlue</title>
-</head>
-
-<body>
-
 <h1>TaxGlue Dashboard</h1>
 
+<hr>
+
+<button onclick="location.href='/modules/trial-balance.html'">
+Trial Balance
+</button>
+
+<button onclick="location.href='/modules/balance-sheet.html'">
+Balance Sheet
+</button>
+
 <button id="logout">Logout</button>
-
-<script type="module">
-
-import "../js/app.js"
-import { logout } from "../js/auth.js"
-
-document.getElementById("logout").onclick = logout
-
-</script>
-
-</body>
-</html>
