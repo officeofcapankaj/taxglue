@@ -4,76 +4,72 @@
 <button id="loginBtn">Login</button>
 <button id="signupBtn">Sign Up</button>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"></script>
-
 <script>
 window.onerror = function(msg, url, line) {
-  alert("Error: " + msg + " at line " + line)
+  alert("TOP-LEVEL Error: " + msg + " at line " + line)
+  return true
 }
 
-var supabase = null
+alert("TOP: Script starting")
 
 async function init() {
-  alert("In init function")
+  alert("Loading Supabase...")
   
-  const { createClient } = window.SupabaseClient || window.supabase
-  alert("Got supabase: " + (createClient ? "YES" : "NO"))
-  
-  if (!createClient) {
-    alert("ERROR: Supabase not loaded!")
-    return
-  }
-  
-  supabase = createClient(
-    "https://jgjeuybgideeqcjxvlmn.supabase.co",
-    "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
-  )
-  
-  alert("Supabase client created!")
-  
-  document.getElementById("loginBtn").onclick = async () => {
-    alert("Button clicked!")
+  try {
+    const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm")
+    alert("Supabase loaded!")
     
-    var email = document.getElementById("email").value
-    var password = document.getElementById("password").value
+    const supabase = createClient(
+      "https://jgjeuybgideeqcjxvlmn.supabase.co",
+      "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
+    )
     
-    alert("Login with: " + email)
+    alert("Client created!")
     
-    var result = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password
-    })
-    
-    alert("Result: " + (result.error ? result.error.message : "OK"))
-    
-    if(result.error){
-      alert(result.error.message)
-      return
+    document.getElementById("loginBtn").onclick = async () => {
+      const email = document.getElementById("email").value
+      const password = document.getElementById("password").value
+      
+      alert("Login with: " + email)
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      })
+      
+      alert("Result: " + (error ? error.message : "OK"))
+      
+      if (error) {
+        alert(error.message)
+        return
+      }
+      
+      window.location.href = "/app/dashboard.html"
     }
     
-    window.location.href="/app/dashboard.html"
-  }
-  
-  document.getElementById("signupBtn").onclick = async () => {
-    var email = document.getElementById("email").value
-    var password = document.getElementById("password").value
-    
-    var result = await supabase.auth.signUp({
-      email: email,
-      password: password
-    })
-    
-    if(result.error){
-      alert(result.error.message)
-      return
+    document.getElementById("signupBtn").onclick = async () => {
+      const email = document.getElementById("email").value
+      const password = document.getElementById("password").value
+      
+      const { error } = await supabase.auth.signUp({
+        email: email,
+        password: password
+      })
+      
+      if (error) {
+        alert(error.message)
+        return
+      }
+      
+      alert("Account created. You can now login.")
     }
     
-    alert("Account created. You can now login.")
+    alert("Ready!")
+  } catch(e) {
+    alert("Error: " + e.message)
   }
-  
-  alert("Ready!")
 }
 
-alert("Script running...")
+alert("Calling init...")
 init()
 </script>
