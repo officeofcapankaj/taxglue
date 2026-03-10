@@ -88,7 +88,7 @@ tr:hover { background: #f8fafc; }
     <div class="form-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #e2e8f0;">
         <h2 class="form-title" style="margin:0;padding:0;border:none;">CA / Partner List</h2>
-        <button type="button" class="btn btn-primary" onclick="showForm()">+ Add CA</button>
+        <button type="button" class="btn btn-primary" onclick="showForm(); console.log('Add CA clicked')">+ Add CA</button>
       </div>
       <div style="margin-bottom: 20px;">
         <input type="text" id="caSearch" class="form-input" placeholder="🔍 Search CA by name, membership no., firm name, PAN, GSTIN or mobile..." onkeyup="searchCA()" style="max-width: 400px;">
@@ -291,13 +291,17 @@ async function fetchPincodeDetails(prefix) {
 }
 
 function showForm() {
+  console.log('showForm called')
   editingCAId = null
-  document.getElementById('caFormCard').style.display = 'block'
+  const formCard = document.getElementById('caFormCard')
+  formCard.style.display = 'block'
+  formCard.style.visibility = 'visible'
+  formCard.style.opacity = '1'
   document.getElementById('caFormTitle').textContent = 'Add New CA / Partner'
   document.getElementById('saveBtn').textContent = '💾 Save CA Details'
   document.getElementById('deleteBtn').style.display = 'none'
   resetForm()
-  document.getElementById('caFormCard').scrollIntoView({ behavior: 'smooth' })
+  formCard.scrollIntoView({ behavior: 'smooth' })
 }
 
 function editCA(id) {
