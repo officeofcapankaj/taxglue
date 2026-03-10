@@ -129,7 +129,7 @@ tr:hover { background: #f8fafc; }
         <!-- Membership Details -->
         <div class="form-section">
           <h3 class="form-section-title">Membership Details</h3>
-          <div class="form-grid-2">
+          <div class="form-grid">
             <div class="form-group">
               <label class="form-label">Membership No. <span class="required">*</span></label>
               <input type="text" class="form-input" id="membershipNo" placeholder="ICAI Membership Number" required>
@@ -137,6 +137,18 @@ tr:hover { background: #f8fafc; }
             <div class="form-group">
               <label class="form-label">Membership Date <span class="required">*</span></label>
               <input type="date" class="form-input" id="membershipDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">PAN of CA</label>
+              <input type="text" class="form-input" id="caPan" placeholder="ABCDE1234A">
+            </div>
+            <div class="form-group">
+              <label class="form-label">PAN of Firm</label>
+              <input type="text" class="form-input" id="firmPan" placeholder="AAABC1234A">
+            </div>
+            <div class="form-group">
+              <label class="form-label">GSTIN of Firm</label>
+              <input type="text" class="form-input" id="firmGstin" placeholder="27AAABC1234A1Z5">
             </div>
           </div>
         </div>
@@ -173,6 +185,26 @@ tr:hover { background: #f8fafc; }
               <textarea class="form-textarea" id="address" placeholder="Enter complete address"></textarea>
             </div>
             <div class="form-group">
+              <label class="form-label">Pin Code</label>
+              <input type="text" class="form-input" id="pincode" placeholder="123456" oninput="fetchPincodeDetails('ca')">
+            </div>
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input type="text" class="form-input" id="city" placeholder="City">
+            </div>
+            <div class="form-group">
+              <label class="form-label">District</label>
+              <input type="text" class="form-input" id="district" placeholder="District">
+            </div>
+            <div class="form-group">
+              <label class="form-label">State</label>
+              <input type="text" class="form-input" id="state" placeholder="State">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Country</label>
+              <input type="text" class="form-input" id="country" placeholder="Country" value="India">
+            </div>
+            <div class="form-group">
               <label class="form-label">Mobile No. <span class="required">*</span></label>
               <input type="tel" class="form-input" id="mobile" placeholder="Mobile Number" required>
             </div>
@@ -207,6 +239,29 @@ tr:hover { background: #f8fafc; }
 <script>
 let caList = JSON.parse(localStorage.getItem('caList')) || []
 
+async function fetchPincodeDetails(prefix) {
+  const pincode = document.getElementById(prefix + 'Pincode')?.value || document.getElementById('pincode')?.value
+  if (!pincode || pincode.length !== 6) return
+  try {
+    const res = await fetch('https://api.postalpincode.in/pincode/' + pincode)
+    const data = await res.json()
+    if (data[0]?.Status === 'Success' && data[0]?.PostOffice?.[0]) {
+      const po = data[0].PostOffice[0]
+      if (prefix === 'ca') {
+        document.getElementById('city').value = po.District || ''
+        document.getElementById('district').value = po.District || ''
+        document.getElementById('state').value = po.State || ''
+        document.getElementById('country').value = 'India'
+      } else {
+        document.getElementById('clientCity').value = po.District || ''
+        document.getElementById('clientDistrict').value = po.District || ''
+        document.getElementById('clientState').value = po.State || ''
+        document.getElementById('clientCountry').value = 'India'
+      }
+    }
+  } catch (e) { console.log('Pincode API error:', e) }
+}
+
 document.getElementById('caForm').addEventListener('submit', function(e) {
   e.preventDefault()
   const ca = {
@@ -219,10 +274,18 @@ document.getElementById('caForm').addEventListener('submit', function(e) {
     fatherLastName: document.getElementById('fatherLastName').value,
     membershipNo: document.getElementById('membershipNo').value,
     membershipDate: document.getElementById('membershipDate').value,
+    caPan: document.getElementById('caPan').value,
+    firmPan: document.getElementById('firmPan').value,
+    firmGstin: document.getElementById('firmGstin').value,
     firmName: document.getElementById('firmName').value,
     firmRegNo: document.getElementById('firmRegNo').value,
     status: document.getElementById('status').value,
     address: document.getElementById('address').value,
+    pincode: document.getElementById('pincode').value,
+    city: document.getElementById('city').value,
+    district: document.getElementById('district').value,
+    state: document.getElementById('state').value,
+    country: document.getElementById('country').value,
     mobile: document.getElementById('mobile').value,
     email: document.getElementById('email').value,
     createdAt: new Date().toISOString()
@@ -237,6 +300,7 @@ document.getElementById('caForm').addEventListener('submit', function(e) {
 
 function resetForm() {
   document.getElementById('caForm').reset()
+  document.getElementById('country').value = 'India'
 }
 
 function renderCA() {
