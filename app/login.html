@@ -6,25 +6,27 @@
 
 <script type="module">
 
+alert("Before import")
+
 import { supabase } from "../js/config.js"
 
-console.log("Login script loaded, supabase:", supabase)
+alert("After import, supabase: " + (supabase ? "OK" : "NULL"))
 
 document.getElementById("loginBtn").onclick = async () => {
 
-console.log("Login button clicked")
+alert("Button clicked!")
 
 const email = document.getElementById("email").value
 const password = document.getElementById("password").value
 
-console.log("Attempting login with:", email)
+alert("Email: " + email)
 
 const { data, error } = await supabase.auth.signInWithPassword({
 email,
 password
 })
 
-console.log("Login result:", { data, error })
+alert("Result: " + (error ? error.message : "OK"))
 
 if(error){
 alert(error.message)
