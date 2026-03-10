@@ -243,6 +243,7 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script>
+// Supabase config
 const supabaseUrl = "https://jgjeuybgideeqcjxvlmn.supabase.co"
 const supabaseKey = "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
@@ -250,6 +251,22 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
 let clients = JSON.parse(localStorage.getItem('clients')) || []
 let contactPersonCount = 1
 let uploadedFiles = []
+
+// Tab switching - must be defined early
+function switchTab(tabId) {
+  console.log('switchTab called:', tabId)
+  // Remove active from all tabs and contents
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active') })
+  document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active') })
+  
+  // Add active to clicked tab
+  const tabBtn = document.querySelector('.tab:nth-child(' + (tabId === 'basic' ? 1 : tabId === 'registrations' ? 2 : 3) + ')')
+  if (tabBtn) tabBtn.classList.add('active')
+  
+  // Show corresponding content
+  const content = document.getElementById(tabId)
+  if (content) content.classList.add('active')
+}
 
 // Load clients from Supabase on page load
 async function loadClientsFromSupabase() {
@@ -282,13 +299,6 @@ async function fetchPincodeDetails(prefix) {
       }
     }
   } catch (e) { console.log('Pincode API error:', e) }
-}
-
-function switchTab(tabId) {
-  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active') })
-  document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active') })
-  document.querySelector('[onclick="switchTab(\'' + tabId + '\')"]').classList.add('active')
-  document.getElementById(tabId).classList.add('active')
 }
 
 function addContactPerson() {
