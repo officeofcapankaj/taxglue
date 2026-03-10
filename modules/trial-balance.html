@@ -315,6 +315,24 @@ input[type="number"] {
   <div class="content">
     <div class="success-message" id="successMessage">Trial Balance saved successfully!</div>
     
+    <div class="toolbar" style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
+      <div>
+        <label style="font-size:13px;font-weight:500;">Select Client</label>
+        <select id="clientSelect" onchange="loadTrialBalance()" style="min-width:200px;">
+          <option value="">-- Select Client --</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:13px;font-weight:500;">Financial Year</label>
+        <select id="fySelect" onchange="loadTrialBalance()" style="min-width:120px;">
+          <option value="2024-25">2024-25</option>
+          <option value="2023-24">2023-24</option>
+          <option value="2022-23">2022-23</option>
+          <option value="2021-22">2021-22</option>
+        </select>
+      </div>
+    </div>
+    
     <div class="toolbar">
       <button class="btn btn-primary" id="addRow">➕ Add Row</button>
       <button class="btn btn-secondary" id="saveTB">💾 Save Trial</button>
@@ -358,7 +376,13 @@ input[type="number"] {
 </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script>
+// Supabase config
+const supabaseUrl = "https://jgjeuybgideeqcjxvlmn.supabase.co"
+const supabaseKey = "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+
 // Account Classification Data
 const accountClassifications = {
   "Liabilities": {
@@ -471,8 +495,16 @@ function deleteRow(btn) {
   calculateTotals()
 }
 
-// Save trial balance
-function saveTrialBalance() {
+// Save trial balance to Supabase
+async function saveTrialBalance() {
+  const clientId = document.getElementById('clientSelect').value
+  const fy = document.getElementById('fySelect').value
+  
+  if (!clientId) {
+    alert('Please select a client first')
+    return
+  }
+  
   const rows = document.querySelectorAll('#tableBody tr')
   const data = []
   
@@ -489,15 +521,129 @@ function saveTrialBalance() {
     }
   })
   
-  console.log('Saving Trial Balance:', data)
+  console.log('Saving Trial Balance:', { clientId, fy, data })
   
-  // Show success message
-  const successMsg = document.getElementById('successMessage')
-  successMsg.classList.add('show')
-  setTimeout(() => {
-    successMsg.classList.remove('show')
-  }, 3000)
+  try {
+    await supabase.from('trial_balance').upsert({
+      client_id: clientId,
+      fy: fy,
+      data: data,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'client_id, fy' })
+    
+    // Show success message
+    const successMsg = document.getElementById('successMessage')
+    successMsg.textContent = 'Trial Balance saved successfully!'
+    successMsg.classList.add('show')
+    setTimeout(() => {
+      successMsg.classList.remove('show')
+    }, 3000)
+  } catch (e) {
+    console.error('Error saving:', e)
+    alert('Error saving: ' + e.message)
+  }
 }
+
+// Load trial balance from Supabase
+async function loadTrialBalance() {
+  const clientId = document.getElementById('clientSelect').value
+  const fy = document.getElementById('fySelect').value
+  
+  if (!clientId) {
+    // Clear table
+    document.getElementById('tableBody').innerHTML = ''
+    addRow()
+    addRow()
+    addRow()
+    return
+  }
+  
+  try {
+    const { data, error } = await supabase
+      .from('trial_balance')
+      .select('data')
+      .eq('client_id', clientId)
+      .eq('fy', fy)
+      .single()
+    
+    if (error) {
+      console.log('No existing data found')
+    }
+    
+    if (data && data.data) {
+      // Populate table with saved data
+      const tbody = document.getElementById('tableBody')
+      tbody.innerHTML = ''
+      
+      data.data.forEach(row => {
+        const tr = document.createElement('tr')
+        
+        let mainHeadOptions = '<option value="">Select Main Head</option>'
+        Object.keys(accountClassifications).forEach(head => {
+          mainHeadOptions += `<option value="${head}" ${row.mainHead === head ? 'selected' : ''}>${head}</option>`
+        })
+        
+        let sub1Options = '<option value="">Select Sub Head 1</option>'
+        let sub2Options = '<option value="">Select Sub Head 2</option>'
+        
+        if (row.mainHead && accountClassifications[row.mainHead]) {
+          Object.keys(accountClassifications[row.mainHead]).forEach(sub1 => {
+            sub1Options += `<option value="${sub1}" ${row.sub1 === sub1 ? 'selected' : ''}>${sub1}</option>`
+          })
+        }
+        
+        if (row.mainHead && row.sub1 && accountClassifications[row.mainHead][row.sub1]) {
+          accountClassifications[row.mainHead][row.sub1].forEach(sub2 => {
+            sub2Options += `<option value="${sub2}" ${row.sub2 === sub2 ? 'selected' : ''}>${sub2}</option>`
+          })
+        }
+        
+        tr.innerHTML = `
+          <td><input type="text" placeholder="Enter account name" value="${row.accountName || ''}"></td>
+          <td><select class="mainHead" onchange="updateSubHeads(this)">${mainHeadOptions}</select></td>
+          <td><select class="sub1" onchange="updateSub2(this)">${sub1Options}</select></td>
+          <td><select class="sub2">${sub2Options}</select></td>
+          <td><input type="number" class="debit" placeholder="0.00" value="${row.debit || ''}" oninput="calculateTotals()"></td>
+          <td><input type="number" class="credit" placeholder="0.00" value="${row.credit || ''}" oninput="calculateTotals()"></td>
+          <td><button onclick="deleteRow(this)" style="background:#fee2e2;border:none;padding:8px;border-radius:4px;cursor:pointer;">✕</button></td>
+        `
+        
+        tbody.appendChild(tr)
+      })
+      
+      calculateTotals()
+    } else {
+      // No data, add empty rows
+      document.getElementById('tableBody').innerHTML = ''
+      addRow()
+      addRow()
+      addRow()
+    }
+  } catch (e) {
+    console.error('Error loading:', e)
+  }
+}
+
+// Load clients on page load
+async function loadClients() {
+  try {
+    const { data } = await supabase.from('clients').select('id, name')
+    if (data) {
+      const select = document.getElementById('clientSelect')
+      data.forEach(c => {
+        const opt = document.createElement('option')
+        opt.value = c.id
+        opt.textContent = c.name
+        select.appendChild(opt)
+      })
+    }
+  } catch (e) {
+    console.log('Error loading clients:', e)
+  }
+}
+
+// Initialize
+loadClients()
 
 // Event listeners
 document.getElementById('addRow').addEventListener('click', addRow)

@@ -263,7 +263,11 @@ function loadClientData() {
   }
   
   const clientName = getClientName()
-  renderReport()
+  
+  // Load financial data from Supabase
+  loadFinancialData(clientId, fy).then(() => {
+    renderReport()
+  })
 }
 
 function switchReport() {
@@ -311,6 +315,9 @@ function renderReport() {
 }
 
 function renderBalanceSheet(clientName, fy) {
+  // Convert trial balance data to balance sheet format
+  const bsData = convertTBtoBS(financialData)
+  
   let html = `
   <div class="report-card" id="printableReport">
     <div class="report-title"><strong>BALANCE SHEET</strong></div>
@@ -331,29 +338,68 @@ function renderBalanceSheet(clientName, fy) {
   // Equity & Liabilities
   html += `<tr class="section-header"><td colspan="5">${BS_STRUCTURE.assets.nonCurrentAssets[0].name}</td></tr>`
   BS_STRUCTURE.assets.nonCurrentAssets.slice(1).forEach(item => {
+    const value = bsData[item.name] || 0
     if (item.isSection) {
       html += `<tr class="section-header"><td>${item.code}</td><td colspan="4">${item.name}</td></tr>`
     } else if (item.isTotal) {
-      html += `<tr class="total-row"><td></td><td>${item.name}</td><td></td><td class="amount">-</td><td class="amount">-</td></tr>`
+      html += `<tr class="total-row"><td></td><td>${item.name}</td><td></td><td class="amount">${formatCurrency(value)}</td><td class="amount">-</td></tr>`
     } else {
-      html += `<tr><td>${item.code}</td><td class="indent-${item.indent || 0}">${item.name}</td><td></td><td class="amount">-</td><td class="amount">-</td></tr>`
+      html += `<tr><td>${item.code}</td><td class="indent-${item.indent || 0}">${item.name}</td><td></td><td class="amount">${formatCurrency(value)}</td><td class="amount">-</td></tr>`
     }
   })
   
   // Assets
   html += `<tr class="section-header"><td colspan="5">${BS_STRUCTURE.assets.currentAssets[0].name}</td></tr>`
   BS_STRUCTURE.assets.currentAssets.slice(1).forEach(item => {
+    const value = bsData[item.name] || 0
     if (item.isSection) {
       html += `<tr class="section-header"><td>${item.code}</td><td colspan="4">${item.name}</td></tr>`
     } else if (item.isTotal) {
-      html += `<tr class="total-row"><td></td><td>${item.name}</td><td></td><td class="amount">-</td><td class="amount">-</td></tr>`
+      html += `<tr class="total-row"><td></td><td>${item.name}</td><td></td><td class="amount">${formatCurrency(value)}</td><td class="amount">-</td></tr>`
     } else {
-      html += `<tr><td>${item.code}</td><td class="indent-${item.indent || 0}">${item.name}</td><td></td><td class="amount">-</td><td class="amount">-</td></tr>`
+      html += `<tr><td>${item.code}</td><td class="indent-${item.indent || 0}">${item.name}</td><td></td><td class="amount">${formatCurrency(value)}</td><td class="amount">-</td></tr>`
     }
   })
   
   html += `</tbody></table></div>`
   return html
+}
+
+// Convert trial balance data to balance sheet format
+function convertTBtoBS(tbData) {
+  const bs = {}
+  
+  if (!tbData || !Array.isArray(tbData)) return bs
+  
+  tbData.forEach(item => {
+    if (item.mainHead === 'Liabilities' || item.mainHead === 'Income') {
+      // Credit - add to liabilities or income
+      const credit = item.credit || 0
+      if (item.sub1 === 'Capital' || item.sub1 === 'Reserve & Surplus') {
+        bs['Share Capital'] = (bs['Share Capital'] || 0) + credit
+        bs['Reserves and Surplus'] = (bs['Reserves and Surplus'] || 0) + credit
+      } else if (item.mainHead === 'Liabilities') {
+        bs[item.sub1] = (bs[item.sub1] || 0) + credit
+      }
+    } else if (item.mainHead === 'Assets' || item.mainHead === 'Expense') {
+      // Debit - add to assets or expenses
+      const debit = item.debit || 0
+      if (item.sub1 === 'Fixed Assets' || item.sub1 === 'Long-term Loans') {
+        bs['Property, Plant and Equipment'] = (bs['Property, Plant and Equipment'] || 0) + debit
+        bs['Long-Term Loans and Advances'] = (bs['Long-Term Loans and Advances'] || 0) + debit
+      } else if (item.sub1 === 'Sundry Debtors') {
+        bs['Trade Receivables'] = (bs['Trade Receivables'] || 0) + debit
+      } else if (item.sub1 === 'Cash and Bank Balances') {
+        bs['Cash and Cash Equivalents'] = (bs['Cash and Cash Equivalents'] || 0) + debit
+      } else if (item.sub1 === 'Inventories') {
+        bs['Inventories'] = (bs['Inventories'] || 0) + debit
+      } else if (item.mainHead === 'Assets') {
+        bs[item.sub1] = (bs[item.sub1] || 0) + debit
+      }
+    }
+  })
+  
+  return bs
 }
 
 function renderPL(clientName, fy) {
@@ -699,35 +745,30 @@ async function loadFinancialData(clientId, fy) {
   try {
     const { data } = await supabase
       .from('trial_balance')
-      .select('*')
+      .select('data')
       .eq('client_id', clientId)
       .eq('fy', fy)
+      .single()
     
-    if (data && data.length > 0) {
-      financialData = data[0].data || {}
+    if (data && data.data) {
+      financialData = data.data
       return financialData
     }
   } catch (e) {
     console.log('Error loading financial data:', e)
   }
   
-  // Try localStorage
-  const key = `financial_${clientId}_${fy}`
-  financialData = JSON.parse(localStorage.getItem(key)) || {}
+  financialData = {}
   return financialData
 }
 
 function saveFinancialData(clientId, fy, data) {
-  const key = `financial_${clientId}_${fy}`
-  localStorage.setItem(key, JSON.stringify(data))
-  
-  // Also save to Supabase
   supabase.from('trial_balance').upsert({
     client_id: clientId,
     fy: fy,
     data: data,
     updated_at: new Date().toISOString()
-  }).then()
+  }, { onConflict: 'client_id, fy' }).then()
 }
 </script>
 </body>
