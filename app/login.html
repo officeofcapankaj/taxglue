@@ -6,7 +6,15 @@
 
 <script type="module">
 
-alert("Before import")
+window.onerror = function(msg, url, line) {
+  alert("Error: " + msg + " at line " + line)
+}
+
+try {
+  alert("Before import")
+} catch(e) {
+  alert("Error before import: " + e)
+}
 
 import { supabase } from "../js/config.js"
 
