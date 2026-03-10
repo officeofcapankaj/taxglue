@@ -341,7 +341,9 @@ async function deleteCA() {
   caList = caList.filter(c => c.id !== editingCAId)
   localStorage.setItem('caList', JSON.stringify(caList))
   renderCA()
-  showForm()
+  // Hide form after delete
+  document.getElementById('caFormCard').style.display = 'none'
+  resetForm()
 }
 
 document.getElementById('caForm').addEventListener('submit', async function(e) {
@@ -396,7 +398,9 @@ document.getElementById('caForm').addEventListener('submit', async function(e) {
   document.getElementById('successMessage').classList.add('show')
   setTimeout(() => document.getElementById('successMessage').classList.remove('show'), 3000)
   renderCA()
-  showForm()
+  // Hide form after save
+  document.getElementById('caFormCard').style.display = 'none'
+  resetForm()
 })
 
 function resetForm() {
