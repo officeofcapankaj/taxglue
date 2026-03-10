@@ -461,6 +461,10 @@ body {
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
+  
+  .module-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
@@ -480,6 +484,180 @@ body {
     flex-wrap: wrap;
     gap: 20px;
   }
+  
+  .module-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .master-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Module Section */
+.module-section {
+  margin-bottom: 40px;
+}
+
+.section-header {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+}
+
+.module-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+}
+
+.module-card:hover {
+  border-color: #22c55e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.module-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.module-icon.blue { background: #dbeafe; }
+.module-icon.green { background: #dcfce7; }
+.module-icon.orange { background: #ffedd5; }
+.module-icon.purple { background: #f3e8ff; }
+.module-icon.red { background: #fee2e2; }
+.module-icon.teal { background: #ccfbf1; }
+.module-icon.pink { background: #fce7f3; }
+.module-icon.indigo { background: #e0e7ff; }
+.module-icon.cyan { background: #cffafe; }
+.module-icon.amber { background: #fef3c7; }
+
+.module-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #1e293b;
+}
+
+.module-desc {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.module-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.feature-tag {
+  font-size: 10px;
+  padding: 3px 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  color: #475569;
+}
+
+.module-link {
+  font-size: 13px;
+  color: #22c55e;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.module-link:hover {
+  text-decoration: underline;
+}
+
+/* Master Section */
+.master-section {
+  margin-bottom: 40px;
+}
+
+.master-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.master-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.master-card:hover {
+  border-color: #22c55e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.master-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.master-icon.blue { background: #dbeafe; }
+.master-icon.green { background: #dcfce7; }
+
+.master-info {
+  flex: 1;
+}
+
+.master-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.master-info p {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.master-arrow {
+  font-size: 20px;
+  color: #22c55e;
 }
 </style>
 </head>
@@ -590,98 +768,206 @@ body {
       </div>
     </div>
     
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-      <a href="modules/trial-balance.html" class="action-card">
-        <div class="action-icon green">📒</div>
-        <div class="action-title">Trial Balance</div>
-        <div class="action-desc">View and manage trial balance</div>
-      </a>
-      <a href="modules/balance-sheet.html" class="action-card">
-        <div class="action-icon blue">⚖️</div>
-        <div class="action-title">Balance Sheet</div>
-        <div class="action-desc">ICAI Schedule III format</div>
-      </a>
-      <a href="clients.html" class="action-card">
-        <div class="action-icon purple">👥</div>
-        <div class="action-title">Add Client</div>
-        <div class="action-desc">Register new client</div>
-      </a>
-      <a href="#" class="action-card">
-        <div class="action-icon orange">📤</div>
-        <div class="action-title">Export Reports</div>
-        <div class="action-desc">Download in PDF/Excel</div>
-      </a>
-    </div>
-    
-    <!-- Dashboard Grid -->
-    <div class="dashboard-grid">
-      <!-- Recent Clients -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Recent Clients</h3>
-          <a href="clients.html" class="card-link">View All →</a>
-        </div>
-        <div class="card-body">
-          <div class="client-list">
-            <div class="client-item">
-              <div class="client-avatar blue">A</div>
-              <div class="client-info">
-                <div class="client-name">Amit Sharma</div>
-                <div class="client-company">Sharma Enterprises</div>
-              </div>
-              <span class="client-status active">Active</span>
-            </div>
-            <div class="client-item">
-              <div class="client-avatar green">P</div>
-              <div class="client-info">
-                <div class="client-name">Priya Patel</div>
-                <div class="client-company">Patel & Co.</div>
-              </div>
-              <span class="client-status active">Active</span>
-            </div>
-            <div class="client-item">
-              <div class="client-avatar purple">R</div>
-              <div class="client-info">
-                <div class="client-name">Rahul Gupta</div>
-                <div class="client-company">Gupta Industries</div>
-              </div>
-              <span class="client-status">Pending</span>
-            </div>
-          </div>
-        </div>
+    <!-- Software Modules -->
+    <div class="module-section">
+      <div class="section-header">
+        <h2 class="section-title">Our Software Solutions</h2>
+        <p class="section-subtitle">All-in-one practice management platform</p>
       </div>
       
-      <!-- Recent Activity -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Recent Activity</h3>
-        </div>
-        <div class="card-body">
-          <div class="activity-list">
-            <div class="activity-item">
-              <div class="activity-dot green"></div>
-              <div class="activity-content">
-                <div class="activity-text">Balance Sheet updated for <strong>Sharma Enterprises</strong></div>
-                <div class="activity-time">2 hours ago</div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="activity-dot blue"></div>
-              <div class="activity-content">
-                <div class="activity-text">New client <strong>Rahul Gupta</strong> registered</div>
-                <div class="activity-time">Yesterday</div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="activity-dot orange"></div>
-              <div class="activity-content">
-                <div class="activity-text">GST return filed for <strong>Patel & Co.</strong></div>
-                <div class="activity-time">3 days ago</div>
-              </div>
-            </div>
+      <div class="module-grid">
+        <!-- Balance Sheet Builder -->
+        <div class="module-card">
+          <div class="module-icon blue">
+            <span>⚖️</span>
           </div>
+          <h3 class="module-title">Balance Sheet Builder</h3>
+          <p class="module-desc">Complete financial statement solution</p>
+          <div class="module-features">
+            <span class="feature-tag">Trial Balance</span>
+            <span class="feature-tag">Balance Sheet</span>
+            <span class="feature-tag">Profit & Loss</span>
+            <span class="feature-tag">Cash Flow</span>
+            <span class="feature-tag">Notes to Accounts</span>
+          </div>
+          <a href="/modules/trial-balance.html" class="module-link">Open →</a>
         </div>
+        
+        <!-- Book-Keeping -->
+        <div class="module-card">
+          <div class="module-icon green">
+            <span>📒</span>
+          </div>
+          <h3 class="module-title">Book-Keeping</h3>
+          <p class="module-desc">Digital record keeping made easy</p>
+          <div class="module-features">
+            <span class="feature-tag">Voucher Entry</span>
+            <span class="feature-tag">Ledger</span>
+            <span class="feature-tag">Day Book</span>
+            <span class="feature-tag">Cash Book</span>
+          </div>
+          <a href="#" class="module-link">Coming Soon →</a>
+        </div>
+        
+        <!-- GST -->
+        <div class="module-card">
+          <div class="module-icon orange">
+            <span>🧾</span>
+          </div>
+          <h3 class="module-title">GST</h3>
+          <p class="module-desc">GST returns & reconciliation</p>
+          <div class="module-features">
+            <span class="feature-tag">GSTR-1</span>
+            <span class="feature-tag">GSTR-3B</span>
+            <span class="feature-tag">Reconciliation</span>
+            <span class="feature-tag">E-way Bill</span>
+          </div>
+          <a href="#" class="module-link">Coming Soon →</a>
+        </div>
+        
+        <!-- TDS -->
+        <div class="module-card">
+          <div class="module-icon purple">
+            <span>💰</span>
+          </div>
+          <h3 class="module-title">TDS</h3>
+          <p class="module-desc">Tax deduction & collection</p>
+          <div class="module-features">
+            <span class="feature-tag">Form 16</span>
+            <span class="feature-tag">Form 26Q</span>
+            <span class="feature-tag">TDS Returns</span>
+            <span class="feature-tag">Certificate</span>
+          </div>
+          <a href="#" class="module-link">Coming Soon →</a>
+        </div>
+        
+        <!-- Income Tax -->
+        <div class="module-card">
+          <div class="module-icon red">
+            <span>📊</span>
+          </div>
+          <h3 class="module-title">Income Tax</h3>
+          <p class="module-desc">IT returns & planning</p>
+          <div class="module-features">
+            <span class="feature-tag">ITR Filing</span>
+            <span class="feature-tag">Tax Planning</span>
+            <span class="feature-tag">TDS Computation</span>
+            <span class="feature-tag">Form 16A</span>
+          </div>
+          <a href="#" class="module-link">Coming Soon →</a>
+        </div>
+        
+        <!-- Payroll -->
+        <div class="module-card">
+          <div class="module-icon teal">
+            <span>👥</span>
+          </div>
+          <h3 class="module-title">Payroll Management</h3>
+          <p class="module-desc">Employee salary & compliance</p>
+          <div class="module-features">
+            <span class="feature-tag">Salary Processing</span>
+            <span class="feature-tag">PF</span>
+            <span class="feature-tag">ESI</span>
+            <span class="feature-tag">Payslips</span>
+          </div>
+          <a href="#" class="module-link">Coming Soon →</a>
+        </div>
+        
+        <!-- Regular Updates -->
+        <div class="module-card">
+          <div class="module-icon pink">
+            <span>🔔</span>
+          </div>
+          <h3 class="module-title">Regular Updates</h3>
+          <p class="module-desc">Stay informed with latest changes</p>
+          <div class="module-features">
+            <span class="feature-tag">Tax Updates</span>
+            <span class="feature-tag">Notifications</span>
+            <span class="feature-tag">Deadlines</span>
+            <span class="feature-tag">Alerts</span>
+          </div>
+          <a href="#" class="module-link">Coming Soon →</a>
+        </div>
+        
+        <!-- Audit -->
+        <div class="module-card">
+          <div class="module-icon indigo">
+            <span>📋</span>
+          </div>
+          <h3 class="module-title">Audit</h3>
+          <p class="module-desc">Statutory & internal audit tools</p>
+          <div class="module-features">
+            <span class="feature-tag">Audit Program</span>
+            <span class="feature-tag">Working Papers</span>
+            <span class="feature-tag">Checklists</span>
+            <span class="feature-tag">Reports</span>
+          </div>
+          <a href="#" class="module-link">Coming Soon →</a>
+        </div>
+        
+        <!-- MCA Compliance -->
+        <div class="module-card">
+          <div class="module-icon cyan">
+            <span>🏢</span>
+          </div>
+          <h3 class="module-title">MCA Compliance</h3>
+          <p class="module-desc">Ministry of Corporate Affairs</p>
+          <div class="module-features">
+            <span class="feature-tag">ROC Returns</span>
+            <span class="feature-tag">MCA Forms</span>
+            <span class="feature-tag">Company Law</span>
+            <span class="feature-tag">Filings</span>
+          </div>
+          <a href="#" class="module-link">Coming Soon →</a>
+        </div>
+        
+        <!-- Task Management -->
+        <div class="module-card">
+          <div class="module-icon amber">
+            <span>✅</span>
+          </div>
+          <h3 class="module-title">Task Management</h3>
+          <p class="module-desc">Track & manage your work</p>
+          <div class="module-features">
+            <span class="feature-tag">To-Do List</span>
+            <span class="feature-tag">Deadlines</span>
+            <span class="feature-tag">Reminders</span>
+            <span class="feature-tag">Team Work</span>
+          </div>
+          <a href="#" class="module-link">Coming Soon →</a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Client & CA Master -->
+    <div class="master-section">
+      <div class="section-header">
+        <h2 class="section-title">Master Data</h2>
+        <p class="section-subtitle">Common masters for all software modules</p>
+      </div>
+      
+      <div class="master-grid">
+        <a href="/app/clients.html" class="master-card">
+          <div class="master-icon blue">
+            <span>👥</span>
+          </div>
+          <div class="master-info">
+            <h3>Client Master</h3>
+            <p>Manage all your client profiles and details</p>
+          </div>
+          <span class="master-arrow">→</span>
+        </a>
+        
+        <a href="#" class="master-card">
+          <div class="master-icon green">
+            <span>🎓</span>
+          </div>
+          <div class="master-info">
+            <h3>CA Master</h3>
+            <p>Maintain CA/Partner profiles and credentials</p>
+          </div>
+          <span class="master-arrow">→</span>
+        </a>
       </div>
     </div>
   </div>
