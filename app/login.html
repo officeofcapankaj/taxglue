@@ -4,43 +4,29 @@
 <button id="loginBtn">Login</button>
 <button id="signupBtn">Sign Up</button>
 
-<div id="debug" style="background:#eee;padding:10px;margin:10px 0;font-family:monospace;font-size:12px;"></div>
-
 <script type="module">
-function log(msg) {
-  const div = document.getElementById("debug")
-  div.innerHTML += "<div>" + msg + "</div>"
-  console.log(msg)
-}
-
-log("Script starting...")
-
 async function init() {
-  log("Loading Supabase...")
-  
   try {
     const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm")
-    log("Supabase loaded!")
     
     const supabase = createClient(
       "https://jgjeuybgideeqcjxvlmn.supabase.co",
       "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
     )
     
-    log("Client created!")
-    
     document.getElementById("loginBtn").onclick = async () => {
       const email = document.getElementById("email").value
       const password = document.getElementById("password").value
       
-      log("Login with: " + email)
+      if (!email || !password) {
+        alert("Please enter email and password")
+        return
+      }
       
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
       })
-      
-      log("Result: " + (error ? error.message : "OK"))
       
       if (error) {
         alert(error.message)
@@ -54,9 +40,14 @@ async function init() {
       const email = document.getElementById("email").value
       const password = document.getElementById("password").value
       
+      if (!email || !password) {
+        alert("Please enter email and password")
+        return
+      }
+      
       const { error } = await supabase.auth.signUp({
-        email: email,
-        password: password
+        email,
+        password
       })
       
       if (error) {
@@ -66,13 +57,11 @@ async function init() {
       
       alert("Account created. You can now login.")
     }
-    
-    log("Ready!")
   } catch(e) {
-    log("Error: " + e.message)
+    console.error("Error initializing Supabase:", e)
+    alert("Failed to initialize. Please refresh the page.")
   }
 }
 
-log("Calling init...")
 init()
 </script>
