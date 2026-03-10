@@ -212,15 +212,27 @@ const PL_STRUCTURE = {
 async function loadClients() {
   try {
     const { data } = await supabase.from('clients').select('id, name, constitution')
-    if (data) {
+    if (data && data.length > 0) {
       clients = data
       const select = document.getElementById('clientSelect')
+      // Add default option
+      const defaultOpt = document.createElement('option')
+      defaultOpt.value = ""
+      defaultOpt.textContent = "-- Select Client --"
+      defaultOpt.selected = true
+      select.appendChild(defaultOpt)
+      
       data.forEach(c => {
         const opt = document.createElement('option')
         opt.value = c.id
         opt.textContent = c.name + ' (' + c.constitution + ')'
         select.appendChild(opt)
       })
+      
+      // Show sample report after loading clients
+      setTimeout(() => {
+        document.getElementById('reportContainer').innerHTML = renderBalanceSheet('Sample Company', '2024-25')
+      }, 500)
     }
   } catch (e) {
     // Try localStorage
@@ -232,16 +244,25 @@ async function loadClients() {
       opt.textContent = c.name + ' (' + c.constitution + ')'
       select.appendChild(opt)
     })
+    
+    // Show sample report
+    setTimeout(() => {
+      document.getElementById('reportContainer').innerHTML = renderBalanceSheet('Sample Company', '2024-25')
+    }, 500)
   }
 }
 
 function loadClientData() {
   const clientId = document.getElementById('clientSelect').value
   const fy = document.getElementById('fySelect').value
+  
+  // If no client selected, show sample report
   if (!clientId) {
-    document.getElementById('reportContainer').innerHTML = '<div class="empty-state"><div class="empty-state-icon">📊</div><p>Please select a client to view financial statements</p></div>'
+    document.getElementById('reportContainer').innerHTML = renderBalanceSheet('Select a Client', fy)
     return
   }
+  
+  const clientName = getClientName()
   renderReport()
 }
 
