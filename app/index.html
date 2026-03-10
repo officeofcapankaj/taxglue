@@ -50,6 +50,8 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; back
 .module-desc { font-size: 12px; color: #64748b; margin-bottom: 12px; }
 .module-features { display: flex; flex-wrap: wrap; gap: 6px; }
 .feature-tag { font-size: 10px; padding: 3px 8px; background: #f1f5f9; border-radius: 4px; color: #475569; }
+.module-link { display: inline-block; margin-top: 12px; padding: 8px 16px; background: #22c55e; color: white; text-decoration: none; border-radius: 6px; font-size: 12px; font-weight: 500; }
+.module-link:hover { background: #16a34a; }
 @media (max-width: 1200px) { .module-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } .module-grid { grid-template-columns: 1fr; } .welcome-title { font-size: 28px; } .contact-info { flex-direction: column; gap: 12px; } }
 </style>
@@ -97,16 +99,146 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; back
     </div>
     
     <div class="module-grid">
-      <div class="module-card"><div class="module-icon blue">⚖️</div><h3 class="module-title">Balance Sheet Builder</h3><p class="module-desc">Complete financial statement solution</p><div class="module-features"><span class="feature-tag">Trial Balance</span><span class="feature-tag">Balance Sheet</span><span class="feature-tag">Profit & Loss</span><span class="feature-tag">Cash Flow</span></div></div>
-      <div class="module-card"><div class="module-icon green">📒</div><h3 class="module-title">Book-Keeping</h3><p class="module-desc">Digital record keeping made easy</p><div class="module-features"><span class="feature-tag">Voucher Entry</span><span class="feature-tag">Ledger</span><span class="feature-tag">Day Book</span></div></div>
-      <div class="module-card"><div class="module-icon orange">🧾</div><h3 class="module-title">GST</h3><p class="module-desc">GST returns & reconciliation</p><div class="module-features"><span class="feature-tag">GSTR-1</span><span class="feature-tag">GSTR-3B</span><span class="feature-tag">Reconciliation</span></div></div>
-      <div class="module-card"><div class="module-icon purple">💰</div><h3 class="module-title">TDS</h3><p class="module-desc">Tax deduction & collection</p><div class="module-features"><span class="feature-tag">Form 16</span><span class="feature-tag">Form 26Q</span><span class="feature-tag">TDS Returns</span></div></div>
-      <div class="module-card"><div class="module-icon red">📊</div><h3 class="module-title">Income Tax</h3><p class="module-desc">IT returns & planning</p><div class="module-features"><span class="feature-tag">ITR Filing</span><span class="feature-tag">Tax Planning</span><span class="feature-tag">Form 16A</span></div></div>
-      <div class="module-card"><div class="module-icon teal">👥</div><h3 class="module-title">Payroll Management</h3><p class="module-desc">Employee salary & compliance</p><div class="module-features"><span class="feature-tag">Salary</span><span class="feature-tag">PF</span><span class="feature-tag">ESI</span></div></div>
-      <div class="module-card"><div class="module-icon pink">🔔</div><h3 class="module-title">Regular Updates</h3><p class="module-desc">Stay informed with latest changes</p><div class="module-features"><span class="feature-tag">Tax Updates</span><span class="feature-tag">Deadlines</span><span class="feature-tag">Alerts</span></div></div>
-      <div class="module-card"><div class="module-icon indigo">📋</div><h3 class="module-title">Audit</h3><p class="module-desc">Statutory & internal audit tools</p><div class="module-features"><span class="feature-tag">Audit Program</span><span class="feature-tag">Working Papers</span></div></div>
-      <div class="module-card"><div class="module-icon cyan">🏢</div><h3 class="module-title">MCA Compliance</h3><p class="module-desc">Ministry of Corporate Affairs</p><div class="module-features"><span class="feature-tag">ROC Returns</span><span class="feature-tag">MCA Forms</span></div></div>
-      <div class="module-card"><div class="module-icon amber">✅</div><h3 class="module-title">Task Management</h3><p class="module-desc">Track & manage your work</p><div class="module-features"><span class="feature-tag">To-Do</span><span class="feature-tag">Deadlines</span><span class="feature-tag">Reminders</span></div></div>
+      <!-- Balance Sheet Builder -->
+      <div class="module-card">
+        <div class="module-icon blue"><span>⚖️</span></div>
+        <h3 class="module-title">Balance Sheet Builder</h3>
+        <p class="module-desc">Complete financial statement solution</p>
+        <div class="module-features">
+          <span class="feature-tag">Trial Balance</span>
+          <span class="feature-tag">Balance Sheet</span>
+          <span class="feature-tag">Profit & Loss</span>
+          <span class="feature-tag">Cash Flow</span>
+          <span class="feature-tag">Notes to Accounts</span>
+        </div>
+        <a href="/app/login.html" class="module-link">Login to Access →</a>
+      </div>
+      
+      <!-- Book-Keeping -->
+      <div class="module-card">
+        <div class="module-icon green"><span>📒</span></div>
+        <h3 class="module-title">Book-Keeping</h3>
+        <p class="module-desc">Digital record keeping made easy</p>
+        <div class="module-features">
+          <span class="feature-tag">Voucher Entry</span>
+          <span class="feature-tag">Ledger</span>
+          <span class="feature-tag">Day Book</span>
+          <span class="feature-tag">Cash Book</span>
+        </div>
+        <a href="/app/login.html" class="module-link">Login to Access →</a>
+      </div>
+      
+      <!-- GST -->
+      <div class="module-card">
+        <div class="module-icon orange"><span>🧾</span></div>
+        <h3 class="module-title">GST</h3>
+        <p class="module-desc">GST returns & reconciliation</p>
+        <div class="module-features">
+          <span class="feature-tag">GSTR-1</span>
+          <span class="feature-tag">GSTR-3B</span>
+          <span class="feature-tag">Reconciliation</span>
+          <span class="feature-tag">E-way Bill</span>
+        </div>
+        <a href="/app/login.html" class="module-link">Login to Access →</a>
+      </div>
+      
+      <!-- TDS -->
+      <div class="module-card">
+        <div class="module-icon purple"><span>💰</span></div>
+        <h3 class="module-title">TDS</h3>
+        <p class="module-desc">Tax deduction & collection</p>
+        <div class="module-features">
+          <span class="feature-tag">Form 16</span>
+          <span class="feature-tag">Form 26Q</span>
+          <span class="feature-tag">TDS Returns</span>
+          <span class="feature-tag">Certificate</span>
+        </div>
+        <a href="/app/login.html" class="module-link">Login to Access →</a>
+      </div>
+      
+      <!-- Income Tax -->
+      <div class="module-card">
+        <div class="module-icon red"><span>📊</span></div>
+        <h3 class="module-title">Income Tax</h3>
+        <p class="module-desc">IT returns & planning</p>
+        <div class="module-features">
+          <span class="feature-tag">ITR Filing</span>
+          <span class="feature-tag">Tax Planning</span>
+          <span class="feature-tag">TDS Computation</span>
+          <span class="feature-tag">Form 16A</span>
+        </div>
+        <a href="/app/login.html" class="module-link">Login to Access →</a>
+      </div>
+      
+      <!-- Payroll -->
+      <div class="module-card">
+        <div class="module-icon teal"><span>👥</span></div>
+        <h3 class="module-title">Payroll Management</h3>
+        <p class="module-desc">Employee salary & compliance</p>
+        <div class="module-features">
+          <span class="feature-tag">Salary Processing</span>
+          <span class="feature-tag">PF</span>
+          <span class="feature-tag">ESI</span>
+          <span class="feature-tag">Payslips</span>
+        </div>
+        <a href="/app/login.html" class="module-link">Login to Access →</a>
+      </div>
+      
+      <!-- Regular Updates -->
+      <div class="module-card">
+        <div class="module-icon pink"><span>🔔</span></div>
+        <h3 class="module-title">Regular Updates</h3>
+        <p class="module-desc">Stay informed with latest changes</p>
+        <div class="module-features">
+          <span class="feature-tag">Tax Updates</span>
+          <span class="feature-tag">Notifications</span>
+          <span class="feature-tag">Deadlines</span>
+          <span class="feature-tag">Alerts</span>
+        </div>
+        <a href="/app/login.html" class="module-link">Login to Access →</a>
+      </div>
+      
+      <!-- Audit -->
+      <div class="module-card">
+        <div class="module-icon indigo"><span>📋</span></div>
+        <h3 class="module-title">Audit</h3>
+        <p class="module-desc">Statutory & internal audit tools</p>
+        <div class="module-features">
+          <span class="feature-tag">Audit Program</span>
+          <span class="feature-tag">Working Papers</span>
+          <span class="feature-tag">Checklists</span>
+          <span class="feature-tag">Reports</span>
+        </div>
+        <a href="/app/login.html" class="module-link">Login to Access →</a>
+      </div>
+      
+      <!-- MCA Compliance -->
+      <div class="module-card">
+        <div class="module-icon cyan"><span>🏢</span></div>
+        <h3 class="module-title">MCA Compliance</h3>
+        <p class="module-desc">Ministry of Corporate Affairs</p>
+        <div class="module-features">
+          <span class="feature-tag">ROC Returns</span>
+          <span class="feature-tag">MCA Forms</span>
+          <span class="feature-tag">Company Law</span>
+          <span class="feature-tag">Filings</span>
+        </div>
+        <a href="/app/login.html" class="module-link">Login to Access →</a>
+      </div>
+      
+      <!-- Task Management -->
+      <div class="module-card">
+        <div class="module-icon amber"><span>✅</span></div>
+        <h3 class="module-title">Task Management</h3>
+        <p class="module-desc">Track & manage your work</p>
+        <div class="module-features">
+          <span class="feature-tag">To-Do List</span>
+          <span class="feature-tag">Deadlines</span>
+          <span class="feature-tag">Reminders</span>
+          <span class="feature-tag">Team Work</span>
+        </div>
+        <a href="/app/login.html" class="module-link">Login to Access →</a>
+      </div>
     </div>
   </div>
 </main>
