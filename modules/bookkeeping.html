@@ -453,10 +453,55 @@ async function loadAccounts() {
     
     if (data) {
       accounts = data
+      
+      // If no accounts exist, create default ones
+      if (accounts.length === 0) {
+        await createDefaultAccounts()
+      }
+      
       renderAccountsTable()
     }
   } catch (e) {
     console.log('Error loading accounts:', e)
+  }
+}
+
+async function createDefaultAccounts() {
+  const defaultAccounts = [
+    { name: 'Capital Account', nature: 'Liabilities', account_type: 'Capital', opening_balance: 0 },
+    { name: 'Cash in Hand', nature: 'Assets', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Cash at Bank', nature: 'Assets', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Sundry Debtors', nature: 'Assets', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Sundry Creditors', nature: 'Liabilities', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Sales', nature: 'Income', account_type: 'Revenue', opening_balance: 0 },
+    { name: 'Purchase', nature: 'Expense', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Salaries', nature: 'Expense', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Rent', nature: 'Expense', account_type: 'Indirect', opening_balance: 0 },
+    { name: 'Interest Received', nature: 'Income', account_type: 'Revenue', opening_balance: 0 }
+  ]
+  
+  for (let i = 0; i < defaultAccounts.length; i++) {
+    try {
+      await supabase.from('accounts').insert({
+        client_id: currentClientId,
+        fy: currentFY,
+        code: String(i + 1).padStart(3, '0'),
+        ...defaultAccounts[i]
+      })
+    } catch (e) {
+      // Ignore duplicates
+    }
+  }
+  
+  // Reload accounts after creation
+  const { data } = await supabase
+    .from('accounts')
+    .select('*')
+    .eq('client_id', currentClientId)
+    .eq('fy', currentFY)
+  
+  if (data) {
+    accounts = data
   }
 }
 
