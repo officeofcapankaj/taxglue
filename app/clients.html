@@ -1,192 +1,224 @@
-```html id="2blcmx"
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Clients | TaxGlue</title>
-
+<title>Client Master | TaxGlue</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-
-body{
-margin:0;
-font-family:Arial;
-background:#f4f6f9;
-}
-
-.container{
-display:flex;
-height:100vh;
-}
-
-.sidebar{
-width:240px;
-background:#1f2937;
-color:white;
-padding:20px;
-}
-
-.sidebar h2{
-margin-bottom:30px;
-}
-
-.sidebar a{
-display:block;
-color:white;
-text-decoration:none;
-padding:10px 0;
-}
-
-.main{
-flex:1;
-display:flex;
-flex-direction:column;
-}
-
-.topbar{
-background:white;
-padding:15px 25px;
-border-bottom:1px solid #ddd;
-}
-
-.content{
-padding:30px;
-}
-
-button{
-background:#2563eb;
-color:white;
-border:none;
-padding:10px 15px;
-border-radius:6px;
-cursor:pointer;
-}
-
-input{
-padding:8px;
-margin:5px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
-}
-
-th,td{
-padding:10px;
-border-bottom:1px solid #ddd;
-text-align:left;
-}
-
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; color: #1e293b; }
+.container { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); color: white; padding: 0; position: fixed; height: 100vh; overflow-y: auto; }
+.sidebar-header { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.logo { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.sidebar-nav { padding: 20px 12px; }
+.nav-section { margin-bottom: 24px; }
+.nav-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; }
+.sidebar a { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+.sidebar a:hover { background: rgba(255,255,255,0.1); color: white; }
+.sidebar a.active { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+.main { flex: 1; margin-left: 260px; }
+.topbar { background: white; padding: 16px 32px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.page-title { font-size: 20px; font-weight: 600; }
+.btn-back { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+.btn-back:hover { background: #e2e8f0; }
+.content { padding: 32px; }
+.form-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 32px; margin-bottom: 32px; }
+.form-title { font-size: 18px; font-weight: 600; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
+.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.form-group { margin-bottom: 0; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-label { display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; }
+.form-label .required { color: #dc2626; }
+.form-input, .form-select, .form-textarea { width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; transition: all 0.2s; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.contact-persons { margin-top: 24px; }
+.contact-person { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+.contact-person-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.contact-person-title { font-size: 14px; font-weight: 600; color: #475569; }
+.contact-person-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+.btn-primary { background: #22c55e; color: white; }
+.btn-primary:hover { background: #16a34a; }
+.btn-secondary { background: #3b82f6; color: white; }
+.btn-outline { background: white; color: #475569; border: 1px solid #e2e8f0; }
+.btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; }
+.btn-remove { background: #fee2e2; color: #dc2626; padding: 8px 12px; font-size: 12px; }
+.table-container { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+th { background: #f8fafc; padding: 14px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; }
+td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+tr:hover { background: #f8fafc; }
+.badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.badge-primary { background: #dbeafe; color: #2563eb; }
+.success-message { background: #dcfce7; color: #16a34a; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px; display: none; }
+.success-message.show { display: block; }
+@media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } .form-grid, .contact-person-grid { grid-template-columns: 1fr; } }
 </style>
-
 </head>
-
 <body>
-
 <div class="container">
-
-<div class="sidebar">
-
-<h2>TaxGlue</h2>
-
-<a href="index.html">Dashboard</a>
-<a href="clients.html">Clients</a>
-<a href="#">Accounting</a>
-<a href="#">GST</a>
-<a href="#">Compliance</a>
-<a href="#">Documents</a>
-
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo"><div class="logo-icon">📊</div>TaxGlue</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <a href="/app/dashboard.html">🏠 Dashboard</a>
+      <a href="/app/clients.html" class="active">👥 Clients</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Accounting</div>
+      <a href="/modules/trial-balance.html">📒 Trial Balance</a>
+      <a href="/modules/balance-sheet.html">⚖️ Balance Sheet</a>
+    </div>
+  </div>
+</nav>
+<main class="main">
+  <header class="topbar">
+    <h1 class="page-title">Client Master</h1>
+    <a href="/app/dashboard.html" class="btn-back">← Back to Dashboard</a>
+  </header>
+  <div class="content">
+    <div class="success-message" id="successMessage">Client saved successfully!</div>
+    <div class="form-card">
+      <h2 class="form-title">Add New Client</h2>
+      <form id="clientForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Constitution <span class="required">*</span></label>
+            <select class="form-select" id="constitution" required>
+              <option value="">Select Constitution</option>
+              <option value="Individual">Individual</option>
+              <option value="Sole Proprietorship">Sole Proprietorship</option>
+              <option value="Partnership Firm">Partnership Firm</option>
+              <option value="LLP">LLP</option>
+              <option value="OPC">OPC (One Person Company)</option>
+              <option value="Private Limited Company">Private Limited Company</option>
+              <option value="Public Limited Company">Public Limited Company</option>
+              <option value="Trust">Trust</option>
+              <option value="Society">Society</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Client Name <span class="required">*</span></label>
+            <input type="text" class="form-input" id="clientName" placeholder="Enter client name" required>
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label">Address</label>
+            <textarea class="form-textarea" id="address" placeholder="Enter complete address"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone No.</label>
+            <input type="tel" class="form-input" id="phone" placeholder="Enter phone number">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="email" placeholder="Enter email address">
+          </div>
+        </div>
+        <div class="contact-persons">
+          <div class="contact-person-header">
+            <h3 class="contact-person-title">Contact Persons</h3>
+            <button type="button" class="btn btn-outline" onclick="addContactPerson()">+ Add Contact Person</button>
+          </div>
+          <div id="contactPersonsContainer">
+            <div class="contact-person" id="contactPerson1">
+              <div class="contact-person-header">
+                <span class="contact-person-title">Contact Person 1 <span class="required">*</span></span>
+              </div>
+              <div class="contact-person-grid">
+                <div class="form-group">
+                  <label class="form-label">Name <span class="required">*</span></label>
+                  <input type="text" class="form-input cp-name" placeholder="Contact person name" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Phone <span class="required">*</span></label>
+                  <input type="tel" class="form-input cp-phone" placeholder="Phone number" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email</label>
+                  <input type="email" class="form-input cp-email" placeholder="Email address">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 24px; display: flex; gap: 12px;">
+          <button type="submit" class="btn btn-primary">💾 Save Client</button>
+          <button type="button" class="btn btn-outline" onclick="resetForm()">Clear Form</button>
+        </div>
+      </form>
+    </div>
+    <div class="form-card">
+      <h2 class="form-title">Client List</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Constitution</th><th>Client Name</th><th>Address</th><th>Phone</th><th>Email</th><th>Contact Persons</th></tr>
+          </thead>
+          <tbody id="clientTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
 </div>
-
-
-<div class="main">
-
-<div class="topbar">
-
-<h3>Clients</h3>
-
-</div>
-
-<div class="content">
-
-<h3>Add Client</h3>
-
-<input id="name" placeholder="Client Name">
-<input id="pan" placeholder="PAN">
-<input id="gstin" placeholder="GSTIN">
-
-<button onclick="addClient()">Add Client</button>
-
-<h3>Client List</h3>
-
-<table>
-
-<thead>
-<tr>
-<th>Name</th>
-<th>PAN</th>
-<th>GSTIN</th>
-</tr>
-</thead>
-
-<tbody id="clientTable"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
-
 <script>
+let clients = JSON.parse(localStorage.getItem('clients')) || []
+let contactPersonCount = 1
 
-let clients = JSON.parse(localStorage.getItem("clients")) || []
-
-function addClient(){
-
-let name = document.getElementById("name").value
-let pan = document.getElementById("pan").value
-let gstin = document.getElementById("gstin").value
-
-clients.push({name,pan,gstin})
-
-localStorage.setItem("clients", JSON.stringify(clients))
-
-renderClients()
-
+function addContactPerson() {
+  contactPersonCount++
+  const container = document.getElementById('contactPersonsContainer')
+  const div = document.createElement('div')
+  div.className = 'contact-person'
+  div.id = 'contactPerson' + contactPersonCount
+  div.innerHTML = '<div class="contact-person-header"><span class="contact-person-title">Contact Person ' + contactPersonCount + '</span><button type="button" class="btn btn-remove" onclick="removeContactPerson(' + contactPersonCount + ')">Remove</button></div><div class="contact-person-grid"><div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input cp-name" placeholder="Contact person name"></div><div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input cp-phone" placeholder="Phone number"></div><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input cp-email" placeholder="Email address"></div></div>'
+  container.appendChild(div)
 }
 
-function renderClients(){
+function removeContactPerson(id) {
+  if (id === 1) { alert('First contact person is mandatory'); return }
+  const element = document.getElementById('contactPerson' + id)
+  if (element) element.remove()
+}
 
-let table = document.getElementById("clientTable")
-
-table.innerHTML=""
-
-clients.forEach(c => {
-
-let row = `<tr>
-<td>${c.name}</td>
-<td>${c.pan}</td>
-<td>${c.gstin}</td>
-</tr>`
-
-table.innerHTML += row
-
+document.getElementById('clientForm').addEventListener('submit', function(e) {
+  e.preventDefault()
+  const contactPersons = []
+  document.querySelectorAll('.contact-person').forEach((cp) => {
+    const name = cp.querySelector('.cp-name').value
+    const phone = cp.querySelector('.cp-phone').value
+    const email = cp.querySelector('.cp-email').value
+    if (name || phone || email) contactPersons.push({ name, phone, email })
+  })
+  const client = { id: Date.now(), constitution: document.getElementById('constitution').value, name: document.getElementById('clientName').value, address: document.getElementById('address').value, phone: document.getElementById('phone').value, email: document.getElementById('email').value, contactPersons: contactPersons, createdAt: new Date().toISOString() }
+  clients.push(client)
+  localStorage.setItem('clients', JSON.stringify(clients))
+  document.getElementById('successMessage').classList.add('show')
+  setTimeout(() => document.getElementById('successMessage').classList.remove('show'), 3000)
+  renderClients()
+  resetForm()
 })
 
+function resetForm() {
+  document.getElementById('clientForm').reset()
+  document.getElementById('contactPersonsContainer').innerHTML = '<div class="contact-person" id="contactPerson1"><div class="contact-person-header"><span class="contact-person-title">Contact Person 1 <span class="required">*</span></span></div><div class="contact-person-grid"><div class="form-group"><label class="form-label">Name <span class="required">*</span></label><input type="text" class="form-input cp-name" placeholder="Contact person name" required></div><div class="form-group"><label class="form-label">Phone <span class="required">*</span></label><input type="tel" class="form-input cp-phone" placeholder="Phone number" required></div><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input cp-email" placeholder="Email address"></div></div></div>'
+  contactPersonCount = 1
+}
+
+function renderClients() {
+  const tbody = document.getElementById('clientTable')
+  if (clients.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:40px;">No clients added yet</td></tr>'; return }
+  tbody.innerHTML = clients.map(client => '<tr><td><span class="badge badge-primary">' + (client.constitution || '-') + '</span></td><td><strong>' + (client.name || '-') + '</strong></td><td>' + (client.address || '-') + '</td><td>' + (client.phone || '-') + '</td><td>' + (client.email || '-') + '</td><td>' + (client.contactPersons ? client.contactPersons.length : 0) + '</td></tr>').join('')
 }
 
 renderClients()
-
 </script>
-
 </body>
 </html>
-```
