@@ -1,22 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Trial Balance | TaxGlue</title>
+</head>
+
+<body>
+
+<h1>Trial Balance</h1>
+
 <table border="1" id="tbTable">
 
 <tr>
 <th>Account Name</th>
-<th>Type</th>
+<th>Main Head</th>
+<th>Sub Head 1</th>
+<th>Sub Head 2</th>
 <th>Debit</th>
 <th>Credit</th>
 </tr>
 
 <tr>
+
 <td><input type="text"></td>
 
 <td>
-<select>
-<option>Asset</option>
-<option>Liability</option>
-<option>Capital</option>
+<select class="mainHead">
+<option>Assets</option>
+<option>Liabilities</option>
 <option>Income</option>
 <option>Expense</option>
+</select>
+</td>
+
+<td>
+<select class="sub1">
+<option></option>
+<option>Capital</option>
+<option>Non-Current Assets</option>
+<option>Current Assets</option>
+<option>Sale</option>
+<option>Purchase</option>
+</select>
+</td>
+
+<td>
+<select class="sub2">
+<option></option>
+<option>Non-Current Investments</option>
+<option>Sundry Debtors</option>
+<option>Cash and Bank Balances</option>
+<option>Sale of Goods</option>
+<option>Sale of Services</option>
+<option>Purchase of Goods</option>
+<option>Purchase of Services</option>
 </select>
 </td>
 
@@ -26,3 +63,16 @@
 </tr>
 
 </table>
+
+<br>
+
+<button id="addRow">Add Row</button>
+<button id="saveTB">Save Trial</button>
+<button onclick="location.href='/modules/balance-sheet.html'">Print Balance Sheet</button>
+<button onclick="location.href='/app/dashboard.html'">Back to Dashboard</button>
+
+<script type="module" src="/modules/trialBalance.js"></script>
+
+</body>
+
+</html>
