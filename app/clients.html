@@ -223,7 +223,13 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
       </div>
     </div>
     <div class="form-card">
-      <h2 class="form-title">Client List</h2>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #e2e8f0;">
+        <h2 class="form-title" style="margin:0;padding:0;border:none;">Client List</h2>
+        <div style="display:flex;gap:12px;">
+          <input type="text" id="searchInput" class="form-input" placeholder="Search by name, PAN, mobile..." oninput="searchClients()" style="width:250px;">
+          <button class="btn btn-primary" onclick="switchTab('basic');resetForm()">+ Add Client</button>
+        </div>
+      </div>
       <table>
         <thead><tr><th>Constitution</th><th>Client Name</th><th>PAN</th><th>GSTIN</th><th>Phone</th><th>Contacts</th><th>Docs</th></tr></thead>
         <tbody id="clientTable"></tbody>
@@ -358,8 +364,22 @@ function resetForm() {
 
 function renderClients() {
   const tbody = document.getElementById('clientTable')
-  if (clients.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">No clients added yet</td></tr>'; return }
-  tbody.innerHTML = clients.map(client => '<tr><td><span class="badge">' + (client.constitution || '-') + '</span></td><td><strong>' + (client.name || '-') + '</strong></td><td>' + (client.registrations?.panNumber || '-') + '</td><td>' + (client.registrations?.gstin || '-') + '</td><td>' + (client.phone || '-') + '</td><td>' + (client.contactPersons ? client.contactPersons.length : 0) + '</td><td>' + (client.documents ? client.documents.length : 0) + ' files</td></tr>').join('')
+  const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || ''
+  let filteredClients = clients
+  if (searchTerm) {
+    filteredClients = clients.filter(c => 
+      (c.name && c.name.toLowerCase().includes(searchTerm)) ||
+      (c.registrations?.panNumber && c.registrations.panNumber.toLowerCase().includes(searchTerm)) ||
+      (c.phone && c.phone.includes(searchTerm)) ||
+      (c.email && c.email.toLowerCase().includes(searchTerm)) ||
+      (c.contactPersons && c.contactPersons.some(cp => cp.name && cp.name.toLowerCase().includes(searchTerm)))
+  }
+  if (filteredClients.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">No clients found</td></tr>'; return }
+  tbody.innerHTML = filteredClients.map(client => '<tr><td><span class="badge">' + (client.constitution || '-') + '</span></td><td><strong>' + (client.name || '-') + '</strong></td><td>' + (client.registrations?.panNumber || '-') + '</td><td>' + (client.registrations?.gstin || '-') + '</td><td>' + (client.phone || '-') + '</td><td>' + (client.contactPersons ? client.contactPersons.length : 0) + '</td><td>' + (client.documents ? client.documents.length : 0) + ' files</td></tr>').join('')
+}
+
+function searchClients() {
+  renderClients()
 }
 
 renderClients()
