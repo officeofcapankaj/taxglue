@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaxGlu - Bookkeeping Software</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+  <div id="app"></div>
+  <script type="module">
+    const API_URL = window.location.origin + '/api';
+    let currentUser = null;
+    let currentClient = null;
+    let token = localStorage.getItem('token');
+    
+    if (token) {
+      fetch(API_URL + '/auth/me', { headers: { 'Authorization': 'Bearer ' + token } })
+        .then(r => r.json())
+        .then(user => { if (user.email) { currentUser = user; showDashboard(); }})
+        .catch(() => { localStorage.removeItem('token'); showLogin(); });
+    } else { showLogin(); }
+    
+    function showLogin() {
+      document.getElementById('app').innerHTML = `
+        <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+          <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+            <div class="text-center mb-8">
+              <h1 class="text-3xl font-bold text-gray-800">TaxGlu</h1>
+              <p class="text-gray-500 mt-2">Bookkeeping Made Simple</p>
+            </div>
+            <form id="loginForm" class="space-y-4">
+              <div><label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" id="email" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="admin@taxglue.com"></div>
+              <div><label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input type="password" id="password" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="admin123"></div>
+              <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">Sign In</button>
+            </form>
+            <p class="text-center mt-4 text-sm text-gray-500">Default: admin@taxglue.com / admin123</p>
+          </div>
+        </div>`;
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const res = await fetch(API_URL + '/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: document.getElementById('email').value, password: document.getElementById('password').value }) });
+        const data = await res.json();
+        if (data.token) { token = data.token; currentUser = data.user; localStorage.setItem('token', token); showDashboard(); }
+        else alert(data.error || 'Login failed');
+      });
+    }
+    
+    function showDashboard() {
+      document.getElementById('app').innerHTML = `
+        <div class="flex">
+          <aside class="w-64 bg-gray-800 text-white sidebar fixed">
+            <div class="p-6"><h1 class="text-2xl font-bold">TaxGlu</h1><p class="text-gray-400 text-sm">Bookkeeping</p></div>
+            <nav class="mt-6">
+              <a href="#" onclick="showDashboard()" class="flex items-center px-6 py-3 bg-gray-700 hover:bg-gray-600"><i class="fas fa-home w-6"></i> Dashboard</a>
+              <a href="#" onclick="showClients()" class="flex items-center px-6 py-3 hover:bg-gray-700"><i class="fas fa-users w-6"></i> Clients</a>
+              <a href="#" onclick="showBookkeeping()" class="flex items-center px-6 py-3 hover:bg-gray-700"><i class="fas fa-book w-6"></i> Bookkeeping</a>
+              <a href="#" onclick="showVouchers()" class="flex items-center px-6 py-3 hover:bg-gray-700"><i class="fas fa-receipt w-6"></i> Vouchers</a>
+              <a href="#" onclick="showTrialBalance()" class="flex items-center px-6 py-3 hover:bg-gray-700"><i class="fas fa-balance-scale w-6"></i> Trial Balance</a>
+              <a href="#" onclick="showBalanceSheet()" class="flex items-center px-6 py-3 hover:bg-gray-700"><i class="fas fa-chart-bar w-6"></i> Balance Sheet</a>
+              <a href="#" onclick="showProfitLoss()" class="flex items-center px-6 py-3 hover:bg-gray-700"><i class="fas fa-chart-line w-6"></i> P&L Statement</a>
+            </nav>
+            <div class="absolute bottom-0 w-64 p-6"><button onclick="logout()" class="w-full bg-red-600 py-2 rounded hover:bg-red-700">Logout</button></div>
+          </aside>
+          <main class="ml-64 flex-1 p-8">
+            <div class="flex justify-between items-center mb-8">
+              <h2 class="text-2xl font-bold text-gray-800">Welcome, ${currentUser?.name || 'User'}</h2>
+              <select id="clientSelect" onchange="changeClient(this.value)" class="border rounded-lg px-4 py-2"><option value="">Select Client</option></select>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <div class="bg-white rounded-xl shadow p-6"><div class="text-gray-500 text-sm">Total Clients</div><div class="text-3xl font-bold text-blue-600" id="statClients">-</div></div>
+              <div class="bg-white rounded-xl shadow p-6"><div class="text-gray-500 text-sm">Vouchers This FY</div><div class="text-3xl font-bold text-green-600" id="statVouchers">-</div></div>
+              <div class="bg-white rounded-xl shadow p-6"><div class="text-gray-500 text-sm">Total Accounts</div><div class="text-3xl font-bold text-purple-600" id="statAccounts">-</div></div>
+              <div class="bg-white rounded-xl shadow p-6"><div class="text-gray-500 text-sm">Net Balance</div><div class="text-3xl font-bold text-orange-600" id="statBalance">-</div></div>
+            </div>
+            <div class="bg-white rounded-xl shadow p-6">
+              <h3 class="text-lg font-bold mb-4">Quick Actions</h3>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button onclick="showVouchers()" class="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 text-center"><i class="fas fa-plus text-2xl text-blue-600 mb-2"></i><div class="text-sm font-medium">New Voucher</div></button>
+                <button onclick="showClients()" class="p-4 bg-green-50 rounded-lg hover:bg-green-100 text-center"><i class="fas fa-user-plus text-2xl text-green-600 mb-2"></i><div class="text-sm font-medium">Add Client</div></button>
+                <button onclick="showTrialBalance()" class="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 text-center"><i class="fas fa-calculator text-2xl text-purple-600 mb-2"></i><div class="text-sm font-medium">Trial Balance</div></button>
+                <button onclick="showProfitLoss()" class="p-4 bg-orange-50 rounded-lg hover:bg-orange-100 text-center"><i class="fas fa-chart-pie text-2xl text-orange-600 mb-2"></i><div class="text-sm font-medium">P&L Report</div></button>
+              </div>
+            </div>
+          </main>
+        </div>`;
+      loadClients();
+    }
+    
+    async function loadClients() {
+      const res = await fetch(API_URL + '/clients', { headers: { 'Authorization': 'Bearer ' + token } });
+      const clients = await res.json();
+      const select = document.getElementById('clientSelect');
+      select.innerHTML = '<option value="">Select Client</option>';
+      clients.forEach(c => { select.innerHTML += '<option value="' + c.id + '">' + c.name + '</option>'; });
+      document.getElementById('statClients').textContent = clients.length;
+    }
+    
+    async function changeClient(clientId) {
+      if (!clientId) return;
+      currentClient = clientId;
+      const [vouchersRes, accountsRes, tbRes] = await Promise.all([
+        fetch(API_URL + '/vouchers/' + clientId + '?fy=2024-25', { headers: { 'Authorization': 'Bearer ' + token } }),
+        fetch(API_URL + '/accounts/' + clientId + '?fy=2024-25', { headers: { 'Authorization': 'Bearer ' + token } }),
+        fetch(API_URL + '/reports/trial-balance/' + clientId + '?fy=2024-25', { headers: { 'Authorization': 'Bearer ' + token } })
+      ]);
+      const vouchers = await vouchersRes.json();
+      const accounts = await accountsRes.json();
+      const tb = await tbRes.json();
+      document.getElementById('statVouchers').textContent = vouchers.length;
+      document.getElementById('statAccounts').textContent = accounts.length;
+      if (tb.totals) document.getElementById('statBalance').textContent = 'Rs' + (tb.totals.closing || 0).toLocaleString();
+    }
+    
+    function showClients() {
+      document.querySelector('main').innerHTML = `
+        <h2 class="text-2xl font-bold mb-6">Clients</h2>
+        <div class="bg-white rounded-xl shadow p-6">
+          <button onclick="showClientForm()" class="mb-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"><i class="fas fa-plus"></i> Add New Client</button>
+          <div id="clientList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+        <div id="clientModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div class="bg-white rounded-xl p-6 w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4">Add Client</h3>
+            <form id="clientForm" class="space-y-4">
+              <input type="text" id="clientName" required placeholder="Client Name" class="w-full border rounded-lg px-4 py-2">
+              <input type="email" id="clientEmail" placeholder="Email" class="w-full border rounded-lg px-4 py-2">
+              <input type="text" id="clientPhone" placeholder="Phone" class="w-full border rounded-lg px-4 py-2">
+              <input type="text" id="clientGstin" placeholder="GSTIN" class="w-full border rounded-lg px-4 py-2">
+              <input type="text" id="clientFy" value="2024-25" placeholder="Financial Year" class="w-full border rounded-lg px-4 py-2">
+              <textarea id="clientAddress" placeholder="Address" class="w-full border rounded-lg px-4 py-2"></textarea>
+              <div class="flex gap-2">
+                <button type="submit" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Save</button>
+                <button type="button" onclick="closeClientModal()" class="flex-1 border py-2 rounded-lg hover:bg-gray-50">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>`;
+      loadClientList();
+      document.getElementById('app').addEventListener('submit', function(e) {
+        if (e.target.id === 'clientForm') {
+          e.preventDefault();
+          fetch(API_URL + '/clients', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ name: document.getElementById('clientName').value, email: document.getElementById('clientEmail').value, phone: document.getElementById('clientPhone').value, gstin: document.getElementById('clientGstin').value, fy: document.getElementById('clientFy').value, address: document.getElementById('clientAddress').value }) })
+            .then(() => { closeClientModal(); loadClientList(); loadClients(); });
+        }
+      });
+    }
+    
+    async function loadClientList() {
+      const res = await fetch(API_URL + '/clients', { headers: { 'Authorization': 'Bearer ' + token } });
+      const clients = await res.json();
+      document.getElementById('clientList').innerHTML = clients.map(c => '<div class="border rounded-lg p-4 hover:shadow-lg transition"><h4 class="font-bold text-lg">' + c.name + '</h4><p class="text-gray-500 text-sm">' + (c.email || 'No email') + '</p><p class="text-gray-500 text-sm">GSTIN: ' + (c.gstin || 'N/A') + '</p><p class="text-gray-500 text-sm">FY: ' + c.fy + '</p></div>').join('');
+    }
+    function showClientForm() { document.getElementById('clientModal').classList.remove('hidden'); }
+    function closeClientModal() { document.getElementById('clientModal').classList.add('hidden'); }
+    
+    function showBookkeeping() {
+      if (!currentClient) { alert('Please select a client first'); return; }
+      document.querySelector('main').innerHTML = '<h2 class="text-2xl font-bold mb-6">Bookkeeping - Chart of Accounts</h2><div class="bg-white rounded-xl shadow p-6"><button onclick="showAccountForm()" class="mb-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"><i class="fas fa-plus"></i> Add Account</button><table class="w-full"><thead class="bg-gray-50"><tr><th class="px-4 py-2 text-left">Code</th><th class="px-4 py-2 text-left">Name</th><th class="px-4 py-2 text-left">Nature</th><th class="px-4 py-2 text-left">Type</th><th class="px-4 py-2 text-right">Opening Balance</th></tr></thead><tbody id="accountsTable"></tbody></table></div>';
+      loadAccounts();
+    }
+    
+    async function loadAccounts() {
+      const res = await fetch(API_URL + '/accounts/' + currentClient + '?fy=2024-25', { headers: { 'Authorization': 'Bearer ' + token } });
+      const accounts = await res.json();
+      document.getElementById('accountsTable').innerHTML = accounts.map(a => '<tr class="border-t hover:bg-gray-50"><td class="px-4 py-2">' + a.code + '</td><td class="px-4 py-2 font-medium">' + a.name + '</td><td class="px-4 py-2"><span class="px-2 py-1 rounded text-sm ' + (a.nature === 'Assets' ? 'bg-blue-100 text-blue-700' : a.nature === 'Liabilities' ? 'bg-red-100 text-red-700' : a.nature === 'Income' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700') + '">' + a.nature + '</span></td><td class="px-4 py-2 text-gray-500">' + (a.account_type || '') + '</td><td class="px-4 py-2 text-right">Rs' + (a.opening_balance || 0).toLocaleString() + '</td></tr>').join('');
+    }
+    
+    function showAccountForm() {
+      const name = prompt('Account Name:');
+      if (!name) return;
+      const code = prompt('Account Code:');
+      const nature = prompt('Nature (Assets/Liabilities/Income/Expense):');
+      const type = prompt('Type (Direct/Indirect/Capital/Revenue):');
+      fetch(API_URL + '/accounts', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ client_id: currentClient, fy: '2024-25', code, name, nature, account_type: type, opening_balance: 0 }) }).then(() => loadAccounts());
+    }
+    
+    function showVouchers() {
+      if (!currentClient) { alert('Please select a client first'); return; }
+      document.querySelector('main').innerHTML = '<h2 class="text-2xl font-bold mb-6">Vouchers</h2><div class="bg-white rounded-xl shadow p-6"><div class="flex gap-2 mb-4"><select id="voucherType" class="border rounded-lg px-4 py-2"><option value="journal">Journal</option><option value="payment">Payment</option><option value="receipt">Receipt</option><option value="contra">Contra</option></select><button onclick="createVoucher()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"><i class="fas fa-plus"></i> New Voucher</button></div><table class="w-full"><thead class="bg-gray-50"><tr><th class="px-4 py-2 text-left">Date</th><th class="px-4 py-2 text-left">V.No</th><th class="px-4 py-2 text-left">Type</th><th class="px-4 py-2 text-left">Narration</th><th class="px-4 py-2 text-right">Amount</th></tr></thead><tbody id="vouchersTable"></tbody></table></div>';
+      loadVouchers();
+    }
+    
+    async function loadVouchers() {
+      const res = await fetch(API_URL + '/vouchers/' + currentClient + '?fy=2024-25', { headers: { 'Authorization': 'Bearer ' + token } });
+      const vouchers = await res.json();
+      document.getElementById('vouchersTable').innerHTML = vouchers.map(v => { const lines = v.lines || []; const amount = lines.reduce((s, l) => s + (l.debit || l.credit || 0), 0); return '<tr class="border-t hover:bg-gray-50"><td class="px-4 py-2">' + v.date + '</td><td class="px-4 py-2 font-mono">' + v.voucher_no + '</td><td class="px-4 py-2 capitalize">' + v.voucher_type + '</td><td class="px-4 py-2 text-gray-500">' + (v.narration || '-') + '</td><td class="px-4 py-2 text-right">Rs' + amount.toLocaleString() + '</td></tr>'; }).join('');
+    }
+    
+    async function createVoucher() {
+      const voucherNo = prompt('Voucher Number:');
+      const date = prompt('Date (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
+      const narration = prompt('Narration:');
+      if (!voucherNo || !date) return;
+      const type = document.getElementById('voucherType').value;
+      const accountsRes = await fetch(API_URL + '/accounts/' + currentClient + '?fy=2024-25', { headers: { 'Authorization': 'Bearer ' + token } });
+      const accounts = await accountsRes.json();
+      const debitAccount = prompt('Debit Account Name (from list):\\n' + accounts.map(a => a.name).join('\\n'));
+      const creditAccount = prompt('Credit Account Name (from list):\\n' + accounts.map(a => a.name).join('\\n'));
+      const amount = parseFloat(prompt('Amount:') || '0');
+      const debitAcc = accounts.find(a => a.name.toLowerCase().includes(debitAccount.toLowerCase()));
+      const creditAcc = accounts.find(a => a.name.toLowerCase().includes(creditAccount.toLowerCase()));
+      if (!debitAcc || !creditAcc) { alert('Invalid account names'); return; }
+      const lines = [{ account_id: debitAcc.id, account_name: debitAcc.name, debit: amount, credit: 0 }, { account_id: creditAcc.id, account_name: creditAcc.name, debit: 0, credit: amount }];
+      await fetch(API_URL + '/vouchers', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ client_id: currentClient, fy: '2024-25', date, voucher_no: voucherNo, voucher_type: type, narration, lines }) });
+      loadVouchers();
+    }
+    
+    function showTrialBalance() {
+      if (!currentClient) { alert('Please select a client first'); return; }
+      document.querySelector('main').innerHTML = '<h2 class="text-2xl font-bold mb-6"> Trial Balance</h2><div class="bg-white rounded-xl shadow p-6"><table class="w-full"><thead class="bg-gray-50"><tr><th class="px-4 py-2 text-left">Account</th><th class="px-4 py-2 text-right">Debit</th><th class="px-4 py-2 text-right">Credit</th><th class="px-4 py-2 text-right">Balance</th></tr></thead><tbody id="tbTable"></tbody><tfoot class="bg-gray-100 font-bold"><tr id="tbTotals"></tr></tfoot></table></div>';
+      loadTrialBalance();
+    }
+    
+    async function loadTrialBalance() {
+      const res = await fetch(API_URL + '/reports/trial-balance/' + currentClient + '?fy=2024-25', { headers: { 'Authorization': 'Bearer ' + token } });
+      const tb = await res.json();
+      document.getElementById('tbTable').innerHTML = (tb.accounts || []).map(a => '<tr class="border-t"><td class="px-4 py-2">' + a.name + '</td><td class="px-4 py-2 text-right">' + (a.debit > 0 ? 'Rs' + a.debit.toLocaleString() : '-') + '</td><td class="px-4 py-2 text-right">' + (a.credit > 0 ? 'Rs' + a.credit.toLocaleString() : '-') + '</td><td class="px-4 py-2 text-right font-medium">Rs' + a.closing.toLocaleString() + '</td></tr>').join('');
+      if (tb.totals) document.getElementById('tbTotals').innerHTML = '<td class="px-4 py-2">TOTAL</td><td class="px-4 py-2 text-right">Rs' + tb.totals.debit.toLocaleString() + '</td><td class="px-4 py-2 text-right">Rs' + tb.totals.credit.toLocaleString() + '</td><td class="px-4 py-2 text-right">Rs' + tb.totals.closing.toLocaleString() + '</td>';
+    }
+    
+    function showBalanceSheet() {
+      if (!currentClient) { alert('Please select a client first'); return; }
+      document.querySelector('main').innerHTML = '<h2 class="text-2xl font-bold mb-6">Balance Sheet</h2><div class="grid grid-cols-2 gap-6"><div class="bg-white rounded-xl shadow p-6"><h3 class="text-lg font-bold mb-4 text-blue-600">Assets</h3><div id="bsAssets"></div><div class="mt-4 pt-4 border-t font-bold">Total: Rs<span id="totalAssets">0</span></div></div><div class="bg-white rounded-xl shadow p-6"><h3 class="text-lg font-bold mb-4 text-red-600">Liabilities</h3><div id="bsLiabilities"></div><div class="mt-4 pt-4 border-t font-bold">Total: Rs<span id="totalLiabilities">0</span></div></div></div>';
+      loadBalanceSheet();
+    }
+    
+    async function loadBalanceSheet() {
+      const res = await fetch(API_URL + '/reports/balance-sheet/' + currentClient + '?fy=2024-25', { headers: { 'Authorization': 'Bearer ' + token } });
+      const bs = await res.json();
+      document.getElementById('bsAssets').innerHTML = (bs.assets || []).map(a => '<div class="flex justify-between py-2 border-b"><span>' + a.name + '</span><span>Rs' + (a.balance || 0).toLocaleString() + '</span></div>').join('');
+      document.getElementById('bsLiabilities').innerHTML = (bs.liabilities || []).map(a => '<div class="flex justify-between py-2 border-b"><span>' + a.name + '</span><span>Rs' + (a.balance || 0).toLocaleString() + '</span></div>').join('');
+      document.getElementById('totalAssets').textContent = (bs.totals?.assets || 0).toLocaleString();
+      document.getElementById('totalLiabilities').textContent = (bs.totals?.liabilities || 0).toLocaleString();
+    }
+    
+    async function getPL() {
+      const res = await fetch(API_URL + '/reports/profit-loss/' + currentClient + '?fy=2024-25', { headers: { 'Authorization': 'Bearer ' + token } });
+      return await res.json();
+    }
+    
+    function showProfitLoss() {
+      if (!currentClient) { alert('Please select a client first'); return; }
+      getPL().then(pl => {
+        document.querySelector('main').innerHTML = '<h2 class="text-2xl font-bold mb-6">Profit & Loss Statement</h2><div class="grid grid-cols-2 gap-6"><div class="bg-white rounded-xl shadow p-6"><h3 class="text-lg font-bold mb-4 text-green-600">Income</h3><div id="plIncome"></div><div class="mt-4 pt-4 border-t font-bold">Total Income: Rs<span id="totalIncome">0</span></div></div><div class="bg-white rounded-xl shadow p-6"><h3 class="text-lg font-bold mb-4 text-orange-600">Expenses</h3><div id="plExpenses"></div><div class="mt-4 pt-4 border-t font-bold">Total Expenses: Rs<span id="totalExpenses">0</span></div></div></div><div class="mt-6 bg-white rounded-xl shadow p-6 text-center"><h3 class="text-xl font-bold">Net ' + (pl.netProfit >= 0 ? 'Profit' : 'Loss') + ': <span class="' + (pl.netProfit >= 0 ? 'text-green-600' : 'text-red-600') + '">Rs' + Math.abs(pl.netProfit).toLocaleString() + '</span></h3></div>';
+        document.getElementById('plIncome').innerHTML = (pl.income || []).map(a => '<div class="flex justify-between py-2 border-b"><span>' + a.name + '</span><span>Rs' + (a.balance || 0).toLocaleString() + '</span></div>').join('');
+        document.getElementById('plExpenses').innerHTML = (pl.expenses || []).map(a => '<div class="flex justify-between py-2 border-b"><span>' + a.name + '</span><span>Rs' + (a.balance || 0).toLocaleString() + '</span></div>').join('');
+        document.getElementById('totalIncome').textContent = (pl.totalIncome || 0).toLocaleString();
+        document.getElementById('totalExpenses').textContent = (pl.totalExpenses || 0).toLocaleString();
+      });
+    }
+    
+    function logout() { localStorage.removeItem('token'); token = null; currentUser = null; currentClient = null; showLogin(); }
+    window.showDashboard = showDashboard; window.showClients = showClients; window.showBookkeeping = showBookkeeping; window.showVouchers = showVouchers; window.showTrialBalance = showTrialBalance; window.showBalanceSheet = showBalanceSheet; window.showProfitLoss = showProfitLoss; window.logout = logout; window.changeClient = changeClient; window.showClientForm = showClientForm; window.closeClientModal = closeClientModal; window.createVoucher = createVoucher;
+  </script>
+</body>
+</html>
