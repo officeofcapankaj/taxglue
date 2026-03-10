@@ -96,9 +96,9 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
     <div class="success-message" id="successMessage">Client saved successfully!</div>
     <div class="error-message" id="errorMessage"></div>
     <div class="tabs">
-      <button class="tab active" onclick="document.querySelectorAll('.tab').forEach(b=>{b.style.background='#f1f5f9';b.style.color='#475569'});this.style.background='#22c55e';this.style.color='white';document.getElementById('basic').style.display='block';document.getElementById('registrations').style.display='none';document.getElementById('contacts').style.display='none';">Basic Details</button>
-      <button class="tab" onclick="document.querySelectorAll('.tab').forEach(b=>{b.style.background='#f1f5f9';b.style.color='#475569'});this.style.background='#22c55e';this.style.color='white';document.getElementById('basic').style.display='none';document.getElementById('registrations').style.display='block';document.getElementById('contacts').style.display='none';">Registrations</button>
-      <button class="tab" onclick="document.querySelectorAll('.tab').forEach(b=>{b.style.background='#f1f5f9';b.style.color='#475569'});this.style.background='#22c55e';this.style.color='white';document.getElementById('basic').style.display='none';document.getElementById('registrations').style.display='none';document.getElementById('contacts').style.display='block';">Contact Persons</button>
+      <button class="tab active" onclick="document.querySelectorAll('.tab').forEach(function(b){b.style.background='#f1f5f9';b.style.color='#475569'});this.style.background='#22c55e';this.style.color='white';document.getElementById('basic').style.display='block';document.getElementById('registrations').style.display='none';document.getElementById('contacts').style.display='none';">Basic Details</button>
+      <button class="tab" onclick="document.querySelectorAll('.tab').forEach(function(b){b.style.background='#f1f5f9';b.style.color='#475569'});this.style.background='#22c55e';this.style.color='white';document.getElementById('basic').style.display='none';document.getElementById('registrations').style.display='block';document.getElementById('contacts').style.display='none';">Registrations</button>
+      <button class="tab" onclick="document.querySelectorAll('.tab').forEach(function(b){b.style.background='#f1f5f9';b.style.color='#475569'});this.style.background='#22c55e';this.style.color='white';document.getElementById('basic').style.display='none';document.getElementById('registrations').style.display='none';document.getElementById('contacts').style.display='block';">Contact Persons</button>
     </div>
     <div class="form-card">
       <div id="basic" class="tab-content active" style="display:block;">
@@ -230,7 +230,7 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
         <h2 class="form-title" style="margin:0;padding:0;border:none;">Client List</h2>
         <div style="display:flex;gap:12px;">
           <input type="text" id="searchInput" class="form-input" placeholder="Search by name, PAN, mobile..." oninput="searchClients()" style="width:250px;">
-          <button class="btn btn-primary tab" onclick="document.querySelectorAll('.tab').forEach(b=>{b.style.background='#f1f5f9';b.style.color='#475569'});this.style.background='#22c55e';this.style.color='white';document.getElementById('basic').style.display='block';document.getElementById('registrations').style.display='none';document.getElementById('contacts').style.display='none';resetForm()">+ Add Client</button>
+          <button class="btn btn-primary tab" onclick="document.querySelectorAll('.tab').forEach(function(b){b.style.background='#f1f5f9';b.style.color='#475569'});this.style.background='#22c55e';this.style.color='white';document.getElementById('basic').style.display='block';document.getElementById('registrations').style.display='none';document.getElementById('contacts').style.display='none';resetForm()">+ Add Client</button>
         </div>
       </div>
       <table>
