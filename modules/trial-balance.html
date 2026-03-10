@@ -1,43 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Trial Balance | TaxGlue</title>
-<link rel="stylesheet" href="/css/style.css">
-</head>
-
-<body>
-
-<h1>Trial Balance</h1>
-
 <table border="1" id="tbTable">
 
 <tr>
 <th>Account Name</th>
+<th>Type</th>
 <th>Debit</th>
 <th>Credit</th>
 </tr>
 
 <tr>
 <td><input type="text"></td>
+
+<td>
+<select>
+<option>Asset</option>
+<option>Liability</option>
+<option>Capital</option>
+<option>Income</option>
+<option>Expense</option>
+</select>
+</td>
+
 <td><input type="number"></td>
 <td><input type="number"></td>
+
 </tr>
 
 </table>
-
-<br>
-
-<button id="addRow">Add Row</button>
-<button id="saveTB">Save Trial Balance</button>
-<button onclick="location.href='/modules/balance-sheet.html'">
-Generate Balance Sheet
-</button>
-<br><br>
-<button onclick="location.href='/app/dashboard.html'">
-Back to Dashboard
-</button>
-
-<script type="module" src="/modules/trialBalance.js"></script>
-
-</body>
-</html>
