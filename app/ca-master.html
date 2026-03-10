@@ -240,9 +240,29 @@ tr:hover { background: #f8fafc; }
   </div>
 </main>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script>
+const supabaseUrl = "https://jgjeuybgideeqcjxvlmn.supabase.co"
+const supabaseKey = "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+
 let caList = JSON.parse(localStorage.getItem('caList')) || []
 let editingCAId = null
+
+// Load CA from Supabase on page load
+async function loadCAFromSupabase() {
+  try {
+    const { data, error } = await supabase.from('ca_master').select('*').order('created_at', { ascending: false })
+    if (error) throw error
+    if (data && data.length > 0) {
+      caList = data
+      localStorage.setItem('caList', JSON.stringify(caList))
+      renderCA()
+    }
+  } catch (e) {
+    console.log('Loading from Supabase failed, using localStorage:', e)
+  }
+}
 
 async function fetchPincodeDetails(prefix) {
   const pincode = document.getElementById(prefix + 'Pincode')?.value || document.getElementById('pincode')?.value
@@ -311,16 +331,20 @@ function editCA(id) {
   document.getElementById('caFormCard').scrollIntoView({ behavior: 'smooth' })
 }
 
-function deleteCA() {
+async function deleteCA() {
   if (!editingCAId) return
   if (!confirm('Are you sure you want to delete this CA?')) return
+  // Delete from Supabase
+  try {
+    await supabase.from('ca_master').delete().eq('id', editingCAId)
+  } catch (e) { console.log('Supabase delete error:', e) }
   caList = caList.filter(c => c.id !== editingCAId)
   localStorage.setItem('caList', JSON.stringify(caList))
   renderCA()
   showForm()
 }
 
-document.getElementById('caForm').addEventListener('submit', function(e) {
+document.getElementById('caForm').addEventListener('submit', async function(e) {
   e.preventDefault()
   const caData = {
     firstName: document.getElementById('firstName').value,
@@ -344,20 +368,28 @@ document.getElementById('caForm').addEventListener('submit', function(e) {
     state: document.getElementById('state').value,
     country: document.getElementById('country').value,
     mobile: document.getElementById('mobile').value,
-    email: document.getElementById('email').value
+    email: document.getElementById('email').value,
+    created_at: new Date().toISOString()
   }
   
   if (editingCAId) {
     const index = caList.findIndex(c => c.id === editingCAId)
     if (index !== -1) {
       caData.id = editingCAId
-      caData.createdAt = caList[index].createdAt
+      caData.created_at = caList[index].created_at
       caList[index] = caData
+      // Update in Supabase
+      try {
+        await supabase.from('ca_master').update(caData).eq('id', editingCAId)
+      } catch (e) { console.log('Supabase update error:', e) }
     }
   } else {
     caData.id = Date.now()
-    caData.createdAt = new Date().toISOString()
     caList.push(caData)
+    // Insert in Supabase
+    try {
+      await supabase.from('ca_master').insert([caData])
+    } catch (e) { console.log('Supabase insert error:', e) }
   }
   
   localStorage.setItem('caList', JSON.stringify(caList))
@@ -382,6 +414,7 @@ function renderCA() {
 // Initially hide form
 document.getElementById('caFormCard').style.display = 'none'
 renderCA()
+loadCAFromSupabase()
 </script>
 </body>
 </html>

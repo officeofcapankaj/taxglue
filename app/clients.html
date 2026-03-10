@@ -238,10 +238,30 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
   </div>
 </main>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script>
+const supabaseUrl = "https://jgjeuybgideeqcjxvlmn.supabase.co"
+const supabaseKey = "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+
 let clients = JSON.parse(localStorage.getItem('clients')) || []
 let contactPersonCount = 1
 let uploadedFiles = []
+
+// Load clients from Supabase on page load
+async function loadClientsFromSupabase() {
+  try {
+    const { data, error } = await supabase.from('clients').select('*').order('created_at', { ascending: false })
+    if (error) throw error
+    if (data && data.length > 0) {
+      clients = data
+      localStorage.setItem('clients', JSON.stringify(clients))
+      renderClients()
+    }
+  } catch (e) {
+    console.log('Loading from Supabase failed, using localStorage:', e)
+  }
+}
 
 async function fetchPincodeDetails(prefix) {
   const pincode = prefix === 'client' ? document.getElementById('pincode').value : document.getElementById('pincode').value
@@ -342,8 +362,18 @@ function saveClient() {
       esiNumber: document.getElementById('esiNumber').value, msmeNumber: document.getElementById('msmeNumber').value,
       cinNumber: document.getElementById('cinNumber').value, iecCode: document.getElementById('iecCode').value,
       lutNumber: document.getElementById('lutNumber').value },
-    contactPersons: contactPersons, documents: uploadedFiles, createdAt: new Date().toISOString()
+    contactPersons: contactPersons, documents: uploadedFiles, created_at: new Date().toISOString()
   }
+  
+  // Save to Supabase
+  try {
+    const { data, error } = await supabase.from('clients').insert([client])
+    if (error) throw error
+  } catch (e) {
+    console.log('Supabase insert error:', e)
+  }
+  
+  // Also save to localStorage
   clients.push(client)
   localStorage.setItem('clients', JSON.stringify(clients))
   document.getElementById('successMessage').classList.add('show')
@@ -382,7 +412,7 @@ function searchClients() {
   renderClients()
 }
 
-renderClients()
+loadClientsFromSupabase()
 </script>
 </body>
 </html>
