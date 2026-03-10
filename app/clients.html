@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Master | TaxGlue</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
+.container { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); color: white; padding: 0; position: fixed; height: 100vh; }
+.sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.logo { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.topbar { display: flex; justify-content: space-between; align-items: center; }
+.logout-btn { background: #fee2e2; color: #dc2626; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
+.logout-btn:hover { background: #fecaca; }
+.sidebar-nav { padding: 20px 12px; }
+.nav-section { margin-bottom: 24px; }
+.nav-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; }
+.sidebar a { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; }
+.sidebar a:hover { background: rgba(255,255,255,0.1); }
+.sidebar a.active { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+.main { flex: 1; margin-left: 260px; }
+.topbar { background: white; padding: 16px 32px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.page-title { font-size: 20px; font-weight: 600; }
+.btn-back { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; }
+.content { padding: 32px; }
+.form-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 32px; margin-bottom: 32px; }
+.form-title { font-size: 18px; font-weight: 600; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
+.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.form-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.form-group { margin-bottom: 0; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-label { display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; }
+.form-label .required { color: #dc2626; }
+.form-input, .form-select, .form-textarea { width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; }
+.form-input:focus, .form-select:focus { outline: none; border-color: #22c55e; }
+.contact-persons { margin-top: 24px; }
+.contact-person { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+.contact-person-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.contact-person-title { font-size: 14px; font-weight: 600; color: #475569; }
+.contact-person-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; }
+.btn-primary { background: #22c55e; color: white; }
+.btn-outline { background: white; color: #475569; border: 1px solid #e2e8f0; }
+.btn-remove { background: #fee2e2; color: #dc2626; padding: 8px 12px; font-size: 12px; }
+.file-upload { border: 2px dashed #e2e8f0; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; }
+.file-upload input { display: none; }
+.file-icon { font-size: 32px; margin-bottom: 8px; }
+.file-text { font-size: 14px; color: #64748b; }
+.file-text strong { color: #22c55e; }
+.file-list { margin-top: 16px; }
+.file-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 8px; }
+.file-item-info { display: flex; align-items: center; gap: 12px; }
+.file-item-name { font-size: 14px; font-weight: 500; }
+.file-item-size { font-size: 12px; color: #64748b; }
+.file-item-remove { background: #fee2e2; color: #dc2626; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+table { width: 100%; border-collapse: collapse; }
+th { background: #f8fafc; padding: 14px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; }
+td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+.badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; background: #dbeafe; color: #2563eb; }
+.success-message { background: #dcfce7; color: #16a34a; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px; display: none; }
+.success-message.show { display: block; }
+.error-message { background: #fee2e2; color: #dc2626; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px; display: none; }
+.error-message.show { display: block; }
+.tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; }
+.tab { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; background: #f1f5f9; color: #475569; border: none; }
+.tab.active { background: #22c55e; color: white; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="sidebar">
+  <div class="sidebar-header"><div class="logo"><div class="logo-icon">📊</div>TaxGlue</div></div>
+  <div class="sidebar-nav">
+    <div class="nav-section"><div class="nav-section-title">Main</div>
+      <a href="/app/dashboard.html">🏠 Dashboard</a>
+      <a href="/app/clients.html" class="active">👥 Clients</a>
+    </div>
+    <div class="nav-section"><div class="nav-section-title">Accounting</div>
+      <a href="/modules/trial-balance.html">📒 Trial Balance</a>
+      <a href="/modules/balance-sheet.html">⚖️ Balance Sheet</a>
+    </div>
+  </div>
+</nav>
+<main class="main">
+  <header class="topbar">
+    <h1 class="page-title">Client Master</h1>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
+  </header>
+  <div class="content">
+    <div class="success-message" id="successMessage">Client saved successfully!</div>
+    <div class="error-message" id="errorMessage"></div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('basic')">Basic Details</button>
+      <button class="tab" onclick="switchTab('registrations')">Registrations</button>
+      <button class="tab" onclick="switchTab('contacts')">Contact Persons</button>
+    </div>
+    <div class="form-card">
+      <div id="basic" class="tab-content active" style="display:block;">
+        <h2 class="form-title">Basic Details</h2>
+        <form id="basicForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Constitution <span class="required">*</span></label>
+              <select class="form-select" id="constitution" required>
+                <option value="">Select Constitution</option>
+                <option value="Individual">Individual</option>
+                <option value="Sole Proprietorship">Sole Proprietorship</option>
+                <option value="Partnership Firm">Partnership Firm</option>
+                <option value="LLP">LLP</option>
+                <option value="OPC">OPC (One Person Company)</option>
+                <option value="Private Limited Company">Private Limited Company</option>
+                <option value="Public Limited Company">Public Limited Company</option>
+                <option value="Trust">Trust</option>
+                <option value="Society">Society</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Client Name <span class="required">*</span></label>
+              <input type="text" class="form-input" id="clientName" placeholder="Enter client name" required>
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label">Address</label>
+              <textarea class="form-textarea" id="address" placeholder="Enter complete address"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pin Code</label>
+              <input type="text" class="form-input" id="pincode" placeholder="123456" oninput="fetchPincodeDetails('client')">
+            </div>
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input type="text" class="form-input" id="city" placeholder="City">
+            </div>
+            <div class="form-group">
+              <label class="form-label">District</label>
+              <input type="text" class="form-input" id="district" placeholder="District">
+            </div>
+            <div class="form-group">
+              <label class="form-label">State</label>
+              <input type="text" class="form-input" id="state" placeholder="State">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Country</label>
+              <input type="text" class="form-input" id="country" placeholder="Country" value="India">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone No.</label>
+              <input type="tel" class="form-input" id="phone" placeholder="Enter phone number">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-input" id="email" placeholder="Enter email address">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div id="registrations" class="tab-content" style="display:none;">
+        <h2 class="form-title">Registrations</h2>
+        <form id="registrationForm">
+          <div class="form-grid-3">
+            <div class="form-group"><label class="form-label">PAN Number</label><input type="text" class="form-input" id="panNumber" placeholder="ABCDE1234A"></div>
+            <div class="form-group"><label class="form-label">GSTIN Number</label><input type="text" class="form-input" id="gstin" placeholder="27ABCDE1234A1Z5"></div>
+            <div class="form-group"><label class="form-label">TAN Number</label><input type="text" class="form-input" id="tanNumber" placeholder="ABCT12345A"></div>
+            <div class="form-group"><label class="form-label">PF Number</label><input type="text" class="form-input" id="pfNumber" placeholder="PF Number"></div>
+            <div class="form-group"><label class="form-label">ESI Number</label><input type="text" class="form-input" id="esiNumber" placeholder="ESI Number"></div>
+            <div class="form-group"><label class="form-label">MSME Number</label><input type="text" class="form-input" id="msmeNumber" placeholder="MSME Number"></div>
+            <div class="form-group"><label class="form-label">CIN Number</label><input type="text" class="form-input" id="cinNumber" placeholder="CIN Number"></div>
+            <div class="form-group"><label class="form-label">IEC Code</label><input type="text" class="form-input" id="iecCode" placeholder="IEC Code"></div>
+            <div class="form-group"><label class="form-label">LUT Number</label><input type="text" class="form-input" id="lutNumber" placeholder="LUT Number"></div>
+          </div>
+          <div style="margin-top: 24px;">
+            <h3 class="form-title" style="font-size: 16px;">Upload Documents (Max 1MB, PDF only)</h3>
+            <div class="file-upload" id="fileUpload" onclick="document.getElementById('fileInput').click()">
+              <input type="file" id="fileInput" accept=".pdf" onchange="handleFileSelect(event)">
+              <div class="file-icon">📄</div>
+              <div class="file-text">Click to upload PDF<br><strong>Max 1MB each</strong></div>
+            </div>
+            <div class="file-list" id="fileList"></div>
+          </div>
+        </form>
+      </div>
+      <div id="contacts" class="tab-content" style="display:none;">
+        <h2 class="form-title">Contact Persons</h2>
+        <div class="contact-persons">
+          <div class="contact-person-header">
+            <h3 class="contact-person-title">Contact Persons</h3>
+            <button type="button" class="btn btn-outline" onclick="addContactPerson()">+ Add Contact Person</button>
+          </div>
+          <div id="contactPersonsContainer">
+            <div class="contact-person" id="contactPerson1">
+              <div class="contact-person-header">
+                <span class="contact-person-title">Contact Person 1 <span class="required">*</span></span>
+              </div>
+              <div class="contact-person-grid">
+                <div class="form-group"><label class="form-label">Name <span class="required">*</span></label><input type="text" class="form-input cp-name" placeholder="Name" required></div>
+                <div class="form-group"><label class="form-label">Designation</label>
+                  <select class="form-select cp-designation">
+                    <option value="">Select Designation</option>
+                    <option value="Proprietor">Proprietor</option>
+                    <option value="Partner">Partner</option>
+                    <option value="Director">Director</option>
+                    <option value="Accountant">Accountant</option>
+                    <option value="Member">Member</option>
+                    <option value="President">President</option>
+                    <option value="Secretary">Secretary</option>
+                    <option value="Designated Partner">Designated Partner</option>
+                    <option value="Managing Director">Managing Director</option>
+                    <option value="Others">Others</option>
+                  </select>
+                </div>
+                <div class="form-group"><label class="form-label">Phone <span class="required">*</span></label><input type="tel" class="form-input cp-phone" placeholder="Phone" required></div>
+                <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input cp-email" placeholder="Email"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top: 24px; display: flex; gap: 12px;">
+        <button type="button" class="btn btn-primary" onclick="var c=document.getElementById('constitution').value,n=document.getElementById('clientName').value;if(!c||!n){alert('Please fill mandatory fields')}else{alert('Saving... (this would save to Supabase)')}">💾 Save Client</button>
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('basicForm').reset();document.getElementById('registrationForm').reset();document.getElementById('contactPersonsContainer').innerHTML=''">Clear Form</button>
+      </div>
+    </div>
+    <div class="form-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #e2e8f0;">
+        <h2 class="form-title" style="margin:0;padding:0;border:none;">Client List</h2>
+        <div style="display:flex;gap:12px;">
+          <input type="text" id="searchInput" class="form-input" placeholder="Search by name, PAN, mobile..." oninput="searchClients()" style="width:250px;">
+          <button class="btn btn-primary tab" onclick="switchTab('basic'); resetForm()">+ Add Client</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Constitution</th><th>Client Name</th><th>PAN</th><th>GSTIN</th><th>Phone</th><th>Contacts</th><th>Docs</th></tr></thead>
+        <tbody id="clientTable"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="js/supabase-config.js"></script>
+<script>
+console.log("clients.html script loaded");
+
+let clients = JSON.parse(localStorage.getItem('clients')) || []
+let contactPersonCount = 1
+let uploadedFiles = []
+
+// Tab switching - must be defined early
+function switchTab(tabId) {
+  console.log('switchTab called with:', tabId)
+  
+  // Get all tab buttons and contents
+  var allButtons = document.getElementsByTagName('button');
+  var allContents = document.getElementsByClassName('tab-content');
+  
+  // First, deactivate ALL tabs and contents
+  for (var i = 0; i < allButtons.length; i++) {
+    if (allButtons[i].classList.contains('tab')) {
+      allButtons[i].classList.remove('active');
+    }
+  }
+  for (var i = 0; i < allContents.length; i++) {
+    allContents[i].classList.remove('active');
+  }
+  
+  // Find the tab button that was clicked
+  for (var i = 0; i < allButtons.length; i++) {
+    var onclick = allButtons[i].getAttribute('onclick');
+    if (onclick && onclick.indexOf(tabId) !== -1 && allButtons[i].classList.contains('tab')) {
+      allButtons[i].classList.add('active');
+      console.log('Activated button:', allButtons[i].textContent);
+      break;
+    }
+  }
+  
+  // Show the content
+  var content = document.getElementById(tabId);
+  if (content) {
+    content.classList.add('active');
+    console.log('Activated content:', tabId);
+  }
+}
+
+// Load clients from Supabase on page load
+async function loadClientsFromSupabase() {
+  try {
+    const { data, error } = await supabase.from('clients').select('*').order('created_at', { ascending: false })
+    if (error) throw error
+    if (data && data.length > 0) {
+      clients = data
+      localStorage.setItem('clients', JSON.stringify(clients))
+      renderClients()
+    }
+  } catch (e) {
+    console.log('Loading from Supabase failed, using localStorage:', e)
+  }
+}
+
+async function fetchPincodeDetails(prefix) {
+  const pincode = prefix === 'client' ? document.getElementById('pincode').value : document.getElementById('pincode').value
+  if (!pincode || pincode.length !== 6) return
+  try {
+    const res = await fetch('https://api.postalpincode.in/pincode/' + pincode)
+    const data = await res.json()
+    if (data[0]?.Status === 'Success' && data[0]?.PostOffice?.[0]) {
+      const po = data[0].PostOffice[0]
+      if (prefix === 'client') {
+        document.getElementById('city').value = po.District || ''
+        document.getElementById('district').value = po.District || ''
+        document.getElementById('state').value = po.State || ''
+        document.getElementById('country').value = 'India'
+      }
+    }
+  } catch (e) { console.log('Pincode API error:', e) }
+}
+
+function addContactPerson() {
+  contactPersonCount++
+  const container = document.getElementById('contactPersonsContainer')
+  const div = document.createElement('div')
+  div.className = 'contact-person'
+  div.id = 'contactPerson' + contactPersonCount
+  div.innerHTML = '<div class="contact-person-header"><span class="contact-person-title">Contact Person ' + contactPersonCount + '</span><button type="button" class="btn btn-remove" onclick="removeContactPerson(' + contactPersonCount + ')">Remove</button></div><div class="contact-person-grid"><div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input cp-name" placeholder="Name"></div><div class="form-group"><label class="form-label">Designation</label><select class="form-select cp-designation"><option value="">Select</option><option value="Proprietor">Proprietor</option><option value="Partner">Partner</option><option value="Director">Director</option><option value="Accountant">Accountant</option><option value="Member">Member</option><option value="President">President</option><option value="Secretary">Secretary</option><option value="Designated Partner">Designated Partner</option><option value="Managing Director">Managing Director</option><option value="Others">Others</option></select></div><div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input cp-phone" placeholder="Phone"></div><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input cp-email" placeholder="Email"></div></div>'
+  container.appendChild(div)
+}
+
+function removeContactPerson(id) {
+  if (id === 1) { alert('First contact person is mandatory'); return }
+  const element = document.getElementById('contactPerson' + id)
+  if (element) element.remove()
+}
+
+function handleFileSelect(event) { handleFiles(event.target.files) }
+
+function handleFiles(files) {
+  const errorMsg = document.getElementById('errorMessage')
+  errorMsg.classList.remove('show')
+  for (let file of files) {
+    if (file.type !== 'application/pdf') { showError('Only PDF files are allowed'); continue }
+    if (file.size > 1024 * 1024) { showError('File size must be less than 1MB'); continue }
+    if (uploadedFiles.length >= 5) { showError('Maximum 5 files can be uploaded'); continue }
+    const reader = new FileReader()
+    reader.onload = function(e) {
+      uploadedFiles.push({ name: file.name, size: file.size, data: e.target.result })
+      renderFileList()
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+function renderFileList() {
+  const fileList = document.getElementById('fileList')
+  fileList.innerHTML = uploadedFiles.map((file, index) => '<div class="file-item"><div class="file-item-info"><span>📄</span><div><div class="file-item-name">' + file.name + '</div><div class="file-item-size">' + (file.size / 1024).toFixed(1) + ' KB</div></div></div><button type="button" class="file-item-remove" onclick="removeFile(' + index + ')">✕</button></div>').join('')
+}
+
+function removeFile(index) { uploadedFiles.splice(index, 1); renderFileList() }
+
+function showError(msg) {
+  const errorMsg = document.getElementById('errorMessage')
+  errorMsg.textContent = msg
+  errorMsg.classList.add('show')
+  setTimeout(() => errorMsg.classList.remove('show'), 3000)
+}
+
+async function saveClient() {
+  const constitution = document.getElementById('constitution').value
+  const clientName = document.getElementById('clientName').value
+  if (!constitution || !clientName) { showError('Please fill mandatory fields in Basic Details'); switchTab('basic'); return }
+  const contactPersons = []
+  document.querySelectorAll('.contact-person').forEach((cp) => {
+    const name = cp.querySelector('.cp-name').value
+    const designation = cp.querySelector('.cp-designation')?.value || ''
+    const phone = cp.querySelector('.cp-phone').value
+    const email = cp.querySelector('.cp-email').value
+    if (name || phone || email) contactPersons.push({ name, designation, phone, email })
+  })
+  const client = {
+    id: Date.now(), constitution: constitution, name: clientName, 
+    address: document.getElementById('address').value,
+    pincode: document.getElementById('pincode').value,
+    city: document.getElementById('city').value,
+    district: document.getElementById('district').value,
+    state: document.getElementById('state').value,
+    country: document.getElementById('country').value,
+    phone: document.getElementById('phone').value, email: document.getElementById('email').value,
+    registrations: { panNumber: document.getElementById('panNumber').value, gstin: document.getElementById('gstin').value,
+      tanNumber: document.getElementById('tanNumber').value, pfNumber: document.getElementById('pfNumber').value,
+      esiNumber: document.getElementById('esiNumber').value, msmeNumber: document.getElementById('msmeNumber').value,
+      cinNumber: document.getElementById('cinNumber').value, iecCode: document.getElementById('iecCode').value,
+      lutNumber: document.getElementById('lutNumber').value },
+    contactPersons: contactPersons, documents: uploadedFiles, created_at: new Date().toISOString()
+  }
+  
+  // Save to Supabase
+  try {
+    const { data, error } = await supabase.from('clients').insert([client])
+    if (error) throw error
+  } catch (e) {
+    console.log('Supabase insert error:', e)
+    showError('Failed to save to cloud. Saved locally instead.')
+  }
+  
+  // Also save to localStorage
+  clients.push(client)
+  localStorage.setItem('clients', JSON.stringify(clients))
+  document.getElementById('successMessage').classList.add('show')
+  setTimeout(() => document.getElementById('successMessage').classList.remove('show'), 3000)
+  renderClients()
+  resetForm()
+}
+
+function resetForm() {
+  document.getElementById('basicForm').reset()
+  document.getElementById('registrationForm').reset()
+  uploadedFiles = []
+  renderFileList()
+  document.getElementById('contactPersonsContainer').innerHTML = '<div class="contact-person" id="contactPerson1"><div class="contact-person-header"><span class="contact-person-title">Contact Person 1 <span class="required">*</span></span></div><div class="contact-person-grid"><div class="form-group"><label class="form-label">Name <span class="required">*</span></label><input type="text" class="form-input cp-name" placeholder="Name" required></div><div class="form-group"><label class="form-label">Designation</label><select class="form-select cp-designation"><option value="">Select</option><option value="Proprietor">Proprietor</option><option value="Partner">Partner</option><option value="Director">Director</option><option value="Accountant">Accountant</option><option value="Member">Member</option><option value="President">President</option><option value="Secretary">Secretary</option><option value="Designated Partner">Designated Partner</option><option value="Managing Director">Managing Director</option><option value="Others">Others</option></select></div><div class="form-group"><label class="form-label">Phone <span class="required">*</span></label><input type="tel" class="form-input cp-phone" placeholder="Phone" required></div><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input cp-email" placeholder="Email"></div></div></div>'
+  document.getElementById('country').value = 'India'
+  contactPersonCount = 1
+}
+
+function renderClients() {
+  const tbody = document.getElementById('clientTable')
+  const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || ''
+  let filteredClients = clients
+  if (searchTerm) {
+    filteredClients = clients.filter(c => 
+      (c.name && c.name.toLowerCase().includes(searchTerm)) ||
+      (c.registrations?.panNumber && c.registrations.panNumber.toLowerCase().includes(searchTerm)) ||
+      (c.phone && c.phone.includes(searchTerm)) ||
+      (c.email && c.email.toLowerCase().includes(searchTerm)) ||
+      (c.contactPersons && c.contactPersons.some(cp => cp.name && cp.name.toLowerCase().includes(searchTerm)))
+  }
+  if (filteredClients.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">No clients found</td></tr>'; return }
+  tbody.innerHTML = filteredClients.map(client => '<tr><td><span class="badge">' + (client.constitution || '-') + '</span></td><td><strong>' + (client.name || '-') + '</strong></td><td>' + (client.registrations?.panNumber || '-') + '</td><td>' + (client.registrations?.gstin || '-') + '</td><td>' + (client.phone || '-') + '</td><td>' + (client.contactPersons ? client.contactPersons.length : 0) + '</td><td>' + (client.documents ? client.documents.length : 0) + ' files</td></tr>').join('')
+}
+
+function searchClients() {
+  renderClients()
+}
+
+// Add logout and idle timeout functionality
+
+async function logout() {
+  try {
+    await supabase.auth.signOut()
+  } catch (e) {}
+  localStorage.clear()
+  window.location.href = "login.html"
+}
+
+// Auto logout after 2 minutes of inactivity
+let idleTime = 0;
+const idleTimeout = 2 * 60 * 1000;
+document.addEventListener('mousemove', () => { idleTime = 0 });
+document.addEventListener('keypress', () => { idleTime = 0 });
+document.addEventListener('click', () => { idleTime = 0 });
+document.addEventListener('scroll', () => { idleTime = 0 });
+setInterval(() => {
+  idleTime += 1000;
+  if (idleTime >= idleTimeout) logout();
+}, 1000);
+
+loadClientsFromSupabase()
+
+// Add event listener for logout button
+document.getElementById('logoutBtn').addEventListener('click', function() {
+  console.log('Logout clicked')
+  logout()
+})
+</script>
+</body>
+</html>

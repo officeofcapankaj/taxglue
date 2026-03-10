@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Statements | TaxGlue</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
+.container { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); color: white; padding: 0; position: fixed; height: 100vh; overflow-y: auto; }
+.sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.logo { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.sidebar-nav { padding: 20px 12px; }
+.nav-section { margin-bottom: 24px; }
+.nav-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; }
+.sidebar a { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; }
+.sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.1); color: white; }
+.sidebar a.active { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+.main { flex: 1; margin-left: 260px; }
+.topbar { background: white; padding: 16px 32px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.page-title { font-size: 20px; font-weight: 600; }
+.btn-back { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; }
+.content { padding: 32px; }
+.selection-bar { background: white; border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid #e2e8f0; }
+.selection-bar h3 { font-size: 16px; margin-bottom: 16px; }
+.selection-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.form-group { margin-bottom: 0; }
+.form-label { display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; }
+.form-select { width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; }
+.form-select:focus { outline: none; border-color: #22c55e; }
+.btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; }
+.btn-primary { background: #22c55e; color: white; }
+.btn-outline { background: white; color: #475569; border: 1px solid #e2e8f0; }
+.btn-export { background: #3b82f6; color: white; }
+.tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+.tab { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; background: #f1f5f9; color: #475569; border: none; }
+.tab.active { background: #22c55e; color: white; }
+.report-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 32px; margin-bottom: 24px; }
+.report-title { font-size: 18px; font-weight: 600; text-align: center; margin-bottom: 8px; }
+.report-subtitle { font-size: 14px; text-align: center; color: #64748b; margin-bottom: 24px; }
+.report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.report-table th, .report-table td { border: 1px solid #e2e8f0; padding: 8px 12px; text-align: left; }
+.report-table th { background: #f8fafc; font-weight: 600; }
+.report-table .amount { text-align: right; }
+.report-table .section-header { background: #e0f2fe; font-weight: 600; }
+.report-table .total-row { background: #f1f5f9; font-weight: 600; border-top: 2px solid #333; }
+.report-table .indent-1 { padding-left: 24px; }
+.report-table .indent-2 { padding-left: 48px; }
+.notes-section { margin-top: 32px; }
+.notes-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+.note-item { background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 12px; border-left: 3px solid #22c55e; }
+.note-number { font-weight: 600; margin-bottom: 4px; }
+.note-content { font-size: 14px; color: #475569; }
+.empty-state { text-align: center; padding: 60px; color: #94a3b8; }
+.empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+@media print { .sidebar, .topbar, .selection-bar, .btn { display: none; } .main { margin: 0; } .report-card { border: none; } }
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="sidebar">
+  <div class="sidebar-header"><div class="logo"><div class="logo-icon">📊</div>TaxGlue</div></div>
+  <div class="sidebar-nav">
+    <div class="nav-section"><div class="nav-section-title">Main</div>
+      <a href="/app/dashboard.html">🏠 Dashboard</a>
+      <a href="/app/clients.html">👥 Clients</a>
+      <a href="/app/ca-master.html">🎓 CA Master</a>
+    </div>
+    <div class="nav-section"><div class="nav-section-title">Accounting</div>
+      <a href="/modules/trial-balance.html">📒 Trial Balance</a>
+      <a href="/modules/financial-statements.html" class="active">📊 Financial Statements</a>
+    </div>
+  </div>
+</nav>
+<main class="main">
+  <header class="topbar">
+    <h1 class="page-title">Financial Statements</h1>
+    <a href="/app/dashboard.html" class="btn-back">← Back to Dashboard</a>
+  </header>
+  <div class="content">
+    <div class="selection-bar">
+      <h3>Select Client & Financial Year</h3>
+      <div class="selection-grid">
+        <div class="form-group">
+          <label class="form-label">Select Client</label>
+          <select class="form-select" id="clientSelect" onchange="loadClientData()">
+            <option value="">-- Select Client --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Financial Year</label>
+          <select class="form-select" id="fySelect" onchange="loadClientData()">
+            <option value="2024-25">FY 2024-25</option>
+            <option value="2023-24">FY 2023-24</option>
+            <option value="2022-23">FY 2022-23</option>
+            <option value="2021-22">FY 2021-22</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Report Type</label>
+          <select class="form-select" id="reportType" onchange="switchReport()">
+            <option value="bs">Balance Sheet</option>
+            <option value="pl">Profit & Loss A/c</option>
+            <option value="cf">Cash Flow Statement</option>
+            <option value="notes">Notes to Accounts</option>
+          </select>
+        </div>
+        <div class="form-group" style="display:flex;gap:8px;align-items:flex-end;">
+          <button class="btn btn-export" onclick="exportSingle('pdf')">📄 PDF</button>
+          <button class="btn btn-export" onclick="exportSingle('excel')">📊 Excel</button>
+          <button class="btn btn-export" onclick="exportSingle('word')">📝 Word</button>
+          <button class="btn btn-primary" onclick="exportAllReports()">📦 Export All</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tabs">
+      <button class="tab active" onclick="switchReportType('bs')">Balance Sheet</button>
+      <button class="tab" onclick="switchReportType('pl')">Profit & Loss</button>
+      <button class="tab" onclick="switchReportType('cf')">Cash Flow</button>
+      <button class="tab" onclick="switchReportType('notes')">Notes to Accounts</button>
+    </div>
+    
+    <div id="reportContainer"></div>
+  </div>
+</main>
+</div>
+<script>
+const supabaseUrl = "https://jgjeuybgideeqcjxvlmn.supabase.co"
+const supabaseKey = "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+
+let clients = []
+let currentReport = 'bs'
+
+// ICAI Schedule III - Balance Sheet Structure
+const BS_STRUCTURE = {
+  assets: {
+    nonCurrentAssets: [
+      { code: 'I', name: 'EQUITY AND LIABILITIES', colspan: true, isHeader: true },
+      { code: '1', name: 'Shareholders’ Funds', isSection: true },
+      { code: 'a', name: 'Share Capital', indent: 1 },
+      { code: 'b', name: 'Reserves and Surplus', indent: 1 },
+      { code: 'c', name: 'Money Received against Share Warrants', indent: 1 },
+      { code: '2', name: 'Non-Current Liabilities', isSection: true },
+      { code: 'a', name: 'Long-Term Borrowings', indent: 1 },
+      { code: 'b', name: 'Deferred Tax Liabilities (Net)', indent: 1 },
+      { code: 'c', name: 'Other Long-Term Liabilities', indent: 1 },
+      { code: 'd', name: 'Long-Term Provisions', indent: 1 },
+      { code: '3', name: 'Current Liabilities', isSection: true },
+      { code: 'a', name: 'Short-Term Borrowings', indent: 1 },
+      { code: 'b', name: 'Trade Payables', indent: 1 },
+      { code: 'c', name: 'Other Current Liabilities', indent: 1 },
+      { code: 'd', name: 'Short-Term Provisions', indent: 1 },
+      { code: '', name: 'TOTAL', isTotal: true }
+    ],
+    currentAssets: [
+      { code: 'II', name: 'ASSETS', colspan: true, isHeader: true },
+      { code: '1', name: 'Non-Current Assets', isSection: true },
+      { code: 'a', name: 'Property, Plant and Equipment', indent: 1 },
+      { code: 'b', name: 'Intangible Assets', indent: 1 },
+      { code: 'c', name: 'Capital Work-in-Progress', indent: 1 },
+      { code: 'd', name: 'Intangible Assets under Development', indent: 1 },
+      { code: 'e', name: 'Non-Current Investments', indent: 1 },
+      { code: 'f', name: 'Long-Term Loans and Advances', indent: 1 },
+      { code: 'g', name: 'Other Non-Current Assets', indent: 1 },
+      { code: '2', name: 'Current Assets', isSection: true },
+      { code: 'a', name: 'Current Investments', indent: 1 },
+      { code: 'b', name: 'Inventories', indent: 1 },
+      { code: 'c', name: 'Trade Receivables', indent: 1 },
+      { code: 'd', name: 'Cash and Cash Equivalents', indent: 1 },
+      { code: 'e', name: 'Short-Term Loans and Advances', indent: 1 },
+      { code: 'f', name: 'Other Current Assets', indent: 1 },
+      { code: '', name: 'TOTAL', isTotal: true }
+    ]
+  }
+}
+
+// ICAI Schedule III - Profit & Loss Structure
+const PL_STRUCTURE = {
+  income: [
+    { code: '', name: 'INCOME', colspan: true, isHeader: true },
+    { code: 'I', name: 'Revenue from Operations', isSection: true },
+    { code: 'II', name: 'Other Income', isSection: true },
+    { code: '', name: 'Total Revenue (I + II)', isTotal: true }
+  ],
+  expenses: [
+    { code: 'III', name: 'EXPENSES', colspan: true, isHeader: true },
+    { code: 'a', name: 'Cost of Materials Consumed', indent: 1 },
+    { code: 'b', name: 'Purchases of Stock-in-Trade', indent: 1 },
+    { code: 'c', name: 'Changes in Inventories of Finished Goods, Work-in-Progress and Stock-in-Trade', indent: 1 },
+    { code: 'd', name: 'Employee Benefits Expense', indent: 1 },
+    { code: 'e', name: 'Finance Costs', indent: 1 },
+    { code: 'f', name: 'Depreciation and Amortization Expense', indent: 1 },
+    { code: 'g', name: 'Other Expenses', indent: 1 },
+    { code: '', name: 'Total Expenses', isTotal: true },
+    { code: '', name: 'Profit Before Tax (I - II)', isTotal: true },
+    { code: '', name: 'Less: Tax Expense', isSection: true },
+    { code: 'a', name: 'Current Tax', indent: 1 },
+    { code: 'b', name: 'Deferred Tax', indent: 1 },
+    { code: '', name: 'Profit for the Period', isTotal: true }
+  ]
+}
+
+async function loadClients() {
+  try {
+    const { data } = await supabase.from('clients').select('id, name, constitution')
+    if (data && data.length > 0) {
+      clients = data
+      const select = document.getElementById('clientSelect')
+      // Add default option
+      const defaultOpt = document.createElement('option')
+      defaultOpt.value = ""
+      defaultOpt.textContent = "-- Select Client --"
+      defaultOpt.selected = true
+      select.appendChild(defaultOpt)
+      
+      data.forEach(c => {
+        const opt = document.createElement('option')
+        opt.value = c.id
+        opt.textContent = c.name + ' (' + c.constitution + ')'
+        select.appendChild(opt)
+      })
+      
+      // Show sample report after loading clients
+      setTimeout(() => {
+        document.getElementById('reportContainer').innerHTML = renderBalanceSheet('Sample Company', '2024-25')
+      }, 500)
+    }
+  } catch (e) {
+    // Try localStorage
+    const localClients = JSON.parse(localStorage.getItem('clients')) || []
+    const select = document.getElementById('clientSelect')
+    localClients.forEach(c => {
+      const opt = document.createElement('option')
+      opt.value = c.id
+      opt.textContent = c.name + ' (' + c.constitution + ')'
+      select.appendChild(opt)
+    })
+    
+    // Show sample report
+    setTimeout(() => {
+      document.getElementById('reportContainer').innerHTML = renderBalanceSheet('Sample Company', '2024-25')
+    }, 500)
+  }
+}
+
+function loadClientData() {
+  const clientId = document.getElementById('clientSelect').value
+  const fy = document.getElementById('fySelect').value
+  
+  // If no client selected, show sample report
+  if (!clientId) {
+    document.getElementById('reportContainer').innerHTML = renderBalanceSheet('Select a Client', fy)
+    return
+  }
+  
+  const clientName = getClientName()
+  
+  // Load financial data from Supabase
+  loadFinancialData(clientId, fy).then(() => {
+    renderReport()
+  })
+}
+
+function switchReport() {
+  const type = document.getElementById('reportType').value
+  switchReportType(type)
+}
+
+function switchReportType(type) {
+  currentReport = type
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+  document.querySelector('[onclick="switchReportType(\'' + type + '\')"]').classList.add('active')
+  document.getElementById('reportType').value = type
+  renderReport()
+}
+
+function formatCurrency(amount) {
+  if (amount === undefined || amount === null || amount === '') return '-'
+  return new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)
+}
+
+function getClientName() {
+  const clientId = document.getElementById('clientSelect').value
+  const client = clients.find(c => c.id == clientId)
+  return client ? client.name : ''
+}
+
+function getFY() {
+  return document.getElementById('fySelect').value
+}
+
+function renderReport() {
+  const container = document.getElementById('reportContainer')
+  const clientName = getClientName()
+  const fy = getFY()
+  
+  if (currentReport === 'bs') {
+    container.innerHTML = renderBalanceSheet(clientName, fy)
+  } else if (currentReport === 'pl') {
+    container.innerHTML = renderPL(clientName, fy)
+  } else if (currentReport === 'cf') {
+    container.innerHTML = renderCashFlow(clientName, fy)
+  } else if (currentReport === 'notes') {
+    container.innerHTML = renderNotes(clientName, fy)
+  }
+}
+
+function renderBalanceSheet(clientName, fy) {
+  // Convert trial balance data to balance sheet format
+  const bsData = convertTBtoBS(financialData)
+  
+  let html = `
+  <div class="report-card" id="printableReport">
+    <div class="report-title"><strong>BALANCE SHEET</strong></div>
+    <div class="report-subtitle">${clientName}</div>
+    <div class="report-subtitle">For the year ended 31st March, ${fy.split('-')[1]}</div>
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th style="width:60px;">Sch.</th>
+          <th>Particulars</th>
+          <th style="width:150px;text-align:right;">Note No.</th>
+          <th style="width:150px;text-align:right;">${fy.split('-')[0]}</th>
+          <th style="width:150px;text-align:right;">${parseInt(fy.split('-')[0]) - 1}-${(parseInt(fy.split('-')[0]) - 1).toString().slice(-2)}</th>
+        </tr>
+      </thead>
+      <tbody>`
+  
+  // Equity & Liabilities
+  html += `<tr class="section-header"><td colspan="5">${BS_STRUCTURE.assets.nonCurrentAssets[0].name}</td></tr>`
+  BS_STRUCTURE.assets.nonCurrentAssets.slice(1).forEach(item => {
+    const value = bsData[item.name] || 0
+    if (item.isSection) {
+      html += `<tr class="section-header"><td>${item.code}</td><td colspan="4">${item.name}</td></tr>`
+    } else if (item.isTotal) {
+      html += `<tr class="total-row"><td></td><td>${item.name}</td><td></td><td class="amount">${formatCurrency(value)}</td><td class="amount">-</td></tr>`
+    } else {
+      html += `<tr><td>${item.code}</td><td class="indent-${item.indent || 0}">${item.name}</td><td></td><td class="amount">${formatCurrency(value)}</td><td class="amount">-</td></tr>`
+    }
+  })
+  
+  // Assets
+  html += `<tr class="section-header"><td colspan="5">${BS_STRUCTURE.assets.currentAssets[0].name}</td></tr>`
+  BS_STRUCTURE.assets.currentAssets.slice(1).forEach(item => {
+    const value = bsData[item.name] || 0
+    if (item.isSection) {
+      html += `<tr class="section-header"><td>${item.code}</td><td colspan="4">${item.name}</td></tr>`
+    } else if (item.isTotal) {
+      html += `<tr class="total-row"><td></td><td>${item.name}</td><td></td><td class="amount">${formatCurrency(value)}</td><td class="amount">-</td></tr>`
+    } else {
+      html += `<tr><td>${item.code}</td><td class="indent-${item.indent || 0}">${item.name}</td><td></td><td class="amount">${formatCurrency(value)}</td><td class="amount">-</td></tr>`
+    }
+  })
+  
+  html += `</tbody></table></div>`
+  return html
+}
+
+// Convert trial balance data to balance sheet format
+function convertTBtoBS(tbData) {
+  const bs = {}
+  
+  if (!tbData || !Array.isArray(tbData)) return bs
+  
+  tbData.forEach(item => {
+    if (item.mainHead === 'Liabilities' || item.mainHead === 'Income') {
+      // Credit - add to liabilities or income
+      const credit = item.credit || 0
+      if (item.sub1 === 'Capital' || item.sub1 === 'Reserve & Surplus') {
+        bs['Share Capital'] = (bs['Share Capital'] || 0) + credit
+        bs['Reserves and Surplus'] = (bs['Reserves and Surplus'] || 0) + credit
+      } else if (item.mainHead === 'Liabilities') {
+        bs[item.sub1] = (bs[item.sub1] || 0) + credit
+      }
+    } else if (item.mainHead === 'Assets' || item.mainHead === 'Expense') {
+      // Debit - add to assets or expenses
+      const debit = item.debit || 0
+      if (item.sub1 === 'Fixed Assets' || item.sub1 === 'Long-term Loans') {
+        bs['Property, Plant and Equipment'] = (bs['Property, Plant and Equipment'] || 0) + debit
+        bs['Long-Term Loans and Advances'] = (bs['Long-Term Loans and Advances'] || 0) + debit
+      } else if (item.sub1 === 'Sundry Debtors') {
+        bs['Trade Receivables'] = (bs['Trade Receivables'] || 0) + debit
+      } else if (item.sub1 === 'Cash and Bank Balances') {
+        bs['Cash and Cash Equivalents'] = (bs['Cash and Cash Equivalents'] || 0) + debit
+      } else if (item.sub1 === 'Inventories') {
+        bs['Inventories'] = (bs['Inventories'] || 0) + debit
+      } else if (item.mainHead === 'Assets') {
+        bs[item.sub1] = (bs[item.sub1] || 0) + debit
+      }
+    }
+  })
+  
+  return bs
+}
+
+function renderPL(clientName, fy) {
+  let html = `
+  <div class="report-card" id="printableReport">
+    <div class="report-title"><strong>STATEMENT OF PROFIT AND LOSS</strong></div>
+    <div class="report-subtitle">${clientName}</div>
+    <div class="report-subtitle">For the year ended 31st March, ${fy.split('-')[1]}</div>
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th style="width:60px;">Sch.</th>
+          <th>Particulars</th>
+          <th style="width:150px;text-align:right;">Note No.</th>
+          <th style="width:150px;text-align:right;">${fy.split('-')[0]}</th>
+          <th style="width:150px;text-align:right;">${parseInt(fy.split('-')[0]) - 1}-${(parseInt(fy.split('-')[0]) - 1).toString().slice(-2)}</th>
+        </tr>
+      </thead>
+      <tbody>`
+  
+  // Income
+  PL_STRUCTURE.income.forEach(item => {
+    if (item.isHeader) {
+      html += `<tr class="section-header"><td colspan="5">${item.name}</td></tr>`
+    } else if (item.isSection) {
+      html += `<tr><td>${item.code}</td><td>${item.name}</td><td></td><td class="amount">-</td><td class="amount">-</td></tr>`
+    } else if (item.isTotal) {
+      html += `<tr class="total-row"><td></td><td>${item.name}</td><td></td><td class="amount">-</td><td class="amount">-</td></tr>`
+    } else {
+      html += `<tr><td>${item.code}</td><td class="indent-${item.indent || 0}">${item.name}</td><td></td><td class="amount">-</td><td class="amount">-</td></tr>`
+    }
+  })
+  
+  // Expenses
+  PL_STRUCTURE.expenses.forEach(item => {
+    if (item.isHeader) {
+      html += `<tr class="section-header"><td colspan="5">${item.name}</td></tr>`
+    } else if (item.isSection) {
+      html += `<tr class="section-header"><td>${item.code}</td><td colspan="4">${item.name}</td></tr>`
+    } else if (item.isTotal) {
+      html += `<tr class="total-row"><td></td><td>${item.name}</td><td></td><td class="amount">-</td><td class="amount">-</td></tr>`
+    } else {
+      html += `<tr><td>${item.code}</td><td class="indent-${item.indent || 0}">${item.name}</td><td></td><td class="amount">-</td><td class="amount">-</td></tr>`
+    }
+  })
+  
+  html += `</tbody></table></div>`
+  return html
+}
+
+function renderCashFlow(clientName, fy) {
+  return `
+  <div class="report-card" id="printableReport">
+    <div class="report-title"><strong>CASH FLOW STATEMENT</strong></div>
+    <div class="report-subtitle">${clientName}</div>
+    <div class="report-subtitle">For the year ended 31st March, ${fy.split('-')[1]}</div>
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Particulars</th>
+          <th style="width:150px;text-align:right;">${fy.split('-')[0]}</th>
+          <th style="width:150px;text-align:right;">${parseInt(fy.split('-')[0]) - 1}-${(parseInt(fy.split('-')[0]) - 1).toString().slice(-2)}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="section-header"><td colspan="3">CASH FLOW FROM OPERATING ACTIVITIES</td></tr>
+        <tr><td class="indent-1">Net Profit before Tax</td><td class="amount">-</td><td class="amount">-</td></tr>
+        <tr><td class="indent-1">Adjustments for:</td><td class="amount"></td><td class="amount"></td></tr>
+        <tr><td class="indent-2">Depreciation</td><td class="amount">-</td><td class="amount">-</td></tr>
+        <tr><td class="indent-2">Interest Income</td><td class="amount">-</td><td class="amount">-</td></tr>
+        <tr><td class="indent-2">Finance Costs</td><td class="amount">-</td><td class="amount">-</td></tr>
+        <tr class="total-row"><td>Cash Generated from Operations</td><td class="amount">-</td><td class="amount">-</td></tr>
+        <tr><td class="indent-1">Direct Taxes Paid</td><td class="amount">-</td><td class="amount">-</td></tr>
+        <tr class="total-row"><td>Net Cash from Operating Activities</td><td class="amount">-</td><td class="amount">-</td></tr>
+        
+        <tr class="section-header"><td colspan="3">CASH FLOW FROM INVESTING ACTIVITIES</td></tr>
+        <tr><td class="indent-1">Purchase of Fixed Assets</td><td class="amount">-</td><td class="amount">-</td></tr>
+        <tr><td class="indent-1">Sale of Fixed Assets</td><td class="amount">-</td><td class="amount">-</td></tr>
+        <tr><td class="indent-1">Purchase of Investments</td><td class="amount">-</td><td class="amount">-</td></tr>
+        <tr><td class="indent-1">Interest Received</td><td class="amount">-</td><td class="amount">-</td></tr>
+        <tr class="total-row"><td>Net Cash from Investing Activities</td><td class="amount">-</td><td class="amount">-</td></tr>
+        
+        <tr class="section-header"><td colspan="3">CASH FLOW FROM FINANCING ACTIVITIES</td></tr>
+        <tr><td class="indent-1">Proceeds from Long-Term Borrowings</td><td class="amount">-</td><td class="amount">-</td></tr>
+        <tr><td class="indent-1">Repayment of Long-Term Borrowings</td><td class="amount">-</td><td class="amount">-</td></tr>
+        <tr><td class="indent-1">Finance Costs Paid</td><td class="amount">-</td><td class="amount">-</td></tr>
+        <tr class="total-row"><td>Net Cash from Financing Activities</td><td class="amount">-</td><td class="amount">-</td></tr>
+        
+        <tr class="total-row"><td>Net Increase in Cash and Cash Equivalents</td><td class="amount">-</td><td class="amount">-</td></tr>
+        <tr><td>Cash and Cash Equivalents at Beginning</td><td class="amount">-</td><td class="amount">-</td></tr>
+        <tr class="total-row"><td>Cash and Cash Equivalents at End</td><td class="amount">-</td><td class="amount">-</td></tr>
+      </tbody>
+    </table>
+  </div>`
+}
+
+function renderNotes(clientName, fy) {
+  return `
+  <div class="report-card" id="printableReport">
+    <div class="report-title"><strong>NOTES TO ACCOUNTS</strong></div>
+    <div class="report-subtitle">${clientName}</div>
+    <div class="report-subtitle">For the year ended 31st March, ${fy.split('-')[1]}</div>
+    
+    <div class="notes-section">
+      <div class="note-item">
+        <div class="note-number">1. Share Capital</div>
+        <div class="note-content">Authorized Share Capital, Issued, Subscribed and Paid-up Share Capital details to be provided.</div>
+      </div>
+      <div class="note-item">
+        <div class="note-number">2. Reserves and Surplus</div>
+        <div class="note-content">Details of Securities Premium, General Reserve, Surplus in Statement of Profit and Loss.</div>
+      </div>
+      <div class="note-item">
+        <div class="note-number">3. Property, Plant and Equipment</div>
+        <div class="note-content">Tangible assets - Cost, Accumulated Depreciation, Net Block details.</div>
+      </div>
+      <div class="note-item">
+        <div class="note-number">4. Trade Receivables</div>
+        <div class="note-content">Outstanding for more than 6 months, other receivables aging analysis.</div>
+      </div>
+      <div class="note-item">
+        <div class="note-number">5. Trade Payables</div>
+        <div class="note-content">Micro, Small and Medium Enterprises (MSMED) Act, 2006 disclosure.</div>
+      </div>
+      <div class="note-item">
+        <div class="note-number">6. Related Party Disclosures</div>
+        <div class="note-content">Transactions with related parties as per AS-18.</div>
+      </div>
+      <div class="note-item">
+        <div class="note-number">7. Segment Reporting</div>
+        <div class="note-content">Business segment and geographical segment as per AS-17.</div>
+      </div>
+      <div class="note-item">
+        <div class="note-number">8. Earning Per Share</div>
+        <div class="note-content">Basic and Diluted EPS calculation as per AS-20.</div>
+      </div>
+    </div>
+  </div>`
+}
+
+function exportSingle(format) {
+  const clientName = getClientName()
+  const fy = getFY()
+  const reportType = currentReport === 'bs' ? 'Balance Sheet' : currentReport === 'pl' ? 'Profit and Loss' : currentReport === 'cf' ? 'Cash Flow' : 'Notes to Accounts'
+  
+  if (format === 'excel') {
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.aoa_to_sheet([[`${reportType} - ${clientName}`], [`FY: ${fy}`], []])
+    XLSX.utils.book_append_sheet(wb, ws, 'Report')
+    XLSX.writeFile(wb, `${clientName}_${reportType}_${fy}.xlsx`)
+  } else if (format === 'pdf') {
+    window.print()
+  } else if (format === 'word') {
+    const content = document.getElementById('printableReport').innerHTML
+    const blob = new Blob([`<html><body>${content}</body></html>`], { type: 'application/msword' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `${clientName}_${reportType}_${fy}.doc`
+    link.click()
+  }
+}
+
+// Export all reports in a single file
+async function exportAllReports() {
+  const clientName = getClientName()
+  const fy = getFY()
+  
+  if (!clientName) {
+    alert('Please select a client first')
+    return
+  }
+  
+  // Show export options modal
+  const format = prompt('Select export format:\n1. PDF (printable)\n2. Excel\n3. Word\n\nEnter 1, 2, or 3:')
+  
+  if (!format || !['1', '2', '3'].includes(format)) return
+  
+  const formatType = format === '1' ? 'pdf' : format === '2' ? 'excel' : 'word'
+  
+  if (formatType === 'excel') {
+    const wb = XLSX.utils.book_new()
+    
+    // Balance Sheet
+    const bsData = renderBalanceSheetData(clientName, fy)
+    const wsBS = XLSX.utils.aoa_to_sheet(bsData)
+    XLSX.utils.book_append_sheet(wb, wsBS, 'Balance Sheet')
+    
+    // Profit & Loss
+    const plData = renderPLData(clientName, fy)
+    const wsPL = XLSX.utils.aoa_to_sheet(plData)
+    XLSX.utils.book_append_sheet(wb, wsPL, 'Profit & Loss')
+    
+    // Cash Flow
+    const cfData = renderCFData(clientName, fy)
+    const wsCF = XLSX.utils.aoa_to_sheet(cfData)
+    XLSX.utils.book_append_sheet(wb, wsCF, 'Cash Flow')
+    
+    // Notes to Accounts
+    const notesData = renderNotesData(clientName, fy)
+    const wsNotes = XLSX.utils.aoa_to_sheet(notesData)
+    XLSX.utils.book_append_sheet(wb, wsNotes, 'Notes to Accounts')
+    
+    XLSX.writeFile(wb, `${clientName}_FinancialStatements_${fy}.xlsx`)
+    
+  } else if (formatType === 'word') {
+    const bs = document.getElementById('printableReport') ? document.getElementById('printableReport').innerHTML : ''
+    
+    // Store current report and switch to each one
+    const originalReport = currentReport
+    
+    let allContent = `<html><body>
+      <h1 style="text-align:center;">${clientName}</h1>
+      <h2 style="text-align:center;">Financial Statements</h2>
+      <h3 style="text-align:center;">FY: ${fy}</h3>
+      <br><br>`
+    
+    currentReport = 'bs'
+    allContent += '<h2>BALANCE SHEET</h2>' + renderBalanceSheet(clientName, fy)
+    
+    currentReport = 'pl'
+    allContent += '<h2>STATEMENT OF PROFIT AND LOSS</h2>' + renderPL(clientName, fy)
+    
+    currentReport = 'cf'
+    allContent += '<h2>CASH FLOW STATEMENT</h2>' + renderCashFlow(clientName, fy)
+    
+    currentReport = 'notes'
+    allContent += '<h2>NOTES TO ACCOUNTS</h2>' + renderNotes(clientName, fy)
+    
+    currentReport = originalReport
+    
+    allContent += '</body></html>'
+    
+    const blob = new Blob([allContent], { type: 'application/msword' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `${clientName}_FinancialStatements_${fy}.doc`
+    link.click()
+    
+  } else if (formatType === 'pdf') {
+    // For PDF, open print dialog with all reports
+    const originalReport = currentReport
+    
+    let printContent = '<html><head><title>Financial Statements</title>'
+    printContent += '<style>body{font-family:Arial;padding:20px;} h1{text-align:center;} h2{margin-top:30px;} table{width:100%;border-collapse:collapse;margin:20px 0;} th,td{border:1px solid #000;padding:8px;text-align:left;} .amount{text-align:right;}</style>'
+    printContent += '</head><body>'
+    
+    printContent += `<h1 style="text-align:center;">${clientName}</h1>`
+    printContent += `<h2 style="text-align:center;">Financial Statements</h2>`
+    printContent += `<h3 style="text-align:center;">FY: ${fy}</h3><br><br>`
+    
+    currentReport = 'bs'
+    printContent += '<h2>BALANCE SHEET</h2>' + renderBalanceSheet(clientName, fy).replace(/class="report-card"/g, '').replace(/class="report-title"/g, '').replace(/class="report-subtitle"/g, '').replace(/class="report-table"/g, 'border="1" cellspacing="0"').replace(/<th/g, '<th style="background:#f0f0f0;"').replace(/class="amount"/g, 'style="text-align:right;"')
+    
+    currentReport = 'pl'
+    printContent += '<h2 style="page-break-before:always;">PROFIT AND LOSS</h2>' + renderPL(clientName, fy).replace(/class="report-card"/g, '').replace(/class="report-title"/g, '').replace(/class="report-subtitle"/g, '').replace(/class="report-table"/g, 'border="1" cellspacing="0"').replace(/<th/g, '<th style="background:#f0f0f0;"').replace(/class="amount"/g, 'style="text-align:right;"')
+    
+    currentReport = 'cf'
+    printContent += '<h2 style="page-break-before:always;">CASH FLOW STATEMENT</h2>' + renderCashFlow(clientName, fy).replace(/class="report-card"/g, '').replace(/class="report-title"/g, '').replace(/class="report-subtitle"/g, '').replace(/class="report-table"/g, 'border="1" cellspacing="0"').replace(/<th/g, '<th style="background:#f0f0f0;"').replace(/class="amount"/g, 'style="text-align:right;"')
+    
+    currentReport = 'notes'
+    printContent += '<h2 style="page-break-before:always;">NOTES TO ACCOUNTS</h2>' + renderNotes(clientName, fy).replace(/class="report-card"/g, '').replace(/class="note-item"/g, 'style="border-left:3px solid #000;padding:10px;margin:10px 0;background:#f9f9f9;"')
+    
+    currentReport = originalReport
+    printContent += '</body></html>'
+    
+    const printWindow = window.open('', '_blank')
+    printWindow.document.write(printContent)
+    printWindow.document.close()
+    printWindow.print()
+  }
+}
+
+// Helper functions for Excel data
+function renderBalanceSheetData(clientName, fy) {
+  const data = [[`BALANCE SHEET - ${clientName}`], [`FY: ${fy}`], []]
+  data.push(['Sch.', 'Particulars', 'Note No.', fy, (parseInt(fy.split('-')[0]) - 1) + '-' + (parseInt(fy.split('-')[0]) - 1).toString().slice(-2)])
+  
+  BS_STRUCTURE.assets.nonCurrentAssets.forEach(item => {
+    if (item.isHeader || item.isSection) {
+      data.push([item.code, item.name, '', '', ''])
+    } else if (item.isTotal) {
+      data.push(['', item.name, '', '', ''])
+    } else {
+      data.push([item.code, item.name, '', '', ''])
+    }
+  })
+  
+  data.push(['', '', '', '', ''])
+  
+  BS_STRUCTURE.assets.currentAssets.forEach(item => {
+    if (item.isHeader || item.isSection) {
+      data.push([item.code, item.name, '', '', ''])
+    } else if (item.isTotal) {
+      data.push(['', item.name, '', '', ''])
+    } else {
+      data.push([item.code, item.name, '', '', ''])
+    }
+  })
+  
+  return data
+}
+
+function renderPLData(clientName, fy) {
+  const data = [[`STATEMENT OF PROFIT AND LOSS - ${clientName}`], [`FY: ${fy}`], []]
+  data.push(['Sch.', 'Particulars', 'Note No.', fy, (parseInt(fy.split('-')[0]) - 1) + '-' + (parseInt(fy.split('-')[0]) - 1).toString().slice(-2)])
+  
+  PL_STRUCTURE.income.forEach(item => {
+    if (item.isHeader || item.isSection || item.isTotal) {
+      data.push([item.code, item.name, '', '', ''])
+    } else {
+      data.push([item.code, item.name, '', '', ''])
+    }
+  })
+  
+  data.push(['', '', '', '', ''])
+  
+  PL_STRUCTURE.expenses.forEach(item => {
+    if (item.isHeader || item.isSection || item.isTotal) {
+      data.push([item.code, item.name, '', '', ''])
+    } else {
+      data.push([item.code, item.name, '', '', ''])
+    }
+  })
+  
+  return data
+}
+
+function renderCFData(clientName, fy) {
+  return [[`CASH FLOW STATEMENT - ${clientName}`], [`FY: ${fy}`], []]
+}
+
+function renderNotesData(clientName, fy) {
+  return [[`NOTES TO ACCOUNTS - ${clientName}`], [`FY: ${fy}`], []]
+}
+
+// Initialize
+loadClients()
+
+// Store financial data per client per FY
+let financialData = {}
+
+async function loadFinancialData(clientId, fy) {
+  try {
+    const { data } = await supabase
+      .from('trial_balance')
+      .select('data')
+      .eq('client_id', clientId)
+      .eq('fy', fy)
+      .single()
+    
+    if (data && data.data) {
+      financialData = data.data
+      return financialData
+    }
+  } catch (e) {
+    console.log('Error loading financial data:', e)
+  }
+  
+  financialData = {}
+  return financialData
+}
+
+function saveFinancialData(clientId, fy, data) {
+  supabase.from('trial_balance').upsert({
+    client_id: clientId,
+    fy: fy,
+    data: data,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'client_id, fy' }).then()
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book-Keeping | TaxGlue</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
+.container { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); color: white; padding: 0; position: fixed; height: 100vh; overflow-y: auto; }
+.sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.logo { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.sidebar-nav { padding: 20px 12px; }
+.nav-section { margin-bottom: 24px; }
+.nav-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; }
+.sidebar a { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; }
+.sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.1); color: white; }
+.sidebar a.active { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+.main { flex: 1; margin-left: 260px; }
+.topbar { background: white; padding: 16px 32px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.page-title { font-size: 20px; font-weight: 600; }
+.btn-back { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; }
+.content { padding: 24px; }
+.selection-bar { background: white; border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 1px solid #e2e8f0; display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end; }
+.form-group { }
+.form-label { display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px; }
+.form-select, .form-input { padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; min-width: 180px; }
+.form-select:focus, .form-input:focus { outline: none; border-color: #22c55e; }
+.btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; }
+.btn-primary { background: #22c55e; color: white; }
+.btn-primary:hover { background: #16a34a; }
+.btn-secondary { background: #3b82f6; color: white; }
+.btn-outline { background: white; color: #475569; border: 1px solid #e2e8f0; }
+.btn-danger { background: #ef4444; color: white; }
+.tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+.tab { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; background: #f1f5f9; color: #475569; border: none; }
+.tab.active { background: #22c55e; color: white; }
+.card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 24px; margin-bottom: 24px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.card-title { font-size: 16px; font-weight: 600; }
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; font-size: 13px; }
+th { background: #f8fafc; font-weight: 600; }
+.amount { text-align: right; }
+.total-row { background: #f1f5f9; font-weight: 600; }
+.success-message { background: #dcfce7; color: #16a34a; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; display: none; }
+.success-message.show { display: block; }
+.voucher-form { display: none; }
+.voucher-form.active { display: block; }
+.voucher-row { display: grid; grid-template-columns: 2fr 2fr 1fr 1fr 40px; gap: 10px; margin-bottom: 10px; align-items: center; }
+.voucher-header { font-weight: 600; background: #f8fafc; padding: 10px; border-radius: 8px 8px 0 0; }
+.voucher-input { padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; }
+.voucher-delete { background: #fee2e2; border: none; padding: 8px; border-radius: 6px; cursor: pointer; color: #dc2626; }
+.ledger-card { border-left: 4px solid #22c55e; }
+.ledger-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.ledger-balance { padding: 12px 16px; border-radius: 8px; font-weight: 600; }
+.ledger-balance.debit { background: #dbeafe; color: #1d4ed8; }
+.ledger-balance.credit { background: #dcfce7; color: #16a34a; }
+.empty-state { text-align: center; padding: 60px; color: #94a3b8; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+.modal.active { display: flex; align-items: center; justify-content: center; }
+.modal-content { background: white; border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title { font-size: 18px; font-weight: 600; }
+.modal-close { background: none; border: none; font-size: 24px; cursor: pointer; }
+@media print { .sidebar, .topbar, .selection-bar, .btn, .tabs { display: none; } .main { margin: 0; } }
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="sidebar">
+  <div class="sidebar-header"><div class="logo"><div class="logo-icon">📒</div>TaxGlue</div></div>
+  <div class="sidebar-nav">
+    <div class="nav-section"><div class="nav-section-title">Main</div>
+      <a href="/app/dashboard.html">🏠 Dashboard</a>
+      <a href="/app/clients.html">👥 Clients</a>
+      <a href="/app/ca-master.html">🎓 CA Master</a>
+    </div>
+    <div class="nav-section"><div class="nav-section-title">Accounting</div>
+      <a href="/modules/trial-balance.html">📒 Trial Balance</a>
+      <a href="/modules/financial-statements.html">📊 Financial Statements</a>
+      <a href="#" class="active">📒 Book-Keeping</a>
+    </div>
+  </div>
+</nav>
+<main class="main">
+  <header class="topbar">
+    <h1 class="page-title">📒 Book-Keeping</h1>
+    <a href="/app/dashboard.html" class="btn-back">← Back to Dashboard</a>
+  </header>
+  
+  <div class="content">
+    <div class="selection-bar">
+      <div class="form-group">
+        <label class="form-label">Select Client</label>
+        <select class="form-select" id="clientSelect" onchange="loadClientData()">
+          <option value="">-- Select Client --</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Financial Year</label>
+        <select class="form-select" id="fySelect" onchange="loadClientData()">
+          <option value="2024-25">2024-25</option>
+          <option value="2023-24">2023-24</option>
+          <option value="2022-23">2022-23</option>
+          <option value="2021-22">2021-22</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="success-message" id="successMessage">Saved successfully!</div>
+    
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('voucher')">📝 Voucher Entry</button>
+      <button class="tab" onclick="switchTab('ledger')">📒 Ledger</button>
+      <button class="tab" onclick="switchTab('daybook')">📖 Day Book</button>
+      <button class="tab" onclick="switchTab('cashbook')">💰 Cash Book</button>
+      <button class="tab" onclick="switchTab('accounts')">🏢 Chart of Accounts</button>
+    </div>
+    
+    <!-- Voucher Entry Section -->
+    <div id="voucherSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Create New Voucher</h3>
+          <button class="btn btn-primary" onclick="showVoucherForm()">➕ New Voucher</button>
+        </div>
+        
+        <!-- Voucher Type Selection -->
+        <div id="voucherTypeSelect" style="margin-bottom: 20px;">
+          <label class="form-label">Voucher Type</label>
+          <select class="form-select" id="voucherType" style="min-width: 200px;" onchange="showVoucherForm()">
+            <option value="journal">Journal Voucher (JV)</option>
+            <option value="payment">Payment Voucher (PV)</option>
+            <option value="receipt">Receipt Voucher (RV)</option>
+            <option value="contra">Contra Voucher (CV)</option>
+            <option value="debitnote">Debit Note (DN)</option>
+            <option value="creditnote">Credit Note (CN)</option>
+          </select>
+        </div>
+        
+        <!-- Voucher Form -->
+        <div id="voucherForm" class="voucher-form">
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+            <div class="form-group">
+              <label class="form-label">Voucher Date</label>
+              <input type="date" class="form-input" id="voucherDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Voucher No.</label>
+              <input type="text" class="form-input" id="voucherNo" placeholder="Auto-generated">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Narration</label>
+              <input type="text" class="form-input" id="voucherNarration" placeholder="Enter narration">
+            </div>
+          </div>
+          
+          <div class="voucher-header voucher-row">
+            <div>Account</div>
+            <div>Party/Customer</div>
+            <div>Debit (₹)</div>
+            <div>Credit (₹)</div>
+            <div></div>
+          </div>
+          
+          <div id="voucherLines">
+            <!-- Voucher lines will be added here -->
+          </div>
+          
+          <button class="btn btn-outline" onclick="addVoucherLine()" style="margin: 10px 0;">➕ Add Line</button>
+          
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <button class="btn btn-outline" onclick="hideVoucherForm()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveVoucher()">💾 Save Voucher</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Recent Vouchers -->
+      <div class="card">
+        <h3 class="card-title" style="margin-bottom: 16px;">Recent Vouchers</h3>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Voucher No.</th>
+                <th>Type</th>
+                <th>Narration</th>
+                <th>Debit</th>
+                <th>Credit</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="voucherTable">
+              <!-- Vouchers will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Ledger Section -->
+    <div id="ledgerSection" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Ledger Report</h3>
+          <div style="display: flex; gap: 10px;">
+            <select class="form-select" id="ledgerAccount" onchange="loadLedger()">
+              <option value="">-- Select Account --</option>
+            </select>
+            <input type="date" class="form-input" id="ledgerFromDate" onchange="loadLedger()">
+            <input type="date" class="form-input" id="ledgerToDate" onchange="loadLedger()">
+          </div>
+        </div>
+        
+        <div id="ledgerContent">
+          <div class="empty-state">Select an account to view ledger</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Day Book Section -->
+    <div id="daybookSection" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Day Book - All Transactions</h3>
+          <div style="display: flex; gap: 10px;">
+            <input type="date" class="form-input" id="daybookFromDate" onchange="loadDayBook()">
+            <input type="date" class="form-input" id="daybookToDate" onchange="loadDayBook()">
+          </div>
+        </div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Voucher No.</th>
+                <th>Type</th>
+                <th>Account</th>
+                <th>Narration</th>
+                <th>Debit</th>
+                <th>Credit</th>
+              </tr>
+            </thead>
+            <tbody id="daybookTable">
+              <!-- Transactions will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Cash Book Section -->
+    <div id="cashbookSection" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Cash Book</h3>
+        </div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Voucher No.</th>
+                <th>Type</th>
+                <th>Particulars</th>
+                <th>Narration</th>
+                <th>Receipt</th>
+                <th>Payment</th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody id="cashbookTable">
+              <!-- Cash transactions will be loaded here -->
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td colspan="5"><strong>Total</strong></td>
+                <td class="amount" id="cashReceiptTotal">0.00</td>
+                <td class="amount" id="cashPaymentTotal">0.00</td>
+                <td class="amount" id="cashBalanceTotal">0.00</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Chart of Accounts Section -->
+    <div id="accountsSection" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Chart of Accounts</h3>
+          <button class="btn btn-primary" onclick="showAddAccountModal()">➕ Add Account</button>
+        </div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Account Code</th>
+                <th>Account Name</th>
+                <th>Nature</th>
+                <th>Type</th>
+                <th>Opening Balance</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="accountsTable">
+              <!-- Accounts will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- Add Account Modal -->
+<div id="addAccountModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Add New Account</h3>
+      <button class="modal-close" onclick="hideAddAccountModal()">&times;</button>
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Account Name</label>
+      <input type="text" class="form-input" id="newAccountName" placeholder="Enter account name">
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Nature</label>
+      <select class="form-select" id="newAccountNature">
+        <option value="Assets">Assets</option>
+        <option value="Liabilities">Liabilities</option>
+        <option value="Income">Income</option>
+        <option value="Expense">Expense</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Account Type</label>
+      <select class="form-select" id="newAccountType">
+        <option value="Direct">Direct</option>
+        <option value="Indirect">Indirect</option>
+        <option value="Capital">Capital</option>
+        <option value="Revenue">Revenue</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom: 20px;">
+      <label class="form-label">Opening Balance</label>
+      <input type="number" class="form-input" id="newAccountOpening" placeholder="0.00">
+    </div>
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button class="btn btn-outline" onclick="hideAddAccountModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAccount()">💾 Save Account</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Supabase Configuration
+const supabaseUrl = "https://jgjeuybgideeqcjxvlmn.supabase.co"
+const supabaseKey = "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+
+let clients = []
+let vouchers = []
+let accounts = []
+let currentClientId = ''
+let currentFY = ''
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+  loadClients()
+  setDefaultDates()
+})
+
+function setDefaultDates() {
+  const today = new Date().toISOString().split('T')[0]
+  document.getElementById('voucherDate').value = today
+  document.getElementById('ledgerFromDate').value = today
+  document.getElementById('ledgerToDate').value = today
+  document.getElementById('daybookFromDate').value = today
+  document.getElementById('daybookToDate').value = today
+}
+
+// Load Clients
+async function loadClients() {
+  try {
+    const { data } = await supabase.from('clients').select('id, name')
+    if (data) {
+      clients = data
+      const select = document.getElementById('clientSelect')
+      data.forEach(c => {
+        const opt = document.createElement('option')
+        opt.value = c.id
+        opt.textContent = c.name
+        select.appendChild(opt)
+      })
+    }
+  } catch (e) {
+    console.log('Error loading clients:', e)
+  }
+}
+
+// Load client data
+async function loadClientData() {
+  currentClientId = document.getElementById('clientSelect').value
+  currentFY = document.getElementById('fySelect').value
+  
+  if (!currentClientId) {
+    return
+  }
+  
+  await loadAccounts()
+  await loadVouchers()
+  updateAccountDropdowns()
+}
+
+// Switch tabs
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+  document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active')
+  
+  document.getElementById('voucherSection').style.display = tab === 'voucher' ? 'block' : 'none'
+  document.getElementById('ledgerSection').style.display = tab === 'ledger' ? 'block' : 'none'
+  document.getElementById('daybookSection').style.display = tab === 'daybook' ? 'block' : 'none'
+  document.getElementById('cashbookSection').style.display = tab === 'cashbook' ? 'block' : 'none'
+  document.getElementById('accountsSection').style.display = tab === 'accounts' ? 'block' : 'none'
+  
+  if (tab === 'ledger') loadLedger()
+  if (tab === 'daybook') loadDayBook()
+  if (tab === 'cashbook') loadCashBook()
+}
+
+// ==================== ACCOUNTS ====================
+async function loadAccounts() {
+  try {
+    const { data } = await supabase
+      .from('accounts')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+    
+    if (data) {
+      accounts = data
+      
+      // If no accounts exist, create default ones
+      if (accounts.length === 0) {
+        await createDefaultAccounts()
+      }
+      
+      renderAccountsTable()
+    }
+  } catch (e) {
+    console.log('Error loading accounts:', e)
+  }
+}
+
+async function createDefaultAccounts() {
+  const defaultAccounts = [
+    { name: 'Capital Account', nature: 'Liabilities', account_type: 'Capital', opening_balance: 0 },
+    { name: 'Cash in Hand', nature: 'Assets', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Cash at Bank', nature: 'Assets', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Sundry Debtors', nature: 'Assets', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Sundry Creditors', nature: 'Liabilities', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Sales', nature: 'Income', account_type: 'Revenue', opening_balance: 0 },
+    { name: 'Purchase', nature: 'Expense', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Salaries', nature: 'Expense', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Rent', nature: 'Expense', account_type: 'Indirect', opening_balance: 0 },
+    { name: 'Interest Received', nature: 'Income', account_type: 'Revenue', opening_balance: 0 }
+  ]
+  
+  for (let i = 0; i < defaultAccounts.length; i++) {
+    try {
+      await supabase.from('accounts').insert({
+        client_id: currentClientId,
+        fy: currentFY,
+        code: String(i + 1).padStart(3, '0'),
+        ...defaultAccounts[i]
+      })
+    } catch (e) {
+      // Ignore duplicates
+    }
+  }
+  
+  // Reload accounts after creation
+  const { data } = await supabase
+    .from('accounts')
+    .select('*')
+    .eq('client_id', currentClientId)
+    .eq('fy', currentFY)
+  
+  if (data) {
+    accounts = data
+  }
+}
+
+function renderAccountsTable() {
+  const tbody = document.getElementById('accountsTable')
+  tbody.innerHTML = accounts.map(a => `
+    <tr>
+      <td>${a.code || '-'}</td>
+      <td>${a.name}</td>
+      <td>${a.nature}</td>
+      <td>${a.account_type}</td>
+      <td class="amount">${formatCurrency(a.opening_balance || 0)}</td>
+      <td>
+        <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="deleteAccount('${a.id}')">Delete</button>
+      </td>
+    </tr>
+  `).join('')
+}
+
+function showAddAccountModal() {
+  document.getElementById('addAccountModal').classList.add('active')
+}
+
+function hideAddAccountModal() {
+  document.getElementById('addAccountModal').classList.remove('active')
+}
+
+async function saveAccount() {
+  const name = document.getElementById('newAccountName').value
+  const nature = document.getElementById('newAccountNature').value
+  const accountType = document.getElementById('newAccountType').value
+  const openingBalance = parseFloat(document.getElementById('newAccountOpening').value) || 0
+  
+  if (!name) {
+    alert('Please enter account name')
+    return
+  }
+  
+  try {
+    await supabase.from('accounts').insert({
+      client_id: currentClientId,
+      fy: currentFY,
+      name: name,
+      nature: nature,
+      account_type: accountType,
+      opening_balance: openingBalance
+    })
+    
+    hideAddAccountModal()
+    loadAccounts()
+    showSuccess('Account saved successfully!')
+  } catch (e) {
+    console.error('Error saving account:', e)
+    alert('Error saving account')
+  }
+}
+
+async function deleteAccount(id) {
+  if (!confirm('Are you sure you want to delete this account?')) return
+  
+  await supabase.from('accounts').delete().eq('id', id)
+  loadAccounts()
+}
+
+function updateAccountDropdowns() {
+  const dropdowns = ['ledgerAccount']
+  dropdowns.forEach(id => {
+    const select = document.getElementById(id)
+    const currentValue = select.value
+    select.innerHTML = '<option value="">-- Select Account --</option>'
+    accounts.forEach(a => {
+      const opt = document.createElement('option')
+      opt.value = a.id
+      opt.textContent = a.name
+      select.appendChild(opt)
+    })
+    select.value = currentValue
+  })
+}
+
+// ==================== VOUCHERS ====================
+function showVoucherForm() {
+  document.getElementById('voucherForm').classList.add('active')
+  document.getElementById('voucherLines').innerHTML = ''
+  addVoucherLine()
+  addVoucherLine()
+  generateVoucherNo()
+}
+
+function hideVoucherForm() {
+  document.getElementById('voucherForm').classList.remove('active')
+}
+
+function generateVoucherNo() {
+  const type = document.getElementById('voucherType').value
+  const prefix = type.charAt(0).toUpperCase()
+  const num = String(vouchers.length + 1).padStart(4, '0')
+  document.getElementById('voucherNo').value = `${prefix}/${num}`
+}
+
+function addVoucherLine() {
+  const container = document.getElementById('voucherLines')
+  const line = document.createElement('div')
+  line.className = 'voucher-row'
+  line.innerHTML = `
+    <select class="voucher-input account-select">
+      <option value="">-- Select Account --</option>
+      ${accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('')}
+    </select>
+    <input type="text" class="voucher-input" placeholder="Party Name">
+    <input type="number" class="voucher-input debit-input" placeholder="0.00" oninput="updateLineTotal(this)">
+    <input type="number" class="voucher-input credit-input" placeholder="0.00" oninput="updateLineTotal(this)">
+    <button class="voucher-delete" onclick="this.parentElement.remove()">✕</button>
+  `
+  container.appendChild(line)
+}
+
+function updateLineTotal(input) {
+  const line = input.parentElement
+  const debit = line.querySelector('.debit-input')
+  const credit = line.querySelector('.credit-input')
+  
+  if (input === debit && input.value) {
+    credit.value = ''
+  } else if (input === credit && input.value) {
+    debit.value = ''
+  }
+}
+
+async function saveVoucher() {
+  const lines = document.querySelectorAll('#voucherLines .voucher-row')
+  const voucherData = {
+    client_id: currentClientId,
+    fy: currentFY,
+    date: document.getElementById('voucherDate').value,
+    voucher_no: document.getElementById('voucherNo').value,
+    voucher_type: document.getElementById('voucherType').value,
+    narration: document.getElementById('voucherNarration').value,
+    lines: []
+  }
+  
+  let totalDebit = 0, totalCredit = 0
+  
+  lines.forEach(line => {
+    const accountId = line.querySelector('.account-select').value
+    const party = line.querySelector('input[placeholder="Party Name"]').value
+    const debit = parseFloat(line.querySelector('.debit-input').value) || 0
+    const credit = parseFloat(line.querySelector('.credit-input').value) || 0
+    
+    if (accountId || debit || credit) {
+      voucherData.lines.push({ account_id: accountId, party, debit, credit })
+      totalDebit += debit
+      totalCredit += credit
+    }
+  })
+  
+  if (Math.abs(totalDebit - totalCredit) > 0.01) {
+    alert('Debit and Credit must be equal')
+    return
+  }
+  
+  if (voucherData.lines.length === 0) {
+    alert('Please add at least one entry')
+    return
+  }
+  
+  try {
+    await supabase.from('vouchers').insert(voucherData)
+    hideVoucherForm()
+    loadVouchers()
+    showSuccess('Voucher saved successfully!')
+  } catch (e) {
+    console.error('Error saving voucher:', e)
+    alert('Error saving voucher')
+  }
+}
+
+async function loadVouchers() {
+  try {
+    const { data } = await supabase
+      .from('vouchers')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+      .order('date', { ascending: false })
+    
+    if (data) {
+      vouchers = data
+      renderVoucherTable()
+    }
+  } catch (e) {
+    console.log('Error loading vouchers:', e)
+  }
+}
+
+function renderVoucherTable() {
+  const tbody = document.getElementById('voucherTable')
+  
+  if (vouchers.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No vouchers found</td></tr>'
+    return
+  }
+  
+  tbody.innerHTML = vouchers.map(v => {
+    const totalDebit = v.lines ? v.lines.reduce((sum, l) => sum + (l.debit || 0), 0) : 0
+    const totalCredit = v.lines ? v.lines.reduce((sum, l) => sum + (l.credit || 0), 0) : 0
+    return `
+      <tr>
+        <td>${v.date}</td>
+        <td>${v.voucher_no}</td>
+        <td>${v.voucher_type}</td>
+        <td>${v.narration || '-'}</td>
+        <td class="amount">${formatCurrency(totalDebit)}</td>
+        <td class="amount">${formatCurrency(totalCredit)}</td>
+        <td>
+          <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="deleteVoucher('${v.id}')">Delete</button>
+        </td>
+      </tr>
+    `
+  }).join('')
+}
+
+async function deleteVoucher(id) {
+  if (!confirm('Are you sure you want to delete this voucher?')) return
+  
+  await supabase.from('vouchers').delete().eq('id', id)
+  loadVouchers()
+}
+
+// ==================== LEDGER ====================
+async function loadLedger() {
+  const accountId = document.getElementById('ledgerAccount').value
+  const fromDate = document.getElementById('ledgerFromDate').value
+  const toDate = document.getElementById('ledgerToDate').value
+  
+  if (!accountId) {
+    document.getElementById('ledgerContent').innerHTML = '<div class="empty-state">Select an account to view ledger</div>'
+    return
+  }
+  
+  const account = accounts.find(a => a.id === accountId)
+  let balance = account?.opening_balance || 0
+  
+  // Get voucher lines for this account
+  const accountVouchers = []
+  vouchers.forEach(v => {
+    if (v.lines) {
+      v.lines.forEach(line => {
+        if (line.account_id === accountId) {
+          accountVouchers.push({
+            date: v.date,
+            voucherNo: v.voucher_no,
+            type: v.voucher_type,
+            narration: v.narration,
+            debit: line.debit || 0,
+            credit: line.credit || 0
+          })
+        }
+      })
+    }
+  })
+  
+  // Filter by date
+  const filtered = accountVouchers.filter(v => 
+    (!fromDate || v.date >= fromDate) && (!toDate || v.date <= toDate)
+  ).sort((a, b) => a.date.localeCompare(b.date))
+  
+  let runningBalance = balance
+  let totalDebit = 0
+  let totalCredit = 0
+  
+  const rows = filtered.map(v => {
+    runningBalance += v.debit - v.credit
+    totalDebit += v.debit
+    totalCredit += v.credit
+    
+    return `
+      <tr>
+        <td>${v.date}</td>
+        <td>${v.voucherNo}</td>
+        <td>${v.type}</td>
+        <td>${v.narration || '-'}</td>
+        <td class="amount">${formatCurrency(v.debit)}</td>
+        <td class="amount">${formatCurrency(v.credit)}</td>
+        <td class="amount">${formatCurrency(runningBalance)}</td>
+      </tr>
+    `
+  }).join('')
+  
+  const balanceClass = runningBalance >= 0 ? 'debit' : 'credit'
+  const balanceType = runningBalance >= 0 ? 'Dr' : 'Cr'
+  
+  document.getElementById('ledgerContent').innerHTML = `
+    <div class="ledger-header">
+      <h4>${account?.name || 'Account'}</h4>
+      <div class="ledger-balance ${balanceClass}">
+        Closing Balance: ${formatCurrency(Math.abs(runningBalance))} ${balanceType}
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Voucher No.</th>
+          <th>Type</th>
+          <th>Narration</th>
+          <th>Debit</th>
+          <th>Credit</th>
+          <th>Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Opening</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Opening Balance</td>
+          <td class="amount">-</td>
+          <td class="amount">-</td>
+          <td class="amount">${formatCurrency(balance)}</td>
+        </tr>
+        ${rows}
+      </tbody>
+    </table>
+  `
+}
+
+// ==================== DAY BOOK ====================
+async function loadDayBook() {
+  const fromDate = document.getElementById('daybookFromDate').value
+  const toDate = document.getElementById('daybookToDate').value
+  
+  const allTransactions = []
+  
+  vouchers.forEach(v => {
+    if (v.lines) {
+      v.lines.forEach(line => {
+        if (line.account_id) {
+          const account = accounts.find(a => a.id === line.account_id)
+          allTransactions.push({
+            date: v.date,
+            voucherNo: v.voucher_no,
+            type: v.voucher_type,
+            account: account?.name || 'Unknown',
+            narration: v.narration,
+            debit: line.debit || 0,
+            credit: line.credit || 0
+          })
+        }
+      })
+    }
+  })
+  
+  const filtered = allTransactions.filter(t => 
+    (!fromDate || t.date >= fromDate) && (!toDate || t.date <= toDate)
+  ).sort((a, b) => b.date.localeCompare(a.date))
+  
+  const tbody = document.getElementById('daybookTable')
+  tbody.innerHTML = filtered.map(t => `
+    <tr>
+      <td>${t.date}</td>
+      <td>${t.voucherNo}</td>
+      <td>${t.type}</td>
+      <td>${t.account}</td>
+      <td>${t.narration || '-'}</td>
+      <td class="amount">${formatCurrency(t.debit)}</td>
+      <td class="amount">${formatCurrency(t.credit)}</td>
+    </tr>
+  `).join('')
+}
+
+// ==================== CASH BOOK ====================
+async function loadCashBook() {
+  const cashAccount = accounts.find(a => a.name.toLowerCase().includes('cash'))
+  
+  let cashBalance = cashAccount?.opening_balance || 0
+  let totalReceipt = 0
+  let totalPayment = 0
+  
+  const cashTransactions = []
+  
+  vouchers.forEach(v => {
+    if (v.lines) {
+      v.lines.forEach(line => {
+        const accountName = accounts.find(a => a.id === line.account_id)?.name || ''
+        if (accountName.toLowerCase().includes('cash')) {
+          cashTransactions.push({
+            date: v.date,
+            voucherNo: v.voucher_no,
+            type: v.voucher_type,
+            particulars: v.narration,
+            narration: v.narration,
+            isReceipt: line.credit > 0,
+            amount: line.credit || line.debit || 0
+          })
+        }
+      })
+    }
+  })
+  
+  const rows = cashTransactions.sort((a, b) => a.date.localeCompare(b.date)).map(t => {
+    if (t.isReceipt) {
+      cashBalance += t.amount
+      totalReceipt += t.amount
+    } else {
+      cashBalance -= t.amount
+      totalPayment += t.amount
+    }
+    
+    return `
+      <tr>
+        <td>${t.date}</td>
+        <td>${t.voucherNo}</td>
+        <td>${t.type}</td>
+        <td>${t.particulars}</td>
+        <td>${t.narration || '-'}</td>
+        <td class="amount">${t.isReceipt ? formatCurrency(t.amount) : '-'}</td>
+        <td class="amount">${!t.isReceipt ? formatCurrency(t.amount) : '-'}</td>
+        <td class="amount">${formatCurrency(cashBalance)}</td>
+      </tr>
+    `
+  }).join('')
+  
+  document.getElementById('cashbookTable').innerHTML = rows || '<tr><td colspan="8" class="empty-state">No cash transactions found</td></tr>'
+  document.getElementById('cashReceiptTotal').textContent = formatCurrency(totalReceipt)
+  document.getElementById('cashPaymentTotal').textContent = formatCurrency(totalPayment)
+  document.getElementById('cashBalanceTotal').textContent = formatCurrency(cashBalance)
+}
+
+// Utility functions
+function formatCurrency(amount) {
+  if (amount === undefined || amount === null) return '0.00'
+  return new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)
+}
+
+function showSuccess(message) {
+  const msg = document.getElementById('successMessage')
+  msg.textContent = message
+  msg.classList.add('show')
+  setTimeout(() => msg.classList.remove('show'), 3000)
+}
+</script>
+</body>
+</html>

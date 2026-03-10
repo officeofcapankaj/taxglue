@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CA Master | TaxGlue</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; color: #1e293b; }
+.container { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); color: white; padding: 0; position: fixed; height: 100vh; overflow-y: auto; }
+.sidebar-header { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.logo { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.sidebar-nav { padding: 20px 12px; }
+.nav-section { margin-bottom: 24px; }
+.nav-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; }
+.sidebar a { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+.sidebar a:hover { background: rgba(255,255,255,0.1); color: white; }
+.sidebar a.active { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+.main { flex: 1; margin-left: 260px; }
+.topbar { background: white; padding: 16px 32px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.page-title { font-size: 20px; font-weight: 600; }
+.btn-back { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+.btn-back:hover { background: #e2e8f0; }
+.content { padding: 32px; }
+.form-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 32px; margin-bottom: 32px; }
+.form-title { font-size: 18px; font-weight: 600; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
+.form-section { margin-bottom: 32px; }
+.form-section-title { font-size: 16px; font-weight: 600; color: #475569; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+.form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.form-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.form-group { margin-bottom: 0; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-label { display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; }
+.form-label .required { color: #dc2626; }
+.form-input, .form-select, .form-textarea { width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; transition: all 0.2s; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+.btn-primary { background: #22c55e; color: white; }
+.btn-primary:hover { background: #16a34a; }
+.btn-outline { background: white; color: #475569; border: 1px solid #e2e8f0; }
+.btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; }
+.table-container { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+th { background: #f8fafc; padding: 14px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; }
+td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+tr:hover { background: #f8fafc; }
+.badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.badge-primary { background: #dcfce7; color: #16a34a; }
+.success-message { background: #dcfce7; color: #16a34a; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px; display: none; }
+.success-message.show { display: block; }
+@media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } .form-grid, .form-grid-2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo"><div class="logo-icon">📊</div>TaxGlue</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <a href="/app/dashboard.html">🏠 Dashboard</a>
+      <a href="/app/clients.html">👥 Clients</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Master Data</div>
+      <a href="/app/ca-master.html" class="active">🎓 CA Master</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Accounting</div>
+      <a href="/modules/trial-balance.html">📒 Trial Balance</a>
+      <a href="/modules/balance-sheet.html">⚖️ Balance Sheet</a>
+    </div>
+  </div>
+</nav>
+<main class="main">
+  <header class="topbar">
+    <h1 class="page-title">CA Master</h1>
+    <a href="/app/dashboard.html" class="btn-back">← Back to Dashboard</a>
+  </header>
+  <div class="content">
+    <div class="success-message" id="successMessage">CA details saved successfully!</div>
+    <div class="form-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #e2e8f0;">
+        <h2 class="form-title" style="margin:0;padding:0;border:none;">CA / Partner List</h2>
+        <button type="button" class="btn btn-primary" id="addCaBtn" onclick="showForm(); console.log('Add CA clicked inline')">+ Add CA</button>
+      </div>
+      <div style="margin-bottom: 20px;">
+        <input type="text" id="caSearch" class="form-input" placeholder="🔍 Search CA by name, membership no., firm name, PAN, GSTIN or mobile..." onkeyup="searchCA()" style="max-width: 400px;">
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Membership No.</th><th>Firm Name</th><th>Status</th><th>PAN</th><th>GSTIN</th><th>Mobile</th><th>Email</th><th>Action</th></tr>
+          </thead>
+          <tbody id="caTable"></tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="form-card" id="caFormCard" style="display: none;">
+      <h2 class="form-title" id="caFormTitle">Add New CA / Partner</h2>
+      <form id="caForm">
+        <!-- Personal Details -->
+        <div class="form-section">
+          <h3 class="form-section-title">Personal Details</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">First Name <span class="required">*</span></label>
+              <input type="text" class="form-input" id="firstName" placeholder="First Name" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-input" id="middleName" placeholder="Middle Name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name <span class="required">*</span></label>
+              <input type="text" class="form-input" id="lastName" placeholder="Last Name" required>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Father's Details -->
+        <div class="form-section">
+          <h3 class="form-section-title">Father's Name</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Father's First Name</label>
+              <input type="text" class="form-input" id="fatherFirstName" placeholder="Father's First Name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Father's Middle Name</label>
+              <input type="text" class="form-input" id="fatherMiddleName" placeholder="Father's Middle Name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Father's Last Name</label>
+              <input type="text" class="form-input" id="fatherLastName" placeholder="Father's Last Name">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Membership Details -->
+        <div class="form-section">
+          <h3 class="form-section-title">Membership Details</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Membership No. <span class="required">*</span></label>
+              <input type="text" class="form-input" id="membershipNo" placeholder="ICAI Membership Number" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Membership Date <span class="required">*</span></label>
+              <input type="date" class="form-input" id="membershipDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">PAN of CA</label>
+              <input type="text" class="form-input" id="caPan" placeholder="ABCDE1234A">
+            </div>
+            <div class="form-group">
+              <label class="form-label">PAN of Firm</label>
+              <input type="text" class="form-input" id="firmPan" placeholder="AAABC1234A">
+            </div>
+            <div class="form-group">
+              <label class="form-label">GSTIN of Firm</label>
+              <input type="text" class="form-input" id="firmGstin" placeholder="27AAABC1234A1Z5">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Firm Details -->
+        <div class="form-section">
+          <h3 class="form-section-title">Firm Details</h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Firm Name</label>
+              <input type="text" class="form-input" id="firmName" placeholder="Firm Name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Firm Registration Number</label>
+              <input type="text" class="form-input" id="firmRegNo" placeholder="Firm Registration Number">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status <span class="required">*</span></label>
+              <select class="form-select" id="status" required>
+                <option value="">Select Status</option>
+                <option value="Proprietor">Proprietor</option>
+                <option value="Partner">Partner</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Address & Contact -->
+        <div class="form-section">
+          <h3 class="form-section-title">Address & Contact</h3>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="form-label">Address</label>
+              <textarea class="form-textarea" id="address" placeholder="Enter complete address"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pin Code</label>
+              <input type="text" class="form-input" id="pincode" placeholder="123456" oninput="fetchPincodeDetails('ca')">
+            </div>
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input type="text" class="form-input" id="city" placeholder="City">
+            </div>
+            <div class="form-group">
+              <label class="form-label">District</label>
+              <input type="text" class="form-input" id="district" placeholder="District">
+            </div>
+            <div class="form-group">
+              <label class="form-label">State</label>
+              <input type="text" class="form-input" id="state" placeholder="State">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Country</label>
+              <input type="text" class="form-input" id="country" placeholder="Country" value="India">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mobile No. <span class="required">*</span></label>
+              <input type="tel" class="form-input" id="mobile" placeholder="Mobile Number" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-mail ID</label>
+              <input type="email" class="form-input" id="email" placeholder="Email Address">
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin-top: 24px; display: flex; gap: 12px;">
+          <button type="submit" class="btn btn-primary" id="saveBtn">💾 Save CA Details</button>
+          <button type="button" class="btn btn-outline" onclick="resetForm()">Clear Form</button>
+          <button type="button" class="btn btn-remove" id="deleteBtn" style="display:none;background:#fee2e2;color:#dc2626;" onclick="deleteCA()">🗑️ Delete CA</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+const supabaseUrl = "https://jgjeuybgideeqcjxvlmn.supabase.co"
+const supabaseKey = "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+
+let caList = JSON.parse(localStorage.getItem('caList')) || []
+let editingCAId = null
+
+// Load CA from Supabase on page load
+async function loadCAFromSupabase() {
+  try {
+    const { data, error } = await supabase.from('ca_master').select('*').order('created_at', { ascending: false })
+    if (error) throw error
+    if (data && data.length > 0) {
+      caList = data
+      localStorage.setItem('caList', JSON.stringify(caList))
+      renderCA()
+    }
+  } catch (e) {
+    console.log('Loading from Supabase failed, using localStorage:', e)
+  }
+}
+
+async function fetchPincodeDetails(prefix) {
+  const pincode = document.getElementById(prefix + 'Pincode')?.value || document.getElementById('pincode')?.value
+  if (!pincode || pincode.length !== 6) return
+  try {
+    const res = await fetch('https://api.postalpincode.in/pincode/' + pincode)
+    const data = await res.json()
+    if (data[0]?.Status === 'Success' && data[0]?.PostOffice?.[0]) {
+      const po = data[0].PostOffice[0]
+      if (prefix === 'ca') {
+        document.getElementById('city').value = po.District || ''
+        document.getElementById('district').value = po.District || ''
+        document.getElementById('state').value = po.State || ''
+        document.getElementById('country').value = 'India'
+      } else {
+        document.getElementById('clientCity').value = po.District || ''
+        document.getElementById('clientDistrict').value = po.District || ''
+        document.getElementById('clientState').value = po.State || ''
+        document.getElementById('clientCountry').value = 'India'
+      }
+    }
+  } catch (e) { console.log('Pincode API error:', e) }
+}
+
+function showForm() {
+  console.log('showForm called - showing form')
+  editingCAId = null
+  
+  // Get the form card directly by ID
+  const formCard = document.getElementById('caFormCard')
+  if (formCard) {
+    formCard.style.display = 'block'
+    formCard.style.visibility = 'visible'
+    formCard.style.opacity = '1'
+    
+    // Update form title
+    const titleEl = document.getElementById('caFormTitle')
+    if (titleEl) titleEl.textContent = 'Add New CA / Partner'
+    
+    const saveBtn = document.getElementById('saveBtn')
+    if (saveBtn) saveBtn.textContent = '💾 Save CA Details'
+    
+    const deleteBtn = document.getElementById('deleteBtn')
+    if (deleteBtn) deleteBtn.style.display = 'none'
+    
+    // Reset form
+    const form = document.getElementById('caForm')
+    if (form) form.reset()
+    
+    // Scroll to form
+    formCard.scrollIntoView({ behavior: 'smooth' })
+    console.log('Form should now be visible')
+  } else {
+    console.log('ERROR: caFormCard not found!')
+  }
+}
+
+function editCA(id) {
+  const ca = caList.find(c => c.id === id)
+  if (!ca) return
+  editingCAId = id
+  document.getElementById('caFormCard').style.display = 'block'
+  document.getElementById('caFormTitle').textContent = 'Edit CA / Partner'
+  document.getElementById('saveBtn').textContent = '💾 Update CA Details'
+  document.getElementById('deleteBtn').style.display = 'inline-flex'
+  // Fill form
+  document.getElementById('firstName').value = ca.firstName || ''
+  document.getElementById('middleName').value = ca.middleName || ''
+  document.getElementById('lastName').value = ca.lastName || ''
+  document.getElementById('fatherFirstName').value = ca.fatherFirstName || ''
+  document.getElementById('fatherMiddleName').value = ca.fatherMiddleName || ''
+  document.getElementById('fatherLastName').value = ca.fatherLastName || ''
+  document.getElementById('membershipNo').value = ca.membershipNo || ''
+  document.getElementById('membershipDate').value = ca.membershipDate || ''
+  document.getElementById('caPan').value = ca.caPan || ''
+  document.getElementById('firmPan').value = ca.firmPan || ''
+  document.getElementById('firmGstin').value = ca.firmGstin || ''
+  document.getElementById('firmName').value = ca.firmName || ''
+  document.getElementById('firmRegNo').value = ca.firmRegNo || ''
+  document.getElementById('status').value = ca.status || ''
+  document.getElementById('address').value = ca.address || ''
+  document.getElementById('pincode').value = ca.pincode || ''
+  document.getElementById('city').value = ca.city || ''
+  document.getElementById('district').value = ca.district || ''
+  document.getElementById('state').value = ca.state || ''
+  document.getElementById('country').value = ca.country || 'India'
+  document.getElementById('mobile').value = ca.mobile || ''
+  document.getElementById('email').value = ca.email || ''
+  document.getElementById('caFormCard').scrollIntoView({ behavior: 'smooth' })
+}
+
+async function deleteCA() {
+  if (!editingCAId) return
+  if (!confirm('Are you sure you want to delete this CA?')) return
+  // Delete from Supabase
+  try {
+    await supabase.from('ca_master').delete().eq('id', editingCAId)
+  } catch (e) { console.log('Supabase delete error:', e) }
+  caList = caList.filter(c => c.id !== editingCAId)
+  localStorage.setItem('caList', JSON.stringify(caList))
+  renderCA()
+  // Hide form after delete
+  document.getElementById('caFormCard').style.display = 'none'
+  resetForm()
+}
+
+document.getElementById('caForm').addEventListener('submit', async function(e) {
+  e.preventDefault()
+  const caData = {
+    firstName: document.getElementById('firstName').value,
+    middleName: document.getElementById('middleName').value,
+    lastName: document.getElementById('lastName').value,
+    fatherFirstName: document.getElementById('fatherFirstName').value,
+    fatherMiddleName: document.getElementById('fatherMiddleName').value,
+    fatherLastName: document.getElementById('fatherLastName').value,
+    membershipNo: document.getElementById('membershipNo').value,
+    membershipDate: document.getElementById('membershipDate').value,
+    caPan: document.getElementById('caPan').value,
+    firmPan: document.getElementById('firmPan').value,
+    firmGstin: document.getElementById('firmGstin').value,
+    firmName: document.getElementById('firmName').value,
+    firmRegNo: document.getElementById('firmRegNo').value,
+    status: document.getElementById('status').value,
+    address: document.getElementById('address').value,
+    pincode: document.getElementById('pincode').value,
+    city: document.getElementById('city').value,
+    district: document.getElementById('district').value,
+    state: document.getElementById('state').value,
+    country: document.getElementById('country').value,
+    mobile: document.getElementById('mobile').value,
+    email: document.getElementById('email').value,
+    created_at: new Date().toISOString()
+  }
+  
+  if (editingCAId) {
+    const index = caList.findIndex(c => c.id === editingCAId)
+    if (index !== -1) {
+      caData.id = editingCAId
+      caData.created_at = caList[index].created_at
+      caList[index] = caData
+      // Update in Supabase
+      try {
+        await supabase.from('ca_master').update(caData).eq('id', editingCAId)
+      } catch (e) { console.log('Supabase update error:', e) }
+    }
+  } else {
+    caData.id = Date.now()
+    caList.push(caData)
+    // Insert in Supabase
+    try {
+      await supabase.from('ca_master').insert([caData])
+    } catch (e) { console.log('Supabase insert error:', e) }
+  }
+  
+  localStorage.setItem('caList', JSON.stringify(caList))
+  document.getElementById('successMessage').classList.add('show')
+  setTimeout(() => document.getElementById('successMessage').classList.remove('show'), 3000)
+  renderCA()
+  // Hide form after save
+  document.getElementById('caFormCard').style.display = 'none'
+  resetForm()
+})
+
+function resetForm() {
+  document.getElementById('caForm').reset()
+  document.getElementById('country').value = 'India'
+  editingCAId = null
+}
+
+function renderCA(filteredList = null) {
+  const tbody = document.getElementById('caTable')
+  const list = filteredList || caList
+  if (list.length === 0) { 
+    const msg = filteredList ? 'No CA found matching your search' : 'No CA details added yet'
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#94a3b8;padding:40px;">' + msg + '</td></tr>'; 
+    return 
+  }
+  tbody.innerHTML = list.map(ca => '<tr><td><strong>' + (ca.firstName || '') + ' ' + (ca.middleName || '') + ' ' + (ca.lastName || '') + '</strong></td><td>' + (ca.membershipNo || '-') + '</td><td>' + (ca.firmName || '-') + '</td><td><span class="badge badge-primary">' + (ca.status || '-') + '</span></td><td>' + (ca.caPan || '-') + '</td><td>' + (ca.firmGstin || '-') + '</td><td>' + (ca.mobile || '-') + '</td><td>' + (ca.email || '-') + '</td><td><button class="btn btn-outline" style="padding:6px 12px;font-size:12px;" onclick="editCA(' + ca.id + ')">✏️ Edit</button></td></tr>').join('')
+}
+
+function searchCA() {
+  const searchTerm = document.getElementById('caSearch').value.toLowerCase().trim()
+  if (!searchTerm) {
+    renderCA()
+    return
+  }
+  const filtered = caList.filter(ca => {
+    const fullName = (ca.firstName || '') + ' ' + (ca.middleName || '') + ' ' + (ca.lastName || '')
+    return fullName.toLowerCase().includes(searchTerm) ||
+           (ca.membershipNo || '').toLowerCase().includes(searchTerm) ||
+           (ca.firmName || '').toLowerCase().includes(searchTerm) ||
+           (ca.caPan || '').toLowerCase().includes(searchTerm) ||
+           (ca.firmGstin || '').toLowerCase().includes(searchTerm) ||
+           (ca.mobile || '').toLowerCase().includes(searchTerm) ||
+           (ca.email || '').toLowerCase().includes(searchTerm)
+  })
+  renderCA(filtered)
+}
+
+// Initially hide form
+document.getElementById('caFormCard').style.display = 'none'
+renderCA()
+loadCAFromSupabase()
+
+// Add event listener for Add CA button
+document.addEventListener('DOMContentLoaded', function() {
+  const addBtn = document.getElementById('addCaBtn')
+  if (addBtn) {
+    addBtn.addEventListener('click', function(e) {
+      e.preventDefault()
+      console.log('Add CA button clicked')
+      showForm()
+    })
+  }
+})
+</script>
+</body>
+</html>
