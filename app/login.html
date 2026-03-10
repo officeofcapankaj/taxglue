@@ -1,0 +1,112 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Login | TaxGlue</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f6f9;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.card{
+background:white;
+padding:30px;
+border-radius:8px;
+width:320px;
+box-shadow:0 4px 20px rgba(0,0,0,0.1);
+}
+
+input{
+width:100%;
+padding:10px;
+margin:10px 0;
+}
+
+button{
+width:100%;
+padding:10px;
+background:#2563eb;
+color:white;
+border:none;
+cursor:pointer;
+margin-top:5px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>TaxGlue Login</h2>
+
+<input id="email" placeholder="Email">
+
+<input id="password" type="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<button onclick="signup()">Signup</button>
+
+</div>
+
+<script>
+
+const supabase = supabase.createClient(
+"https://jgjeuybgideeqcjxvlmn.supabase.co",
+"sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
+)
+
+async function signup(){
+
+let email=document.getElementById("email").value
+let password=document.getElementById("password").value
+
+const {data,error}=await supabase.auth.signUp({
+email:email,
+password:password
+})
+
+if(error){
+alert(error.message)
+}else{
+alert("Account created")
+}
+
+}
+
+async function login(){
+
+let email=document.getElementById("email").value
+let password=document.getElementById("password").value
+
+const {data,error}=await supabase.auth.signInWithPassword({
+email:email,
+password:password
+})
+
+if(error){
+alert(error.message)
+}else{
+window.location.href="index.html"
+}
+
+}
+
+</script>
+
+</body>
+</html>
+```
