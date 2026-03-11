@@ -72,7 +72,9 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
 .tab-content.active { display: block; }
 </style>
 </head>
-<body>
+<body onload="document.body.classList.add('body-loaded')">
+<!-- Debug: Show this message to confirm body loaded -->
+<div id="debug-init" style="position:fixed;top:0;left:0;background:#ff0000;color:white;padding:5px;z-index:9999;font-size:12px;">Page loaded, waiting for initClients...</div>
 <div class="container">
 <nav class="sidebar">
   <div class="sidebar-header"><div class="logo"><div class="logo-icon">📊</div>TaxGlue</div></div>
@@ -360,6 +362,11 @@ let clients = [];
 function initClients() {
   try {
     console.log('initClients running...')
+    const debugDiv = document.getElementById('debug-init')
+    if (debugDiv) {
+      debugDiv.textContent = 'initClients called, clients: ' + clients.length
+      debugDiv.style.background = '#00ff00'
+    }
     const storedClients = localStorage.getItem('clients')
     console.log('Initializing clients, stored:', storedClients ? 'yes' : 'no')
 
