@@ -252,8 +252,59 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
 let caList = JSON.parse(localStorage.getItem('caList')) || []
 let editingCAId = null
 
+// Demo mode data for CA Master
+const DEMO_CA_LIST = [
+  {
+    id: 'demo-ca-1',
+    firstName: 'Rajesh',
+    lastName: 'Kumar',
+    membershipNo: 'CA/2018/12345',
+    firmName: 'Rajesh Kumar & Associates',
+    email: 'ca.rajesh@example.com',
+    phone: '9876543210',
+    status: 'Active',
+    address: '101, Chartered Accountants House, Mumbai',
+    city: 'Mumbai',
+    state: 'Maharashtra'
+  },
+  {
+    id: 'demo-ca-2',
+    firstName: 'Priya',
+    lastName: 'Patel',
+    membershipNo: 'CA/2019/54321',
+    firmName: 'Patel & Co',
+    email: 'ca.priya@example.com',
+    phone: '9988776655',
+    status: 'Active',
+    address: '202, Financial Plaza, Ahmedabad',
+    city: 'Ahmedabad',
+    state: 'Gujarat'
+  }
+]
+
+// Check if demo mode
+function isDemoMode() {
+  const demoToken = localStorage.getItem('supabase.auth.token')
+  if (demoToken) {
+    try {
+      const tokenData = JSON.parse(demoToken)
+      if (tokenData.user) return true
+    } catch (e) {}
+  }
+  return false
+}
+
 // Load CA from Supabase on page load
 async function loadCAFromSupabase() {
+  // Check demo mode first
+  if (isDemoMode()) {
+    console.log('Demo mode: using demo CA data')
+    caList = DEMO_CA_LIST
+    localStorage.setItem('caList', JSON.stringify(caList))
+    renderCA()
+    return
+  }
+  
   try {
     const { data, error } = await supabase.from('ca_master').select('*').order('created_at', { ascending: false })
     if (error) throw error

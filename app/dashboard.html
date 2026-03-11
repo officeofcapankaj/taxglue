@@ -984,6 +984,25 @@ const supabase = supabase.createClient(
 )
 
 async function checkUser() {
+  // Check for demo mode first
+  const demoToken = localStorage.getItem('supabase.auth.token')
+  if (demoToken) {
+    try {
+      const tokenData = JSON.parse(demoToken)
+      if (tokenData.user) {
+        const email = tokenData.user.email || localStorage.getItem('userEmail') || 'demo@taxglue.com'
+        const name = tokenData.user.user_metadata?.name || localStorage.getItem('userName') || 'Demo User'
+        document.getElementById("userEmail").innerText = email
+        document.getElementById("userName").innerText = name
+        document.getElementById("userAvatar").innerText = name.charAt(0).toUpperCase()
+        return // Allow access in demo mode
+      }
+    } catch (e) {
+      console.log('Demo mode parse error:', e)
+    }
+  }
+  
+  // Normal Supabase auth check
   const { data } = await supabase.auth.getUser()
   
   if (!data.user) {

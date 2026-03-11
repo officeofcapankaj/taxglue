@@ -138,6 +138,25 @@ body {
   border-color: #cbd5e1;
 }
 
+.btn-demo {
+  width: 100%;
+  padding: 12px;
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px dashed #38bdf8;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.btn-demo:hover {
+  background: #e0f2fe;
+  border-color: #0ea5e9;
+}
+
 .divider {
   display: flex;
   align-items: center;
@@ -229,6 +248,7 @@ body {
     
     <button type="submit" class="btn-primary" id="loginBtn">Sign In</button>
     <button type="button" class="btn-secondary" id="signupBtn">Create Account</button>
+    <button type="button" class="btn-demo" id="demoBtn">Try Demo (No Login)</button>
   </form>
   
   <div class="divider">
@@ -311,6 +331,23 @@ async function init() {
       
       alert("Account created! Please check your email to verify, then sign in.")
       document.getElementById("signupBtn").textContent = "Create Account"
+    })
+    
+    // Demo mode - bypass auth for testing
+    document.getElementById("demoBtn")?.addEventListener("click", () => {
+      // Create demo session data
+      const demoUser = {
+        id: "demo-user-id",
+        email: "demo@taxglue.com",
+        user_metadata: { name: "Demo User" }
+      }
+      localStorage.setItem('supabase.auth.token', JSON.stringify({
+        access_token: "demo_token",
+        user: demoUser
+      }))
+      localStorage.setItem('userEmail', demoUser.email)
+      localStorage.setItem('userName', "Demo User")
+      window.location.href = "/app/dashboard.html"
     })
     
   } catch(e) {
