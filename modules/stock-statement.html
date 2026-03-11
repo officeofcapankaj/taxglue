@@ -209,10 +209,27 @@
                                     <option value="Weekly">Weekly</option>
                                 </select>
                             </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" id="includeLetterhead" checked>
+                                    <label class="form-check-label" for="includeLetterhead">
+                                        Include Letterhead in Print/Export
+                                    </label>
+                                </div>
+                            </div>
                             <div class="col-md-3 mb-3 d-flex align-items-end">
                                 <button type="button" class="btn btn-primary w-100" onclick="updateDisplay()">
                                     <i class="fas fa-sync me-1"></i> Update Statement
                                 </button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="ccLimitWarning" class="alert alert-warning no-print" style="display: none;">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <strong>Warning:</strong> Drawing Power (₹<span id="warningDP"></span>) is less than CC Limit (₹<span id="warningCC"></span>). 
+                                    The drawing power should be more than the sanctioned CC limit for the stock statement to be valid.
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -221,16 +238,26 @@
 
             <!-- Stock Statement Display -->
             <div id="printArea">
-                <!-- Company Header (Print Only) -->
-                <div class="print-only mb-4">
-                    <h3 class="text-center" id="printCompanyName">BP Packers</h3>
-                    <p class="text-center mb-1" id="printCompanyAddress">Kila No 25//14/2/2, Janti Kalan Road, Janti Kalan, Sonipat, Haryana, 131028</p>
-                    <p class="text-center mb-1">GSTIN - <span id="printGstin">06BJNPV7426A1Z1</span></p>
-                    <h5 class="text-center mt-3">Stock Statement as on <span id="printDate">31-03-2025</span></h5>
+                <!-- Company Letterhead (Print Only) -->
+                <div class="print-only mb-4" id="letterheadSection">
+                    <div style="border: 2px solid #2c3e50; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                        <h2 class="text-center" style="color: #2c3e50; margin-bottom: 10px; font-weight: bold;" id="printCompanyName">BP Packers</h2>
+                        <p class="text-center mb-1" style="color: #495057; font-size: 14px;" id="printCompanyAddress">Kila No 25//14/2/2, Janti Kalan Road, Janti Kalan, Sonipat, Haryana, 131028</p>
+                        <p class="text-center mb-0" style="color: #495057; font-size: 14px;">GSTIN - <strong id="printGstin">06BJNPV7426A1Z1</strong></p>
+                    </div>
+                    <h5 class="text-center mt-3" style="font-weight: bold;">Stock Statement as on <span id="printDate">31-03-2025</span></h5>
                     <div class="border-bottom mb-3"></div>
-                    <p class="mb-1"><strong>Bank Name:</strong> <span id="printBankName">HDFC Bank</span></p>
-                    <p class="mb-1"><strong>Branch:</strong> <span id="printBranchName">Sonepat, Kundli</span></p>
-                    <p class="mb-1"><strong>Account No.:</strong> <span id="printAccountNo">50200077636823</span></p>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>Bank Name:</strong> <span id="printBankName">HDFC Bank</span></p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>Branch:</strong> <span id="printBranchName">Sonepat, Kundli</span></p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>Account No.:</strong> <span id="printAccountNo">50200077636823</span></p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Summary Cards -->
@@ -522,6 +549,7 @@ function formatCurrency(num) {
 function calculateDrawingPower() {
     const stockMargin = parseFloat(document.getElementById('stockMargin').value) || 0;
     const debtorsMargin = parseFloat(document.getElementById('debtorsMargin').value) || 0;
+    const ccLimit = parseFloat(document.getElementById('ccLimit').value) || 0;
     
     // Calculate totals
     const totalStock = stockItems.reduce((sum, item) => sum + item.value, 0);
@@ -555,6 +583,16 @@ function calculateDrawingPower() {
     document.getElementById('stockTotal').textContent = formatCurrency(totalStock);
     document.getElementById('creditorsTotal').textContent = formatCurrency(totalCreditors);
     document.getElementById('debtorsTotal').textContent = formatCurrency(totalDebtors);
+    
+    // Check CC Limit and show warning
+    const warningDiv = document.getElementById('ccLimitWarning');
+    if (ccLimit > 0 && drawingPower < ccLimit) {
+        document.getElementById('warningDP').textContent = formatCurrency(drawingPower);
+        document.getElementById('warningCC').textContent = formatCurrency(ccLimit);
+        warningDiv.style.display = 'block';
+    } else {
+        warningDiv.style.display = 'none';
+    }
 }
 
 function updateDisplay() {
@@ -687,8 +725,43 @@ function deleteDebtor(index) {
     calculateDrawingPower();
 }
 
+function checkAndExport(preview = false) {
+    const ccLimit = parseFloat(document.getElementById('ccLimit').value) || 0;
+    const stockMargin = parseFloat(document.getElementById('stockMargin').value) || 0;
+    const debtorsMargin = parseFloat(document.getElementById('debtorsMargin').value) || 0;
+    
+    const totalStock = stockItems.reduce((sum, item) => sum + item.value, 0);
+    const totalCreditors = creditors.reduce((sum, item) => sum + item.amount, 0);
+    const netPaidStock = totalStock - totalCreditors;
+    const totalDebtors = debtors.reduce((sum, item) => sum + item.amount, 0);
+    const stockAdvance = netPaidStock * (stockMargin / 100);
+    const debtorsAdvance = totalDebtors * (debtorsMargin / 100);
+    const drawingPower = stockAdvance + debtorsAdvance;
+    
+    // Handle letterhead
+    const includeLetterhead = document.getElementById('includeLetterhead').checked;
+    const letterheadSection = document.getElementById('letterheadSection');
+    if (includeLetterhead) {
+        letterheadSection.style.display = 'block';
+    } else {
+        letterheadSection.style.display = 'none';
+    }
+    
+    // Check CC limit warning
+    if (ccLimit > 0 && drawingPower < ccLimit) {
+        if (!preview && !confirm('WARNING: Drawing Power (₹' + formatCurrency(drawingPower) + ') is less than CC Limit (₹' + formatCurrency(ccLimit) + ').\n\nThe drawing power should be more than the sanctioned CC limit for the stock statement to be valid.\n\nDo you still want to continue?')) {
+            // Restore letterhead visibility
+            if (includeLetterhead) {
+                letterheadSection.style.display = 'block';
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
 function exportExcel() {
-    alert('Excel export will download the stock statement as Excel file.');
+    if (!checkAndExport()) return;
     // Create Excel-like HTML table
     let content = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
@@ -704,11 +777,12 @@ function exportExcel() {
 }
 
 function exportPDF() {
+    if (!checkAndExport(true)) return;
     window.print();
 }
 
 function exportWord() {
-    alert('Word export will download the stock statement as Word file.');
+    if (!checkAndExport()) return;
     const content = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
         <head><meta charset="utf-8"></head><body>
