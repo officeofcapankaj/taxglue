@@ -849,21 +849,45 @@ function generatePayslips() {
     return;
   }
   
+  // Show processing message
+  const btn = document.querySelector('button[onclick="generatePayslips()"]');
+  const originalText = btn.textContent;
+  btn.textContent = 'Generating...';
+  btn.disabled = true;
+  
   // Load jsPDF dynamically if not already loaded
   if (typeof jspdf === 'undefined') {
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-    script.onload = () => generatePDFPayslips(month);
+    script.onload = () => {
+      generatePDFPayslips(month, () => {
+        btn.textContent = originalText;
+        btn.disabled = false;
+      });
+    };
     document.head.appendChild(script);
   } else {
-    generatePDFPayslips(month);
+    generatePDFPayslips(month, () => {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    });
   }
 }
 
-function generatePDFPayslips(month) {
+function generatePDFPayslips(month, callback) {
   const { jsPDF } = window.jspdf;
   
-  employees.forEach((emp) => {
+  // Generate PDFs one by one with delay
+  let index = 0;
+  
+  function generateNext() {
+    if (index >= employees.length) {
+      if (callback) callback();
+      alert(`Successfully generated ${employees.length} PDF payslips for ${month}!`);
+      return;
+    }
+    
+    const emp = employees[index];
     const doc = new jsPDF();
     
     const gross = (emp.basic_salary || 0) + (emp.hra || 0) + (emp.allowances || 0);
@@ -990,9 +1014,14 @@ function generatePDFPayslips(month) {
     
     // Save PDF
     doc.save(`Payslip_${emp.code}_${month}_${currentFY}.pdf`);
-  });
+    
+    index++;
+    
+    // Delay before next PDF
+    setTimeout(generateNext, 500);
+  }
   
-  alert(`Generated ${employees.length} PDF payslips for ${month}!`);
+  generateNext();
 }
 
 function generatePayslipPDF(emp, month) {
