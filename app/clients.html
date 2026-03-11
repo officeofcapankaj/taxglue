@@ -405,7 +405,7 @@ function switchTab(tabId) {
 }
 
 // Initialize clients array - load from localStorage or use demo clients
-let clients = JSON.parse(localStorage.getItem('clients')) || []
+clients = JSON.parse(localStorage.getItem('clients')) || []
 
 // If no clients in localStorage, load demo clients immediately
 if (clients.length === 0 && DEMO_CLIENTS.length > 0) {
