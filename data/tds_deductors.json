@@ -16,5 +16,23 @@
     "quarter": "Q1",
     "status": "ACTIVE",
     "created_at": "2026-03-11T18:37:35.893540"
+  },
+  {
+    "id": "c6a4a718-166c-4324-9415-2a968345e741",
+    "tan": "TEST123",
+    "name": "Test Company",
+    "ddo_type": "NON_DDO",
+    "gstin": "",
+    "address": "",
+    "city": "",
+    "state": "",
+    "pincode": "",
+    "phone": "",
+    "email": "",
+    "contact_person": "",
+    "fy": "2024-25",
+    "quarter": "Q1",
+    "status": "ACTIVE",
+    "created_at": "2026-03-11T19:22:22.850129"
   }
 ]

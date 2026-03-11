@@ -4,19 +4,37 @@ TaxGlue is a web application designed to help users manage and file their taxes 
 
 ## Project Structure
 
-- `server.py`: Main Python server application (Flask-based backend)
+- `server.py`: Python Flask server (for local development)
 - `server_new.py`: Alternative server implementation
+- `vercel.json`: Vercel deployment configuration
 - `agent/`: AI agent code for tax-related automation
-- `app/`: Frontend application components
+- `app/`: Frontend application pages
+- `modules/`: Feature modules (Trial Balance, Stock Statement, etc.)
 - `js/`: JavaScript modules and utilities
 - `css/`: Stylesheets
 - `templates/`: HTML templates
-- `data.js`: Data handling utilities
-- `export.js`: Export functionality
+- `data/`: Sample data and company data
+- `database/`: Supabase database migrations and schemas
+- `tests/`: Test files
 
-## Setup Instructions
+## Architecture
 
-To set up the environment for TaxGlue, follow these steps:
+- **Frontend**: Vanilla JavaScript with Bootstrap 5
+- **Backend**: Vercel Serverless Functions / Python Flask (local)
+- **Database**: Supabase (PostgreSQL)
+- **Deployment**: Vercel
+
+## Deployment
+
+The application is deployed on Vercel. All changes pushed to the `main` branch automatically deploy to https://www.taxglue.in
+
+### Environment Variables (Vercel)
+
+Required environment variables in Vercel dashboard:
+- `SUPABASE_URL` - Your Supabase project URL
+- `SUPABASE_ANON_KEY` - Supabase anonymous key (public)
+
+## Setup Instructions (Local Development)
 
 1. Clone the repository:
    ```bash
@@ -24,20 +42,36 @@ To set up the environment for TaxGlue, follow these steps:
    cd taxglue
    ```
 
-2. Install dependencies:
+2. Install Node.js dependencies:
    ```bash
-   pip install -r requirements.txt
+   npm install
    ```
 
 3. Set up environment variables (copy from `.env.example`):
    ```bash
    cp .env.example .env
-   # Edit .env with your actual values for DATABASE_URL and SECRET_KEY
+   # Edit .env with your Supabase credentials
    ```
 
-4. Run the application:
+4. Run the Python server (for local development):
    ```bash
+   pip install -r requirements.txt
    python server.py
    ```
 
+5. For testing:
+   ```bash
+   python -m pytest tests/
+   ```
+
 The application will be available at `http://localhost:5000` (or the port specified in your environment).
+
+## Features
+
+- Trial Balance management
+- Financial Statements generation
+- Stock Statement for bank submissions
+- TDS (Tax Deducted at Source) management
+- GST compliance
+- Income Tax filings
+- Bookkeeping

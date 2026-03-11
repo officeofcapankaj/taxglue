@@ -1,18 +1,20 @@
 /**
  * TaxGlue - Supabase Configuration
- * 
+ *
  * This file centralizes Supabase configuration.
- * 
+ * All sensitive values MUST be set via environment variables.
+ * Do NOT hardcode any credentials in this file.
+ *
  * Environment Variables (set in Vercel dashboard):
  * - VITE_SUPABASE_URL
  * - VITE_SUPABASE_ANON_KEY
- * 
+ *
  * For local development, create a .env file with:
  * VITE_SUPABASE_URL=your-url
  * VITE_SUPABASE_ANON_KEY=your-key
  */
 
-// Get Supabase URL from environment or use default
+// Get Supabase URL from environment - MUST be set via env var
 const getEnv = (key, fallback) => {
   // Check window.__env__ (set by Vercel)
   if (typeof window !== 'undefined' && window.__env__ && window.__env__[key]) {
@@ -22,15 +24,20 @@ const getEnv = (key, fallback) => {
   if (typeof window !== 'undefined' && window[key]) {
     return window[key];
   }
-  // Return fallback
+  // Return fallback (should only be used for local dev)
   return fallback;
 };
 
-const SUPABASE_URL = getEnv('SUPABASE_URL', "https://jgjeuybgideeqcjxvlmn.supabase.co");
-const SUPABASE_ANON_KEY = getEnv('SUPABASE_ANON_KEY', "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j");
+// Validate required environment variables
+const SUPABASE_URL = getEnv('SUPABASE_URL');
+const SUPABASE_ANON_KEY = getEnv('SUPABASE_ANON_KEY');
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('TaxGlue Error: Missing Supabase configuration. Please set SUPABASE_URL and SUPABASE_ANON_KEY environment variables.');
+}
 
 // Create and expose a single Supabase client globally
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = window.supabase.createClient(SUPABASE_URL || '', SUPABASE_ANON_KEY || '');
 
 // Log config in development (remove in production)
 if (window.location && window.location.hostname === 'localhost') {
