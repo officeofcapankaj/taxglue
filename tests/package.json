@@ -1,0 +1,27 @@
+{
+  "name": "taxglue-tests",
+  "version": "1.0.0",
+  "description": "TaxGlue Automated Tests",
+  "scripts": {
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:db": "node tests/setup-db.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "dotenv": "^17.3.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supabase-testing": "^1.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "supabase/**/*.js",
+      "server.py"
+    ]
+  }
+}
