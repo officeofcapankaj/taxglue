@@ -1,0 +1,717 @@
+{
+  "Capital Account": [],
+  "Reserves & Surplus": [],
+  "Secured Loans": [
+    {
+      "row": 15,
+      "account": "HDFC CC A/c",
+      "debit": 0,
+      "credit": 9407705.99,
+      "balance": -9407705.99,
+      "balance_type": "Credit"
+    }
+  ],
+  "Unsecured Loans": [
+    {
+      "row": 18,
+      "account": "Ankush Kumar Singla (Huf)",
+      "debit": 0,
+      "credit": 4365237.0,
+      "balance": -4365237.0,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 19,
+      "account": "Ashwani Kumar Huf",
+      "debit": 0,
+      "credit": 4591958.0,
+      "balance": -4591958.0,
+      "balance_type": "Credit"
+    }
+  ],
+  "Current Liabilities": [
+    {
+      "row": 11,
+      "account": "Ashwani Kumar Singla",
+      "debit": 0,
+      "credit": 14177491.34,
+      "balance": -14177491.34,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 20,
+      "account": "Manju Singla",
+      "debit": 0,
+      "credit": 7836374.0,
+      "balance": -7836374.0,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 22,
+      "account": "Saloni Singla",
+      "debit": 0,
+      "credit": 1074600.0,
+      "balance": -1074600.0,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 23,
+      "account": "Chehak Singla",
+      "debit": 0,
+      "credit": 1319800.0,
+      "balance": -1319800.0,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 35,
+      "account": "Nitin Road Carrier",
+      "debit": 0,
+      "credit": 149858.0,
+      "balance": -149858.0,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 37,
+      "account": "R G D Special Ispat",
+      "debit": 0,
+      "credit": 105750.0,
+      "balance": -105750.0,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 40,
+      "account": "Sonalika Agro Industries Corporation",
+      "debit": 0,
+      "credit": 34.64,
+      "balance": -34.64,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 41,
+      "account": "Srv Steels Pvt.Ltd. Unit -2",
+      "debit": 1947614.0,
+      "credit": 0,
+      "balance": 1947614.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 43,
+      "account": "Ahran Multitech Private Limited",
+      "debit": 0,
+      "credit": 1496414.0,
+      "balance": -1496414.0,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 117,
+      "account": "G J CONCAST",
+      "debit": 22.0,
+      "credit": 0,
+      "balance": 22.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 118,
+      "account": "ANKUSH ENTERPRISES",
+      "debit": 97451.0,
+      "credit": 0,
+      "balance": 97451.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 119,
+      "account": "ASHIRVAD ENTERPRISES",
+      "debit": 187377.0,
+      "credit": 0,
+      "balance": 187377.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 120,
+      "account": "B.K AUTO INDUSTRIES",
+      "debit": 83276.0,
+      "credit": 0,
+      "balance": 83276.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 121,
+      "account": "B.K.METAL INDUSTRIES",
+      "debit": 194185.94,
+      "credit": 0,
+      "balance": 194185.94,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 122,
+      "account": "B.S.MECHANICAL WORKS",
+      "debit": 254881.0,
+      "credit": 0,
+      "balance": 254881.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 123,
+      "account": "BRIJ CYCLE INDUSTRIES",
+      "debit": 156984.0,
+      "credit": 0,
+      "balance": 156984.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 125,
+      "account": "DURGA INDUSTRIES",
+      "debit": 425521.0,
+      "credit": 0,
+      "balance": 425521.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 126,
+      "account": "ESS ESS STEEL CASTINGS & ROLLINGS MILLS PVT L",
+      "debit": 22315462.57,
+      "credit": 0,
+      "balance": 22315462.57,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 127,
+      "account": "G T B INDUSTRIES",
+      "debit": 88898.0,
+      "credit": 0,
+      "balance": 88898.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 128,
+      "account": "G.S. & SONS",
+      "debit": 325080.0,
+      "credit": 0,
+      "balance": 325080.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 129,
+      "account": "GAHIR PRODUCT (INDIA)",
+      "debit": 4024.0,
+      "credit": 0,
+      "balance": 4024.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 130,
+      "account": "GILL INDUSTRIES",
+      "debit": 0,
+      "credit": 67365.0,
+      "balance": -67365.0,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 131,
+      "account": "GURU KIRPA INDUSTRIES",
+      "debit": 0,
+      "credit": 40.0,
+      "balance": -40.0,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 132,
+      "account": "HAMCO POWER VENTURES PRIVATE LIMITED",
+      "debit": 20765320.0,
+      "credit": 0,
+      "balance": 20765320.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 133,
+      "account": "HI-TECH ENGINEERS",
+      "debit": 283484.0,
+      "credit": 0,
+      "balance": 283484.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 134,
+      "account": "HUNJAN ENTERPRISES",
+      "debit": 55905.0,
+      "credit": 0,
+      "balance": 55905.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 135,
+      "account": "ISHER UDYOG",
+      "debit": 130112.0,
+      "credit": 0,
+      "balance": 130112.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 136,
+      "account": "J.J.INDUSTRIES",
+      "debit": 84980.0,
+      "credit": 0,
+      "balance": 84980.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 137,
+      "account": "KUNAL STEEL CORPORATION",
+      "debit": 255646.0,
+      "credit": 0,
+      "balance": 255646.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 138,
+      "account": "LUCKY INDUSTRIAL CORPORATION",
+      "debit": 144050.0,
+      "credit": 0,
+      "balance": 144050.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 139,
+      "account": "MANKOO BROTHERS (REGD.)",
+      "debit": 143627.0,
+      "credit": 0,
+      "balance": 143627.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 140,
+      "account": "NEW SURINDRA INDUSTRIES",
+      "debit": 265058.0,
+      "credit": 0,
+      "balance": 265058.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 141,
+      "account": "ONKAR INDUSTRIES",
+      "debit": 310068.0,
+      "credit": 0,
+      "balance": 310068.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 142,
+      "account": "PRAKASH CYCLE INDUSTRIES",
+      "debit": 125689.0,
+      "credit": 0,
+      "balance": 125689.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 143,
+      "account": "PRINCE ENTERPRISES",
+      "debit": 59923.0,
+      "credit": 0,
+      "balance": 59923.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 144,
+      "account": "R.K.INDUSTRIES",
+      "debit": 77693.0,
+      "credit": 0,
+      "balance": 77693.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 145,
+      "account": "RADHIKA INDUSTRIES",
+      "debit": 98150.0,
+      "credit": 0,
+      "balance": 98150.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 146,
+      "account": "RAJ IMPEX",
+      "debit": 57185.0,
+      "credit": 0,
+      "balance": 57185.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 147,
+      "account": "ROCKEY INDUSTRIES",
+      "debit": 352360.0,
+      "credit": 0,
+      "balance": 352360.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 148,
+      "account": "RUBY CYCLE",
+      "debit": 346155.0,
+      "credit": 0,
+      "balance": 346155.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 149,
+      "account": "RUBY PRODUCTS",
+      "debit": 85176.0,
+      "credit": 0,
+      "balance": 85176.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 150,
+      "account": "Sharu Industries",
+      "debit": 0,
+      "credit": 2351.0,
+      "balance": -2351.0,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 151,
+      "account": "SHREE HARMILAP INDUSTRIES",
+      "debit": 137882.52,
+      "credit": 0,
+      "balance": 137882.52,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 152,
+      "account": "SHRI BALAJI MULTIMETALS P LTD",
+      "debit": 6069598.97,
+      "credit": 0,
+      "balance": 6069598.97,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 153,
+      "account": "SHRI TRIVANI PURI STEE (STEEL ROLLING M)",
+      "debit": 391769.5,
+      "credit": 0,
+      "balance": 391769.5,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 154,
+      "account": "SUDHIN INDUSTRY",
+      "debit": 94107.0,
+      "credit": 0,
+      "balance": 94107.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 155,
+      "account": "SUDHIR INTERNATIONAL",
+      "debit": 57160.0,
+      "credit": 0,
+      "balance": 57160.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 158,
+      "account": "Cheques-in-Hand",
+      "debit": 403049.0,
+      "credit": 0,
+      "balance": 403049.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 177,
+      "account": "Freight and Cartage Inward",
+      "debit": 372706.0,
+      "credit": 0,
+      "balance": 372706.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 193,
+      "account": "Audit Fee",
+      "debit": 15000.0,
+      "credit": 0,
+      "balance": 15000.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 195,
+      "account": "Conveyance",
+      "debit": 63895.41,
+      "credit": 0,
+      "balance": 63895.41,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 196,
+      "account": "Consumable Stores",
+      "debit": 9223.6,
+      "credit": 0,
+      "balance": 9223.6,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 199,
+      "account": "Electricity Expense",
+      "debit": 81230.0,
+      "credit": 0,
+      "balance": 81230.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 200,
+      "account": "Entertainment Expense",
+      "debit": 47951.66,
+      "credit": 0,
+      "balance": 47951.66,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 203,
+      "account": "Misc Exp",
+      "debit": 93896.52,
+      "credit": 0,
+      "balance": 93896.52,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 204,
+      "account": "Rounded Off",
+      "debit": -6301.32,
+      "credit": 0,
+      "balance": -6301.32,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 207,
+      "account": "Professional Expense",
+      "debit": 1650.0,
+      "credit": 0,
+      "balance": 1650.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 214,
+      "account": "Telephone & Internet",
+      "debit": 18633.66,
+      "credit": 0,
+      "balance": 18633.66,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 216,
+      "account": "Depreciation",
+      "debit": 173435.16,
+      "credit": 0,
+      "balance": 173435.16,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 231,
+      "account": "Grand Total",
+      "debit": 407621541.15000015,
+      "credit": 407621541.15,
+      "balance": 1.7881393432617188e-07,
+      "balance_type": "Debit"
+    }
+  ],
+  "Duties & Taxes": [
+    {
+      "row": 26,
+      "account": "GST",
+      "debit": 0,
+      "credit": 13710.840000000026,
+      "balance": -13710.840000000026,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 27,
+      "account": "TDS Payable",
+      "debit": 0,
+      "credit": 142007.0,
+      "balance": -142007.0,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 28,
+      "account": "TDS (under GST) Payable",
+      "debit": 0,
+      "credit": 40598.0,
+      "balance": -40598.0,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 59,
+      "account": "Audit Fee Payable",
+      "debit": 0,
+      "credit": 15000.0,
+      "balance": -15000.0,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 167,
+      "account": "TDS Receivable",
+      "debit": 291443.0,
+      "credit": 0,
+      "balance": 291443.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 168,
+      "account": "TCS Receivable",
+      "debit": 398864.47,
+      "credit": 0,
+      "balance": 398864.47,
+      "balance_type": "Debit"
+    }
+  ],
+  "Sundry Creditors": [],
+  "Fixed Assets": [
+    {
+      "row": 66,
+      "account": "Furniture",
+      "debit": 997289.0,
+      "credit": 0,
+      "balance": 997289.0,
+      "balance_type": "Debit"
+    }
+  ],
+  "Investments": [],
+  "Sundry Debtors": [],
+  "Inventory": [
+    {
+      "row": 78,
+      "account": "Opening Stock",
+      "debit": 3580000.0,
+      "credit": 0,
+      "balance": 3580000.0,
+      "balance_type": "Debit"
+    }
+  ],
+  "Cash & Bank": [
+    {
+      "row": 157,
+      "account": "Cash in Hand",
+      "debit": 255827.0,
+      "credit": 0,
+      "balance": 255827.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 228,
+      "account": "Bank Charges - BC",
+      "debit": 12095.0,
+      "credit": 0,
+      "balance": 12095.0,
+      "balance_type": "Debit"
+    }
+  ],
+  "Sales": [
+    {
+      "row": 32,
+      "account": "Garg Sales Corporation",
+      "debit": 0,
+      "credit": 14091808.0,
+      "balance": -14091808.0,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 173,
+      "account": "Sales",
+      "debit": 0,
+      "credit": 348717955.34,
+      "balance": -348717955.34,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 198,
+      "account": "Commission on Sales",
+      "debit": 1014134.0,
+      "credit": 0,
+      "balance": 1014134.0,
+      "balance_type": "Debit"
+    }
+  ],
+  "Other Income": [],
+  "Purchases": [
+    {
+      "row": 175,
+      "account": "Purchase",
+      "debit": 340961288.05,
+      "credit": 0,
+      "balance": 340961288.05,
+      "balance_type": "Debit"
+    }
+  ],
+  "Direct Expenses": [],
+  "Indirect Expenses": [
+    {
+      "row": 181,
+      "account": "Salary & Wages",
+      "debit": 73973.0,
+      "credit": 0,
+      "balance": 73973.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 185,
+      "account": "Interest on FDR",
+      "debit": 0,
+      "credit": 5483.0,
+      "balance": -5483.0,
+      "balance_type": "Credit"
+    },
+    {
+      "row": 202,
+      "account": "Insurance Expenses",
+      "debit": 30023.0,
+      "credit": 0,
+      "balance": 30023.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 205,
+      "account": "Printing and Stationery",
+      "debit": 26780.83,
+      "credit": 0,
+      "balance": 26780.83,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 210,
+      "account": "Rent Expense",
+      "debit": 1080000.0,
+      "credit": 0,
+      "balance": 1080000.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 212,
+      "account": "Repairs & Maintenance",
+      "debit": 45724.0,
+      "credit": 0,
+      "balance": 45724.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 215,
+      "account": "Travelling Expense",
+      "debit": 19327.61,
+      "credit": 0,
+      "balance": 19327.61,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 218,
+      "account": "Salary & Bonus",
+      "debit": 492910.0,
+      "credit": 0,
+      "balance": 492910.0,
+      "balance_type": "Debit"
+    },
+    {
+      "row": 225,
+      "account": "Interest on CC A/c",
+      "debit": 595617.0,
+      "credit": 0,
+      "balance": 595617.0,
+      "balance_type": "Debit"
+    }
+  ]
+}

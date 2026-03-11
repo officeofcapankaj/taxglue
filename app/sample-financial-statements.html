@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Statements - Singla Steel Corporation</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 12pt;
+        line-height: 1.4;
+        padding: 20px;
+        background: #f5f5f5;
+    }
+    
+    .print-container {
+        max-width: 210mm;
+        margin: 0 auto;
+        background: white;
+        padding: 40px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .company-name {
+        font-size: 18pt;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+    }
+    
+    .cin {
+        font-size: 10pt;
+        text-align: center;
+        color: #666;
+        margin-bottom: 20px;
+    }
+    
+    .statement-title {
+        font-size: 14pt;
+        font-weight: bold;
+        text-align: center;
+        margin: 25px 0 15px;
+    }
+    
+    .date-line {
+        font-size: 11pt;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .amount-note {
+        font-size: 9pt;
+        text-align: right;
+        margin-bottom: 15px;
+        color: #666;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+    }
+    
+    th, td {
+        padding: 6px 8px;
+        text-align: left;
+        border: 1px solid #000;
+    }
+    
+    th {
+        background: #f0f0f0;
+        font-weight: bold;
+    }
+    
+    .text-right {
+        text-align: right !important;
+    }
+    
+    .text-center {
+        text-align: center !important;
+    }
+    
+    .bold {
+        font-weight: bold;
+    }
+    
+    .section-header {
+        background: #e8e8e8;
+    }
+    
+    .sub-total {
+        background: #f5f5f5;
+        font-weight: bold;
+    }
+    
+    .grand-total {
+        background: #d0d0d0;
+        font-weight: bold;
+        font-size: 13pt;
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    /* Tab styling */
+    .tab-container {
+        margin-bottom: 20px;
+        border-bottom: 2px solid #333;
+    }
+    
+    .tab-btn {
+        padding: 10px 20px;
+        border: none;
+        background: #eee;
+        cursor: pointer;
+        font-size: 12pt;
+        margin-right: 5px;
+    }
+    
+    .tab-btn.active {
+        background: #333;
+        color: white;
+    }
+    
+    .tab-btn:hover {
+        background: #ddd;
+    }
+    
+    /* Print button */
+    .no-print {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+    }
+    
+    .btn-print {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    
+    .btn-print:hover {
+        background: #218838;
+    }
+    
+    .btn-back {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 5px;
+        text-decoration: none;
+        margin-right: 10px;
+    }
+    
+    .btn-back:hover {
+        background: #0056b3;
+    }
+    
+    /* Print styles */
+    @media print {
+        body {
+            background: white;
+            padding: 0;
+        }
+        
+        .print-container {
+            box-shadow: none;
+            padding: 20px;
+        }
+        
+        .no-print, .tab-container {
+            display: none !important;
+        }
+        
+        .tab-content {
+            display: block !important;
+            page-break-after: always;
+        }
+        
+        .tab-content.hidden {
+            display: none !important;
+        }
+    }
+    
+    .signature-section {
+        margin-top: 60px;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .signature-box {
+        width: 200px;
+        text-align: center;
+    }
+    
+    .signature-line {
+        border-top: 1px solid #000;
+        margin-top: 40px;
+        padding-top: 5px;
+    }
+</style>
+</head>
+<body>
+
+<div class="no-print">
+    <a href="/app/dashboard.html" class="btn-back">← Back to Dashboard</a>
+    <button class="btn-print" onclick="window.print()">🖨️ Print Financial Statements</button>
+</div>
+
+<div class="tab-container">
+    <button class="tab-btn active" onclick="showTab('bs')">Balance Sheet</button>
+    <button class="tab-btn" onclick="showTab('pl')">Profit & Loss</button>
+    <button class="tab-btn" onclick="showTab('notes')">Notes to Accounts</button>
+</div>
+
+<div class="print-container">
+
+<!-- BALANCE SHEET -->
+<div id="bs" class="tab-content">
+    <div class="company-name">SINGLA STEEL CORPORATION</div>
+    <div class="cin">CIN - U17309PB2020PTC052239</div>
+    
+    <div class="statement-title">Balance Sheet as at 31.03.2025</div>
+    <div class="amount-note">(Amount in INR)</div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 50%;">PARTICULARS</th>
+                <th class="text-center" style="width: 10%;">NOTE NO.</th>
+                <th class="text-right" style="width: 20%;">As at 31.03.2025</th>
+                <th class="text-right" style="width: 20%;">As at 31.03.2024</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- I. OWNERS' FUNDS AND LIABILITIES -->
+            <tr class="section-header">
+                <td colspan="4"><strong>I. OWNERS' FUNDS AND LIABILITIES</strong></td>
+            </tr>
+            <tr>
+                <td><strong>(1) Proprietor's Fund</strong></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(a) Capital Account</td>
+                <td class="text-center">1</td>
+                <td class="text-right">1,50,12,174.50</td>
+                <td class="text-right">1,28,74,543.91</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(b) Reserves and Surplus</td>
+                <td class="text-center">2</td>
+                <td class="text-right">-</td>
+                <td class="text-right">-</td>
+            </tr>
+            <tr class="sub-total">
+                <td><strong>Total Proprietor's Fund</strong></td>
+                <td></td>
+                <td class="text-right"><strong>1,50,12,174.50</strong></td>
+                <td class="text-right"><strong>1,28,74,543.91</strong></td>
+            </tr>
+            
+            <!-- Non-Current Liabilities -->
+            <tr>
+                <td><strong>(2) Non-Current Liabilities</strong></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(a) Long-term borrowings</td>
+                <td class="text-center">3</td>
+                <td class="text-right">-</td>
+                <td class="text-right">-</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(b) Deferred tax liabilities (Net)</td>
+                <td class="text-center">6</td>
+                <td class="text-right">-</td>
+                <td class="text-right">-</td>
+            </tr>
+            <tr class="sub-total">
+                <td><strong>Total Non-Current Liabilities</strong></td>
+                <td></td>
+                <td class="text-right"><strong>-</strong></td>
+                <td class="text-right"><strong>-</strong></td>
+            </tr>
+            
+            <!-- Current Liabilities -->
+            <tr>
+                <td><strong>(3) Current Liabilities</strong></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(a) Short-term borrowings</td>
+                <td class="text-center">4</td>
+                <td class="text-right">94,07,705.99</td>
+                <td class="text-right">71,80,440.64</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(b) Trade payables</td>
+                <td class="text-center">5</td>
+                <td class="text-right">4,98,21,167.21</td>
+                <td class="text-right">4,15,00,000.00</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(c) Other current liabilities</td>
+                <td class="text-center">6</td>
+                <td class="text-right">4,78,991.63</td>
+                <td class="text-right">3,50,000.00</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(d) Short-term provisions</td>
+                <td class="text-center">7</td>
+                <td class="text-right">1,00,000.00</td>
+                <td class="text-right">75,000.00</td>
+            </tr>
+            <tr class="sub-total">
+                <td><strong>Total Current Liabilities</strong></td>
+                <td></td>
+                <td class="text-right"><strong>6,01,07,864.83</strong></td>
+                <td class="text-right"><strong>4,91,05,440.64</strong></td>
+            </tr>
+            
+            <!-- TOTAL LIABILITIES -->
+            <tr class="grand-total">
+                <td><strong>TOTAL LIABILITIES</strong></td>
+                <td></td>
+                <td class="text-right"><strong>7,51,20,039.33</strong></td>
+                <td class="text-right"><strong>6,19,79,984.55</strong></td>
+            </tr>
+            
+            <!-- II. ASSETS -->
+            <tr class="section-header">
+                <td colspan="4"><strong>II. ASSETS</strong></td>
+            </tr>
+            
+            <!-- Non-Current Assets -->
+            <tr>
+                <td><strong>(1) Non-Current Assets</strong></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(a) Property, Plant & Equipment</td>
+                <td class="text-center">8</td>
+                <td class="text-right">9,97,289.00</td>
+                <td class="text-right">12,00,000.00</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(b) Non-current investments</td>
+                <td class="text-center">9</td>
+                <td class="text-right">-</td>
+                <td class="text-right">-</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(c) Deferred tax assets (Net)</td>
+                <td class="text-center">10</td>
+                <td class="text-right">-</td>
+                <td class="text-right">-</td>
+            </tr>
+            <tr class="sub-total">
+                <td><strong>Total Non-Current Assets</strong></td>
+                <td></td>
+                <td class="text-right"><strong>9,97,289.00</strong></td>
+                <td class="text-right"><strong>12,00,000.00</strong></td>
+            </tr>
+            
+            <!-- Current Assets -->
+            <tr>
+                <td><strong>(2) Current Assets</strong></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(a) Current investments</td>
+                <td class="text-center"></td>
+                <td class="text-right">-</td>
+                <td class="text-right">-</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(b) Inventories</td>
+                <td class="text-center">11</td>
+                <td class="text-right">35,80,000.00</td>
+                <td class="text-right">32,00,000.00</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(c) Trade receivables</td>
+                <td class="text-center"></td>
+                <td class="text-right">6,00,00,000.00</td>
+                <td class="text-right">5,20,00,000.00</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(d) Cash and cash equivalents</td>
+                <td class="text-center">12</td>
+                <td class="text-right">2,67,922.00</td>
+                <td class="text-right">3,50,000.00</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(e) Short-term loans and advances</td>
+                <td class="text-center"></td>
+                <td class="text-right">-</td>
+                <td class="text-right">-</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 30px;">(f) Other current assets</td>
+                <td class="text-center"></td>
+                <td class="text-right">-</td>
+                <td class="text-right">-</td>
+            </tr>
+            <tr class="sub-total">
+                <td><strong>Total Current Assets</strong></td>
+                <td></td>
+                <td class="text-right"><strong>6,44,47,922.00</strong></td>
+                <td class="text-right"><strong>5,55,50,000.00</strong></td>
+            </tr>
+            
+            <!-- TOTAL ASSETS -->
+            <tr class="grand-total">
+                <td><strong>TOTAL ASSETS</strong></td>
+                <td></td>
+                <td class="text-right"><strong>6,54,45,211.00</strong></td>
+                <td class="text-right"><strong>5,67,50,000.00</strong></td>
+            </tr>
+            
+            <!-- Difference Check -->
+            <tr>
+                <td colspan="4" class="text-center" style="padding: 15px; color: #666;">
+                    <em>Difference (Liabilities - Assets): 96,74,828.33</em>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div class="signature-section">
+        <div class="signature-box">
+            <div class="signature-line">Proprietor</div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-line">Chartered Accountant</div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-line">Date</div>
+        </div>
+    </div>
+</div>
+
+<!-- PROFIT & LOSS -->
+<div id="pl" class="tab-content hidden">
+    <div class="company-name">SINGLA STEEL CORPORATION</div>
+    <div class="cin">CIN - U17309PB2020PTC052239</div>
+    
+    <div class="statement-title">Profit and Loss Statement for the year ended 31.03.2025</div>
+    <div class="amount-note">(Amount in INR)</div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 50%;">PARTICULARS</th>
+                <th class="text-center" style="width: 10%;">NOTE NO.</th>
+                <th class="text-right" style="width: 20%;">For the year ended 31.03.2025</th>
+                <th class="text-right" style="width: 20%;">For the year ended 31.03.2024</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Revenue from Operations -->
+            <tr>
+                <td><strong>I. Revenue from operations</strong></td>
+                <td class="text-center">13</td>
+                <td class="text-right">34,87,17,955.34</td>
+                <td class="text-right">52,01,71,626.00</td>
+            </tr>
+            <tr>
+                <td><strong>II. Other Income</strong></td>
+                <td class="text-center">14</td>
+                <td class="text-right">5,483.00</td>
+                <td class="text-right">70,853.00</td>
+            </tr>
+            <tr class="sub-total">
+                <td><strong>III. Total Income (I + II)</strong></td>
+                <td></td>
+                <td class="text-right"><strong>34,87,23,438.34</strong></td>
+                <td class="text-right"><strong>52,02,42,479.00</strong></td>
+            </tr>
+            
+            <!-- Expenses -->
+            <tr>
+                <td colspan="4"><strong>IV. Expenses:</strong></td>
+            </tr>
+            <tr>
+                <td style="padding-left: 20px;">Cost of Material consumed</td>
+                <td class="text-center">15</td>
+                <td class="text-right">-</td>
+                <td class="text-right">-</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 20px;">Purchase of Stock-in-Trade</td>
+                <td class="text-center">16</td>
+                <td class="text-right">34,13,33,994.05</td>
+                <td class="text-right">51,17,49,358.12</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 20px;">Changes in Inventories of Finished Goods</td>
+                <td class="text-center">17</td>
+                <td class="text-right">26,25,450.00</td>
+                <td class="text-right">25,60,576.00</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 20px;">Employee Benefit Expense</td>
+                <td class="text-center">18</td>
+                <td class="text-right">5,66,883.00</td>
+                <td class="text-right">48,00,000.00</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 20px;">Depreciation and amortisation expense</td>
+                <td class="text-center">19</td>
+                <td class="text-right">1,73,435.16</td>
+                <td class="text-right">1,50,000.00</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 20px;">Finance costs</td>
+                <td class="text-center">20</td>
+                <td class="text-right">5,95,617.00</td>
+                <td class="text-right">5,20,000.00</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 20px;">Other expenses</td>
+                <td class="text-center">21</td>
+                <td class="text-right">14,89,037.28</td>
+                <td class="text-right">12,00,000.00</td>
+            </tr>
+            <tr class="sub-total">
+                <td><strong>Total Expenses</strong></td>
+                <td></td>
+                <td class="text-right"><strong>34,67,84,416.49</strong></td>
+                <td class="text-right"><strong>51,61,79,934.12</strong></td>
+            </tr>
+            
+            <!-- Profit -->
+            <tr class="bold">
+                <td><strong>V. Profit before tax (III - IV)</strong></td>
+                <td></td>
+                <td class="text-right"><strong>19,39,021.85</strong></td>
+                <td class="text-right"><strong>40,62,544.88</strong></td>
+            </tr>
+            
+            <!-- Tax -->
+            <tr>
+                <td colspan="4"><strong>VI. Tax expense:</strong></td>
+            </tr>
+            <tr>
+                <td style="padding-left: 20px;">(1) Current tax</td>
+                <td></td>
+                <td class="text-right">4,85,000.00</td>
+                <td class="text-right">10,15,636.00</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 20px;">(2) Deferred tax</td>
+                <td></td>
+                <td class="text-right">-</td>
+                <td class="text-right">-</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 20px;">(3) Taxes relating to earlier years</td>
+                <td></td>
+                <td class="text-right">-</td>
+                <td class="text-right">-</td>
+            </tr>
+            
+            <!-- Net Profit -->
+            <tr class="grand-total">
+                <td><strong>VII. Profit for the period (V - VI)</strong></td>
+                <td></td>
+                <td class="text-right"><strong>14,54,021.85</strong></td>
+                <td class="text-right"><strong>30,46,908.88</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div class="signature-section">
+        <div class="signature-box">
+            <div class="signature-line">Proprietor</div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-line">Chartered Accountant</div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-line">Date</div>
+        </div>
+    </div>
+</div>
+
+<!-- NOTES TO ACCOUNTS -->
+<div id="notes" class="tab-content hidden">
+    <div class="company-name">SINGLA STEEL CORPORATION</div>
+    <div class="cin">CIN - U17309PB2020PTC052239</div>
+    
+    <div class="statement-title">Notes to Financial Statements for the year ended 31.03.2025</div>
+    <div class="amount-note">(Amount in INR)</div>
+    
+    <!-- Note 1: Capital Account -->
+    <div style="margin-top: 30px;">
+        <h3 style="font-size: 12pt; margin-bottom: 10px;">NOTE - 1: PROPRIETOR'S CAPITAL ACCOUNT</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>PARTICULARS</th>
+                    <th class="text-right">As at 31.03.2025</th>
+                    <th class="text-right">As at 31.03.2024</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Opening Balance as at 1st April, 2024</td>
+                    <td class="text-right">1,28,74,543.91</td>
+                    <td class="text-right">1,33,29,095.84</td>
+                </tr>
+                <tr>
+                    <td>Add: Additional Capital</td>
+                    <td class="text-right">-</td>
+                    <td class="text-right">-</td>
+                </tr>
+                <tr>
+                    <td>Add / (Less): Net Profit/(Loss) for the year</td>
+                    <td class="text-right">14,54,021.85</td>
+                    <td class="text-right">30,46,908.88</td>
+                </tr>
+                <tr>
+                    <td>Add: Share of Profit / Loss for the year</td>
+                    <td class="text-right">8,34,683.16</td>
+                    <td class="text-right">14,69,953.24</td>
+                </tr>
+                <tr>
+                    <td>Less: Drawings</td>
+                    <td class="text-right">(1,51,074.42)</td>
+                    <td class="text-right">(49,71,414.05)</td>
+                </tr>
+                <tr class="sub-total">
+                    <td><strong>Closing Balance as at 31st March, 2025</strong></td>
+                    <td class="text-right"><strong>1,50,12,174.50</strong></td>
+                    <td class="text-right"><strong>1,28,74,543.91</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Note 2: Secured Loans -->
+    <div style="margin-top: 30px;">
+        <h3 style="font-size: 12pt; margin-bottom: 10px;">NOTE - 3: SECURED LOANS</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>PARTICULARS</th>
+                    <th class="text-right">As at 31.03.2025</th>
+                    <th class="text-right">As at 31.03.2024</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>HDFC Cash Credit A/c</td>
+                    <td class="text-right">94,07,705.99</td>
+                    <td class="text-right">71,80,440.64</td>
+                </tr>
+                <tr>
+                    <td>Vehicle Loan</td>
+                    <td class="text-right">-</td>
+                    <td class="text-right">-</td>
+                </tr>
+                <tr class="sub-total">
+                    <td><strong>Total</strong></td>
+                    <td class="text-right"><strong>94,07,705.99</strong></td>
+                    <td class="text-right"><strong>71,80,440.64</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Note 3: Trade Payables -->
+    <div style="margin-top: 30px;">
+        <h3 style="font-size: 12pt; margin-bottom: 10px;">NOTE - 5: TRADE PAYABLES</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>PARTICULARS</th>
+                    <th class="text-right">As at 31.03.2025</th>
+                    <th class="text-right">As at 31.03.2024</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Sundry Creditors (Various parties)</td>
+                    <td class="text-right">4,98,21,167.21</td>
+                    <td class="text-right">4,15,00,000.00</td>
+                </tr>
+                <tr class="sub-total">
+                    <td><strong>Total</strong></td>
+                    <td class="text-right"><strong>4,98,21,167.21</strong></td>
+                    <td class="text-right"><strong>4,15,00,000.00</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Note 4: Fixed Assets -->
+    <div style="margin-top: 30px;">
+        <h3 style="font-size: 12pt; margin-bottom: 10px;">NOTE - 8: PROPERTY, PLANT & EQUIPMENT</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>PARTICULARS</th>
+                    <th class="text-right">WDV as at 01.04.2024</th>
+                    <th class="text-right">Additions</th>
+                    <th class="text-right">Depreciation</th>
+                    <th class="text-right">WDV as at 31.03.2025</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Furniture & Fixtures</td>
+                    <td class="text-right">19,672.00</td>
+                    <td class="text-right">-</td>
+                    <td class="text-right">1,968.00</td>
+                    <td class="text-right">17,704.00</td>
+                </tr>
+                <tr>
+                    <td>Office Equipments</td>
+                    <td class="text-right">3,08,521.00</td>
+                    <td class="text-right">2,667.16</td>
+                    <td class="text-right">46,477.16</td>
+                    <td class="text-right">2,64,711.00</td>
+                </tr>
+                <tr>
+                    <td>Machinery</td>
+                    <td class="text-right">4,12,182.00</td>
+                    <td class="text-right">-</td>
+                    <td class="text-right">61,827.00</td>
+                    <td class="text-right">3,50,355.00</td>
+                </tr>
+                <tr>
+                    <td>Computers</td>
+                    <td class="text-right">1,25,000.00</td>
+                    <td class="text-right">45,000.00</td>
+                    <td class="text-right">38,000.00</td>
+                    <td class="text-right">1,32,000.00</td>
+                </tr>
+                <tr>
+                    <td>Vehicle</td>
+                    <td class="text-right">2,20,000.00</td>
+                    <td class="text-right">-</td>
+                    <td class="text-right">22,000.00</td>
+                    <td class="text-right">1,98,000.00</td>
+                </tr>
+                <tr class="sub-total">
+                    <td><strong>Total</strong></td>
+                    <td class="text-right"><strong>10,85,375.00</strong></td>
+                    <td class="text-right"><strong>47,667.16</strong></td>
+                    <td class="text-right"><strong>1,70,272.16</strong></td>
+                    <td class="text-right"><strong>9,62,770.00</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Note 5: Revenue from Operations -->
+    <div style="margin-top: 30px;">
+        <h3 style="font-size: 12pt; margin-bottom: 10px;">NOTE - 13: REVENUE FROM OPERATIONS</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>PARTICULARS</th>
+                    <th class="text-right">For the year ended 31.03.2025</th>
+                    <th class="text-right">For the year ended 31.03.2024</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Sale of products</td>
+                    <td class="text-right">34,87,17,955.34</td>
+                    <td class="text-right">52,01,71,626.00</td>
+                </tr>
+                <tr>
+                    <td>Commission on Sales</td>
+                    <td class="text-right">-</td>
+                    <td class="text-right">-</td>
+                </tr>
+                <tr class="sub-total">
+                    <td><strong>Total</strong></td>
+                    <td class="text-right"><strong>34,87,17,955.34</strong></td>
+                    <td class="text-right"><strong>52,01,71,626.00</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Note 6: Other Income -->
+    <div style="margin-top: 30px;">
+        <h3 style="font-size: 12pt; margin-bottom: 10px;">NOTE - 14: OTHER INCOME</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>PARTICULARS</th>
+                    <th class="text-right">For the year ended 31.03.2025</th>
+                    <th class="text-right">For the year ended 31.03.2024</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Interest Income</td>
+                    <td class="text-right">5,483.00</td>
+                    <td class="text-right">70,853.00</td>
+                </tr>
+                <tr>
+                    <td>Discount Received</td>
+                    <td class="text-right">-</td>
+                    <td class="text-right">-</td>
+                </tr>
+                <tr class="sub-total">
+                    <td><strong>Total</strong></td>
+                    <td class="text-right"><strong>5,483.00</strong></td>
+                    <td class="text-right"><strong>70,853.00</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Signatures -->
+    <div class="signature-section" style="margin-top: 50px;">
+        <div class="signature-box">
+            <div class="signature-line">Proprietor</div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-line">Chartered Accountant</div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-line">Date</div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+function showTab(tabId) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.add('hidden');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabId).classList.remove('hidden');
+    
+    // Add active class to clicked button
+    event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>
