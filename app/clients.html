@@ -352,18 +352,24 @@ const DEMO_CLIENTS = [
 
 console.log("clients.html script loaded");
 
+// Shared clients array - declared at top level
+let clients = [];
+
 // Initialize clients array - load from localStorage or use demo clients
-let clients = JSON.parse(localStorage.getItem('clients')) || []
+// Use DOMContentLoaded to ensure DOM is ready before rendering
+document.addEventListener('DOMContentLoaded', function() {
+  clients = JSON.parse(localStorage.getItem('clients')) || []
 
-// If no clients in localStorage, load demo clients immediately
-if (clients.length === 0 && DEMO_CLIENTS.length > 0) {
-  console.log('Initializing with demo clients')
-  clients = DEMO_CLIENTS
-  localStorage.setItem('clients', JSON.stringify(clients))
-}
+  // If no clients in localStorage, load demo clients immediately
+  if (clients.length === 0 && DEMO_CLIENTS.length > 0) {
+    console.log('Initializing with demo clients')
+    clients = DEMO_CLIENTS
+    localStorage.setItem('clients', JSON.stringify(clients))
+  }
 
-// Render clients immediately on page load
-renderClients()
+  // Render clients when DOM is ready
+  renderClients()
+});
 
 let contactPersonCount = 1
 let uploadedFiles = []
@@ -578,6 +584,10 @@ function resetForm() {
 
 function renderClients() {
   const tbody = document.getElementById('clientTable')
+  if (!tbody) {
+    console.log('clientTable element not found, skipping render')
+    return
+  }
   const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || ''
   let filteredClients = clients
   if (searchTerm) {
