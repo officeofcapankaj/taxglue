@@ -356,8 +356,8 @@ console.log("clients.html script loaded");
 let clients = [];
 
 // Initialize clients array - load from localStorage or use demo clients
-// Use DOMContentLoaded to ensure DOM is ready before rendering
-document.addEventListener('DOMContentLoaded', function() {
+// Use setTimeout to ensure DOM is fully ready before rendering
+setTimeout(function() {
   clients = JSON.parse(localStorage.getItem('clients')) || []
 
   // If no clients in localStorage, load demo clients immediately
@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Render clients when DOM is ready
   renderClients()
-});
+}, 100);
 
 let contactPersonCount = 1
 let uploadedFiles = []
@@ -409,19 +409,6 @@ function switchTab(tabId) {
     console.log('Activated content:', tabId);
   }
 }
-
-// Initialize clients array - load from localStorage or use demo clients
-clients = JSON.parse(localStorage.getItem('clients')) || []
-
-// If no clients in localStorage, load demo clients immediately
-if (clients.length === 0 && DEMO_CLIENTS.length > 0) {
-  console.log('Initializing with demo clients')
-  clients = DEMO_CLIENTS
-  localStorage.setItem('clients', JSON.stringify(clients))
-}
-
-// Render clients immediately on page load
-renderClients()
 
 // Then try to load from other sources
 async function loadClientsFromSupabase() {
