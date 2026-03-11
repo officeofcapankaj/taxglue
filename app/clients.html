@@ -381,6 +381,12 @@ initClients()
 // Also try after a short delay as fallback
 setTimeout(initClients, 500)
 
+// Debug: log what's in localStorage after a delay
+setTimeout(() => {
+  const stored = localStorage.getItem('clients')
+  console.log('DEBUG: clients in localStorage:', stored ? stored.substring(0, 200) + '...' : 'none')
+}, 1000)
+
 let contactPersonCount = 1
 let uploadedFiles = []
 
