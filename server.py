@@ -815,6 +815,239 @@ def profit_loss(client_id):
         "netProfit": total_income - total_expenses
     })
 
+# ============ GST MODULE ============
+GST_FILE = os.path.join(DATA_DIR, 'gst_data.json')
+
+def load_gst_data():
+    return load_json(GST_FILE, {
+        "invoices": [],
+        "returns": [],
+        "ewaybills": [],
+        "reconciliations": []
+    })
+
+def save_gst_data(data):
+    save_json(GST_FILE, data)
+
+@app.route('/api/gst/invoices', methods=['GET'])
+def get_gst_invoices():
+    """Get all GST invoices"""
+    data = load_gst_data()
+    return jsonify(data.get("invoices", []))
+
+@app.route('/api/gst/invoices', methods=['POST'])
+def create_gst_invoice():
+    """Create a new GST invoice"""
+    data = load_gst_data()
+    invoice = request.json
+    invoice["id"] = str(uuid.uuid4())
+    invoice["created_at"] = datetime.now().isoformat()
+    data["invoices"].append(invoice)
+    save_gst_data(data)
+    return jsonify(invoice), 201
+
+@app.route('/api/gst/invoices/<invoice_id>', methods=['GET'])
+def get_gst_invoice(invoice_id):
+    """Get a specific invoice"""
+    data = load_gst_data()
+    for inv in data.get("invoices", []):
+        if inv.get("id") == invoice_id:
+            return jsonify(inv)
+    return jsonify({"error": "Invoice not found"}), 404
+
+@app.route('/api/gst/invoices/<invoice_id>', methods=['PUT'])
+def update_gst_invoice(invoice_id):
+    """Update an invoice"""
+    data = load_gst_data()
+    for i, inv in enumerate(data.get("invoices", [])):
+        if inv.get("id") == invoice_id:
+            data["invoices"][i].update(request.json)
+            save_gst_data(data)
+            return jsonify(data["invoices"][i])
+    return jsonify({"error": "Invoice not found"}), 404
+
+@app.route('/api/gst/invoices/<invoice_id>', methods=['DELETE'])
+def delete_gst_invoice(invoice_id):
+    """Delete an invoice"""
+    data = load_gst_data()
+    data["invoices"] = [inv for inv in data.get("invoices", []) if inv.get("id") != invoice_id]
+    save_gst_data(data)
+    return jsonify({"success": True})
+
+# GST Returns
+@app.route('/api/gst/returns', methods=['GET'])
+def get_gst_returns():
+    """Get all GST returns"""
+    data = load_gst_data()
+    return jsonify(data.get("returns", []))
+
+@app.route('/api/gst/returns', methods=['POST'])
+def create_gst_return():
+    """Create a new GST return"""
+    data = load_gst_data()
+    gst_return = request.json
+    gst_return["id"] = str(uuid.uuid4())
+    gst_return["created_at"] = datetime.now().isoformat()
+    data["returns"].append(gst_return)
+    save_gst_data(data)
+    return jsonify(gst_return), 201
+
+@app.route('/api/gst/returns/<return_id>', methods=['GET'])
+def get_gst_return(return_id):
+    """Get a specific return"""
+    data = load_gst_data()
+    for ret in data.get("returns", []):
+        if ret.get("id") == return_id:
+            return jsonify(ret)
+    return jsonify({"error": "Return not found"}), 404
+
+@app.route('/api/gst/returns/<return_id>', methods=['PUT'])
+def update_gst_return(return_id):
+    """Update a GST return"""
+    data = load_gst_data()
+    for i, ret in enumerate(data.get("returns", [])):
+        if ret.get("id") == return_id:
+            data["returns"][i].update(request.json)
+            save_gst_data(data)
+            return jsonify(data["returns"][i])
+    return jsonify({"error": "Return not found"}), 404
+
+# E-way Bills
+@app.route('/api/gst/ewaybills', methods=['GET'])
+def get_ewaybills():
+    """Get all e-way bills"""
+    data = load_gst_data()
+    return jsonify(data.get("ewaybills", []))
+
+@app.route('/api/gst/ewaybills', methods=['POST'])
+def create_ewaybill():
+    """Create a new e-way bill"""
+    data = load_gst_data()
+    ewaybill = request.json
+    ewaybill["id"] = str(uuid.uuid4())
+    ewaybill["created_at"] = datetime.now().isoformat()
+    data["ewaybills"].append(ewaybill)
+    save_gst_data(data)
+    return jsonify(ewaybill), 201
+
+# GST Summary
+@app.route('/api/gst/summary', methods=['GET'])
+def get_gst_summary():
+    """Get GST summary for a period"""
+    data = load_gst_data()
+    invoices = data.get("invoices", [])
+    
+    total_output_gst = sum(inv.get("cgst", 0) + inv.get("sgst", 0) + inv.get("igst", 0) for inv in invoices)
+    total_igst = sum(inv.get("igst", 0) for inv in invoices)
+    total_cgst = sum(inv.get("cgst", 0) for inv in invoices)
+    total_sgst = sum(inv.get("sgst", 0) for inv in invoices)
+    
+    return jsonify({
+        "total_invoices": len(invoices),
+        "total_output_gst": total_output_gst,
+        "total_igst": total_igst,
+        "total_cgst": total_cgst,
+        "total_sgst": total_sgst,
+        "total_taxable_value": sum(inv.get("taxable_value", 0) for inv in invoices)
+    })
+
+# GST Rates
+GST_RATES = {
+    "0": {"name": "Nil Rate", "rate": 0},
+    "0.25": {"name": "Lower Rate", "rate": 0.25},
+    "3": {"name": "Standard Rate", "rate": 3},
+    "5": {"name": "Standard Rate", "rate": 5},
+    "12": {"name": "Standard Rate", "rate": 12},
+    "18": {"name": "Standard Rate", "rate": 18},
+    "28": {"name": "Highest Rate", "rate": 28}
+}
+
+@app.route('/api/gst/rates', methods=['GET'])
+def get_gst_rates():
+    """Get GST rates"""
+    return jsonify(GST_RATES)
+
+# ============ INCOME TAX MODULE ============
+IT_FILE = os.path.join(DATA_DIR, 'income_tax_data.json')
+
+def load_it_data():
+    return load_json(IT_FILE, {
+        "itr_filings": [],
+        "assessments": [],
+        "form16": [],
+        "computations": []
+    })
+
+def save_it_data(data):
+    save_json(IT_FILE, data)
+
+@app.route('/api/it/itr', methods=['GET'])
+def get_itr_filings():
+    """Get all ITR filings"""
+    data = load_it_data()
+    return jsonify(data.get("itr_filings", []))
+
+@app.route('/api/it/itr', methods=['POST'])
+def create_itr_filing():
+    """Create a new ITR filing"""
+    data = load_it_data()
+    itr = request.json
+    itr["id"] = str(uuid.uuid4())
+    itr["created_at"] = datetime.now().isoformat()
+    data["itr_filings"].append(itr)
+    save_it_data(data)
+    return jsonify(itr), 201
+
+@app.route('/api/it/itr/<itr_id>', methods=['GET'])
+def get_itr_filing(itr_id):
+    """Get a specific ITR filing"""
+    data = load_it_data()
+    for itr in data.get("itr_filings", []):
+        if itr.get("id") == itr_id:
+            return jsonify(itr)
+    return jsonify({"error": "ITR not found"}), 404
+
+@app.route('/api/it/itr/<itr_id>', methods=['PUT'])
+def update_itr_filing(itr_id):
+    """Update an ITR filing"""
+    data = load_it_data()
+    for i, itr in enumerate(data.get("itr_filings", [])):
+        if itr.get("id") == itr_id:
+            data["itr_filings"][i].update(request.json)
+            save_it_data(data)
+            return jsonify(data["itr_filings"][i])
+    return jsonify({"error": "ITR not found"}), 404
+
+@app.route('/api/it/form16', methods=['GET'])
+def get_form16():
+    """Get all Form 16 certificates"""
+    data = load_it_data()
+    return jsonify(data.get("form16", []))
+
+@app.route('/api/it/form16', methods=['POST'])
+def create_form16():
+    """Create a new Form 16"""
+    data = load_it_data()
+    form16 = request.json
+    form16["id"] = str(uuid.uuid4())
+    form16["created_at"] = datetime.now().isoformat()
+    data["form16"].append(form16)
+    save_it_data(data)
+    return jsonify(form16), 201
+
+@app.route('/api/it/summary', methods=['GET'])
+def get_it_summary():
+    """Get Income Tax summary"""
+    data = load_it_data()
+    itr_filings = data.get("itr_filings", [])
+    form16_list = data.get("form16", [])
+    
+    return jsonify({
+        "total_itr_filings": len(itr_filings),
+        "total_form16": len(form16_list),
+        "pending_filings": len([itr for itr in itr_filings if itr.get("status") == "pending"])
+    })
+
 @app.route('/api/health')
 def health():
     return jsonify({"status": "ok", "timestamp": datetime.now().isoformat()})

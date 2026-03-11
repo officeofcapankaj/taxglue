@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GST - TaxGlue</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
+.container { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); color: white; position: fixed; height: 100vh; overflow-y: auto; }
+.sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.logo { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.sidebar-nav { padding: 20px 12px; }
+.nav-section { margin-bottom: 24px; }
+.nav-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; }
+.sidebar a { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+.sidebar a:hover { background: rgba(255,255,255,0.1); color: white; }
+.sidebar a.active { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+.sidebar .logout { background: rgba(239, 68, 68, 0.2); color: #fca5a5; margin-top: auto; }
+.main { flex: 1; margin-left: 260px; }
+.topbar { background: white; padding: 16px 32px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.page-title { font-size: 20px; font-weight: 600; }
+.header-actions { display: flex; gap: 12px; align-items: center; }
+.btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+.btn-primary { background: #22c55e; color: white; }
+.btn-primary:hover { background: #16a34a; }
+.btn-secondary { background: #f1f5f9; color: #475569; }
+.btn-secondary:hover { background: #e2e8f0; }
+.content { padding: 32px; }
+.tabs { display: flex; gap: 4px; background: #e2e8f0; padding: 4px; border-radius: 10px; margin-bottom: 24px; }
+.tab { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: #64748b; transition: all 0.2s; }
+.tab.active { background: white; color: #1e293b; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
+.stat-card { background: white; border-radius: 12px; padding: 24px; border: 1px solid #e2e8f0; }
+.stat-label { font-size: 13px; color: #64748b; margin-bottom: 8px; }
+.stat-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+.stat-change { font-size: 13px; margin-top: 8px; }
+.stat-change.positive { color: #22c55e; }
+.stat-change.negative { color: #ef4444; }
+.card { background: white; border-radius: 12px; padding: 24px; border: 1px solid #e2e8f0; margin-bottom: 24px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.card-title { font-size: 18px; font-weight: 600; }
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+th { background: #f8fafc; font-weight: 600; color: #475569; }
+tr:hover { background: #f8fafc; }
+.badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.badge-success { background: #dcfce7; color: #16a34a; }
+.badge-warning { background: #fef3c7; color: #d97706; }
+.badge-danger { background: #fee2e2; color: #dc2626; }
+.badge-info { background: #dbeafe; color: #2563eb; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+.modal.active { display: flex; }
+.modal-content { background: white; border-radius: 16px; padding: 32px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.modal-title { font-size: 20px; font-weight: 600; }
+.modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b; }
+.form-group { margin-bottom: 20px; }
+.form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151; }
+.form-input, .form-select { width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; transition: all 0.2s; }
+.form-input:focus, .form-select:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.1); }
+.form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
+.empty-state { text-align: center; padding: 60px 20px; color: #64748b; }
+.empty-state i { font-size: 48px; margin-bottom: 16px; color: #cbd5e1; }
+.actions { display: flex; gap: 8px; }
+.btn-icon { padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; }
+.btn-icon.edit { background: #dbeafe; color: #2563eb; }
+.btn-icon.delete { background: #fee2e2; color: #dc2626; }
+select.fy-select, select.qtr-select { padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: white; }
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="sidebar">
+<div class="sidebar-header">
+<div class="logo"><div class="logo-icon">📊</div>TaxGlue</div>
+</div>
+<div class="sidebar-nav">
+<div class="nav-section"><div class="nav-section-title">Tax Compliance</div>
+<a href="app/tds.html"><i class="fas fa-file-invoice-dollar"></i> TDS</a>
+<a href="#" class="active"><i class="fas fa-file-invoice"></i> GST</a>
+<a href="#"><i class="fas fa-users"></i> Clients</a>
+<a href="#"><i class="fas fa-chart-bar"></i> Reports</a>
+</div>
+<div class="nav-section"><div class="nav-section-title">Contact</div>
+<a href="tel:8699952068"><i class="fas fa-phone"></i> 8699952068</a>
+<a href="mailto:admin.taxglue@gmail.com"><i class="fas fa-envelope"></i> admin.taxglue@gmail.com</a>
+</div>
+<a href="app/index.html" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+</nav>
+<main class="main">
+<div class="topbar">
+<h1 class="page-title">GST Management</h1>
+<div class="header-actions">
+<select class="fy-select" id="fySelect">
+<option value="2024-25">FY 2024-25</option>
+<option value="2025-26">FY 2025-26</option>
+<option value="2023-24">FY 2023-24</option>
+</select>
+<select class="qtr-select" id="qtrSelect">
+<option value="">All Quarters</option>
+<option value="Q1">Q1 (Apr-Jun)</option>
+<option value="Q2">Q2 (Jul-Sep)</option>
+<option value="Q3">Q3 (Oct-Dec)</option>
+<option value="Q4">Q4 (Jan-Mar)</option>
+</select>
+<button class="btn btn-primary" onclick="openModal('invoiceModal')"><i class="fas fa-plus"></i> Add Invoice</button>
+</div>
+</div>
+<div class="content">
+<div class="stats-grid">
+<div class="stat-card">
+<div class="stat-label">Total Invoices</div>
+<div class="stat-value" id="totalInvoices">0</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">Total Taxable Value</div>
+<div class="stat-value" id="totalTaxable">₹0</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">Total GST Collected</div>
+<div class="stat-value" id="totalGST">₹0</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">IGST</div>
+<div class="stat-value" id="totalIGST">₹0</div>
+</div>
+</div>
+<div class="tabs">
+<button class="tab active" data-tab="invoices">Invoices</button>
+<button class="tab" data-tab="returns">Returns</button>
+<button class="tab" data-tab="ewaybills">E-way Bills</button>
+<button class="tab" data-tab="rates">GST Rates</button>
+</div>
+<div id="invoices" class="tab-content active">
+<div class="card">
+<div class="card-header"><h3 class="card-title">GST Invoices</h3></div>
+<div class="table-container">
+<table>
+<thead><tr><th>Invoice No</th><th>Date</th><th>Party Name</th><th>GSTIN</th><th>Taxable Value</th><th>CGST</th><th>SGST</th><th>IGST</th><th>Total</th><th>Actions</th></tr></thead>
+<tbody id="invoicesTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="returns" class="tab-content">
+<div class="card">
+<div class="card-header"><h3 class="card-title">GST Returns</h3><button class="btn btn-primary" onclick="openModal('returnModal')"><i class="fas fa-plus"></i> Create Return</button></div>
+<div class="table-container">
+<table>
+<thead><tr><th>Return Type</th><th>Period</th><th>Filing Date</th><th>Tax Amount</th><th>Status</th><th>Actions</th></tr></thead>
+<tbody id="returnsTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="ewaybills" class="tab-content">
+<div class="card">
+<div class="card-header"><h3 class="card-title">E-way Bills</h3><button class="btn btn-primary" onclick="openModal('ewaybillModal')"><i class="fas fa-plus"></i> Create E-way Bill</button></div>
+<div class="table-container">
+<table>
+<thead><tr><th>E-way Bill No</th><th>Date</th><th>From</th><th>To</th><th>Goods Value</th><th>Status</th></tr></thead>
+<tbody id="ewaybillsTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="rates" class="tab-content">
+<div class="card">
+<div class="card-header"><h3 class="card-title">GST Rates</h3></div>
+<div class="table-container">
+<table>
+<thead><tr><th>Rate (%)</th><th>Name</th><th>Description</th></tr></thead>
+<tbody id="ratesTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Invoice Modal -->
+<div class="modal" id="invoiceModal">
+<div class="modal-content">
+<div class="modal-header"><h3 class="modal-title">Add GST Invoice</h3><button class="modal-close" onclick="closeModal('invoiceModal')">&times;</button></div>
+<form id="invoiceForm">
+<div class="form-row">
+<div class="form-group"><label class="form-label">Invoice Number *</label><input type="text" class="form-input" name="invoice_no" required></div>
+<div class="form-group"><label class="form-label">Invoice Date *</label><input type="date" class="form-input" name="invoice_date" required></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label class="form-label">Party Name *</label><input type="text" class="form-input" name="party_name" required></div>
+<div class="form-group"><label class="form-label">GSTIN</label><input type="text" class="form-input" name="gstin"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label class="form-label">Invoice Type</label><select class="form-select" name="invoice_type"><option value="B2B">B2B</option><option value="B2C">B2C</option><option value="Export">Export</option><option value="Import">Import</option></select></div>
+<div class="form-group"><label class="form-label">Place of Supply</label><input type="text" class="form-input" name="place_of_supply"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label class="form-label">Taxable Value (₹) *</label><input type="number" class="form-input" name="taxable_value" required oninput="calculateGST()"></div>
+<div class="form-group"><label class="form-label">GST Rate (%)</label><select class="form-select" name="gst_rate" onchange="calculateGST()"><option value="0">0%</option><option value="0.25">0.25%</option><option value="3">3%</option><option value="5">5%</option><option value="12">12%</option><option value="18">18%</option><option value="28">28%</option></select></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label class="form-label">CGST (₹)</label><input type="number" class="form-input" name="cgst" readonly></div>
+<div class="form-group"><label class="form-label">SGST (₹)</label><input type="number" class="form-input" name="sgst" readonly></div>
+</div>
+<div class="form-group"><label class="form-label">IGST (₹)</label><input type="number" class="form-input" name="igst" readonly></div>
+<div class="form-actions"><button type="button" class="btn btn-secondary" onclick="closeModal('invoiceModal')">Cancel</button><button type="submit" class="btn btn-primary">Save Invoice</button></div>
+</form>
+</div>
+</div>
+<!-- Return Modal -->
+<div class="modal" id="returnModal">
+<div class="modal-content">
+<div class="modal-header"><h3 class="modal-title">Create GST Return</h3><button class="modal-close" onclick="closeModal('returnModal')">&times;</button></div>
+<form id="returnForm">
+<div class="form-row">
+<div class="form-group"><label class="form-label">Return Type *</label><select class="form-select" name="return_type" required><option value="GSTR-1">GSTR-1</option><option value="GSTR-3B">GSTR-3B</option><option value="GSTR-4">GSTR-4</option><option value="GSTR-9">GSTR-9</option></select></div>
+<div class="form-group"><label class="form-label">Period *</label><input type="month" class="form-input" name="period" required></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label class="form-label">Tax Amount (₹)</label><input type="number" class="form-input" name="tax_amount"></div>
+<div class="form-group"><label class="form-label">Status</label><select class="form-select" name="status"><option value="pending">Pending</option><option value="filed">Filed</option><option value="processed">Processed</option></select></div>
+</div>
+<div class="form-group"><label class="form-label">Filing Date</label><input type="date" class="form-input" name="filing_date"></div>
+<div class="form-actions"><button type="button" class="btn btn-secondary" onclick="closeModal('returnModal')">Cancel</button><button type="submit" class="btn btn-primary">Create Return</button></div>
+</form>
+</div>
+</div>
+<!-- E-way Bill Modal -->
+<div class="modal" id="ewaybillModal">
+<div class="modal-content">
+<div class="modal-header"><h3 class="modal-title">Create E-way Bill</h3><button class="modal-close" onclick="closeModal('ewaybillModal')">&times;</button></div>
+<form id="ewaybillForm">
+<div class="form-row">
+<div class="form-group"><label class="form-label">E-way Bill Number</label><input type="text" class="form-input" name="ewaybill_no"></div>
+<div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" name="ewaybill_date"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label class="form-label">From (Consignor)</label><input type="text" class="form-input" name="from_party"></div>
+<div class="form-group"><label class="form-label">To (Consignee)</label><input type="text" class="form-input" name="to_party"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label class="form-label">From GSTIN</label><input type="text" class="form-input" name="from_gstin"></div>
+<div class="form-group"><label class="form-label">To GSTIN</label><input type="text" class="form-input" name="to_gstin"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label class="form-label">Goods Value (₹)</label><input type="number" class="form-input" name="goods_value"></div>
+<div class="form-group"><label class="form-label">Transport Mode</label><select class="form-select" name="transport_mode"><option value="Road">Road</option><option value="Rail">Rail</option><option value="Air">Air</option><option value="Ship">Ship</option></select></div>
+</div>
+<div class="form-group"><label class="form-label">Vehicle Number</label><input type="text" class="form-input" name="vehicle_no"></div>
+<div class="form-actions"><button type="button" class="btn btn-secondary" onclick="closeModal('ewaybillModal')">Cancel</button><button type="submit" class="btn btn-primary">Create E-way Bill</button></div>
+</form>
+</div>
+</div>
+<script>
+const API_BASE = '';
+let invoices = [], gstReturns = [], ewaybills = [], gstRates = {};
+
+async function loadData() {
+try {
+const [invRes, retRes, ewRes, ratesRes, sumRes] = await Promise.all([
+fetch(API_BASE + '/api/gst/invoices'),
+fetch(API_BASE + '/api/gst/returns'),
+fetch(API_BASE + '/api/gst/ewaybills'),
+fetch(API_BASE + '/api/gst/rates'),
+fetch(API_BASE + '/api/gst/summary')
+]);
+invoices = await invRes.json();
+gstReturns = await retRes.json();
+ewaybills = await ewRes.json();
+gstRates = await ratesRes.json();
+const summary = await sumRes.json();
+document.getElementById('totalInvoices').textContent = summary.total_invoices;
+document.getElementById('totalTaxable').textContent = '₹' + (summary.total_taxable_value || 0).toLocaleString();
+document.getElementById('totalGST').textContent = '₹' + (summary.total_output_gst || 0).toLocaleString();
+document.getElementById('totalIGST').textContent = '₹' + (summary.total_igst || 0).toLocaleString();
+renderInvoices();
+renderReturns();
+renderEwaybills();
+renderRates();
+} catch(e) { console.error('Error loading data:', e); }
+}
+
+function renderInvoices() {
+const tbody = document.getElementById('invoicesTable');
+if (invoices.length === 0) {
+tbody.innerHTML = '<tr><td colspan="10" class="empty-state"><i class="fas fa-file-invoice"></i><p>No invoices yet</p></td></tr>';
+return;
+}
+tbody.innerHTML = invoices.map(inv => `
+<tr>
+<td>${inv.invoice_no || '-'}</td>
+<td>${inv.invoice_date || '-'}</td>
+<td>${inv.party_name || '-'}</td>
+<td>${inv.gstin || '-'}</td>
+<td>₹${(inv.taxable_value || 0).toLocaleString()}</td>
+<td>₹${(inv.cgst || 0).toLocaleString()}</td>
+<td>₹${(inv.sgst || 0).toLocaleString()}</td>
+<td>₹${(inv.igst || 0).toLocaleString()}</td>
+<td>₹${((inv.taxable_value || 0) + (inv.cgst || 0) + (inv.sgst || 0) + (inv.igst || 0)).toLocaleString()}</td>
+<td class="actions">
+<button class="btn-icon edit" onclick="editInvoice('${inv.id}')"><i class="fas fa-edit"></i></button>
+<button class="btn-icon delete" onclick="deleteInvoice('${inv.id}')"><i class="fas fa-trash"></i></button>
+</td>
+</tr>
+`).join('');
+}
+
+function renderReturns() {
+const tbody = document.getElementById('returnsTable');
+if (gstReturns.length === 0) {
+tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-file-alt"></i><p>No returns filed yet</p></td></tr>';
+return;
+}
+tbody.innerHTML = gstReturns.map(ret => `
+<tr>
+<td>${ret.return_type || '-'}</td>
+<td>${ret.period || '-'}</td>
+<td>${ret.filing_date || '-'}</td>
+<td>₹${(ret.tax_amount || 0).toLocaleString()}</td>
+<td><span class="badge badge-${ret.status === 'filed' ? 'success' : ret.status === 'pending' ? 'warning' : 'info'}">${ret.status || 'pending'}</span></td>
+<td class="actions"><button class="btn-icon edit"><i class="fas fa-edit"></i></button></td>
+</tr>
+`).join('');
+}
+
+function renderEwaybills() {
+const tbody = document.getElementById('ewaybillsTable');
+if (ewaybills.length === 0) {
+tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-truck"></i><p>No e-way bills yet</p></td></tr>';
+return;
+}
+tbody.innerHTML = ewaybills.map(ew => `
+<tr>
+<td>${ew.ewaybill_no || '-'}</td>
+<td>${ew.ewaybill_date || '-'}</td>
+<td>${ew.from_party || '-'}</td>
+<td>${ew.to_party || '-'}</td>
+<td>₹${(ew.goods_value || 0).toLocaleString()}</td>
+<td><span class="badge badge-info">Active</span></td>
+</tr>
+`).join('');
+}
+
+function renderRates() {
+const tbody = document.getElementById('ratesTable');
+tbody.innerHTML = Object.entries(gstRates).map(([rate, data]) => `
+<tr>
+<td>${rate}%</td>
+<td>${data.name}</td>
+<td>${data.description || '-'}</td>
+</tr>
+`).join('');
+}
+
+function calculateGST() {
+const taxable = parseFloat(document.querySelector('[name="taxable_value"]').value) || 0;
+const rate = parseFloat(document.querySelector('[name="gst_rate"]').value) || 0;
+const totalGST = taxable * rate / 100;
+const igst = document.querySelector('[name="invoice_type"]').value === 'Export' ? totalGST : 0;
+const cgst = igst ? 0 : totalGST / 2;
+const sgst = igst ? 0 : totalGST / 2;
+document.querySelector('[name="cgst"]').value = cgst.toFixed(2);
+document.querySelector('[name="sgst"]').value = sgst.toFixed(2);
+document.querySelector('[name="igst"]').value = igst.toFixed(2);
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+tab.addEventListener('click', () => {
+document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+tab.classList.add('active');
+document.getElementById(tab.dataset.tab).classList.add('active');
+});
+});
+
+document.getElementById('invoiceForm').addEventListener('submit', async (e) => {
+e.preventDefault();
+const formData = new FormData(e.target);
+const data = Object.fromEntries(formData);
+data.cgst = parseFloat(data.cgst) || 0;
+data.sgst = parseFloat(data.sgst) || 0;
+data.igst = parseFloat(data.igst) || 0;
+data.taxable_value = parseFloat(data.taxable_value) || 0;
+try {
+const res = await fetch(API_BASE + '/api/gst/invoices', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify(data)
+});
+if (res.ok) { closeModal('invoiceModal'); e.target.reset(); loadData(); }
+} catch(e) { console.error(e); alert('Error saving invoice'); }
+});
+
+document.getElementById('returnForm').addEventListener('submit', async (e) => {
+e.preventDefault();
+const formData = new FormData(e.target);
+const data = Object.fromEntries(formData);
+data.tax_amount = parseFloat(data.tax_amount) || 0;
+try {
+const res = await fetch(API_BASE + '/api/gst/returns', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify(data)
+});
+if (res.ok) { closeModal('returnModal'); e.target.reset(); loadData(); }
+} catch(e) { console.error(e); alert('Error saving return'); }
+});
+
+document.getElementById('ewaybillForm').addEventListener('submit', async (e) => {
+e.preventDefault();
+const formData = new FormData(e.target);
+const data = Object.fromEntries(formData);
+data.goods_value = parseFloat(data.goods_value) || 0;
+try {
+const res = await fetch(API_BASE + '/api/gst/ewaybills', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify(data)
+});
+if (res.ok) { closeModal('ewaybillModal'); e.target.reset(); loadData(); }
+} catch(e) { console.error(e); alert('Error saving e-way bill'); }
+});
+
+async function deleteInvoice(id) {
+if (confirm('Delete this invoice?')) {
+await fetch(API_BASE + '/api/gst/invoices/' + id, { method: 'DELETE' });
+loadData();
+}
+}
+
+function editInvoice(id) {
+const inv = invoices.find(i => i.id === id);
+if (inv) {
+Object.keys(inv).forEach(k => {
+const el = document.querySelector(`[name="${k}"]`);
+if (el) el.value = inv[k];
+});
+openModal('invoiceModal');
+}
+}
+
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+loadData();
+</script>
+</body>
+</html>
