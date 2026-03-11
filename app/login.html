@@ -291,6 +291,23 @@ async function init() {
       
       document.getElementById("loginBtn").textContent = "Signing in..."
       
+      // Demo login - bypass Supabase auth for specific demo credentials
+      if (email === 'singlacapankaj@gmail.com' && password === '1234') {
+        const demoUser = {
+          id: "demo-capankaj",
+          email: "singlacapankaj@gmail.com",
+          user_metadata: { name: "C Pankaj" }
+        }
+        localStorage.setItem('supabase.auth.token', JSON.stringify({
+          access_token: "demo_token",
+          user: demoUser
+        }))
+        localStorage.setItem('userEmail', demoUser.email)
+        localStorage.setItem('userName', "C Pankaj")
+        window.location.href = "/app/dashboard.html"
+        return
+      }
+      
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password
