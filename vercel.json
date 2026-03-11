@@ -16,9 +16,22 @@
     {
       "src": "modules/**",
       "use": "@vercel/static"
+    },
+    {
+      "src": "templates/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "server.py",
+      "use": "@vercel/python",
+      "config": {"runtime": "python3.9"}
     }
   ],
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server.py"
+    },
     {
       "src": "/app/(.*)",
       "dest": "/app/$1"
@@ -34,6 +47,14 @@
     {
       "src": "/modules/(.*)",
       "dest": "/modules/$1"
+    },
+    {
+      "src": "/templates/(.*)",
+      "dest": "/templates/$1"
+    },
+    {
+      "src": "/tds",
+      "dest": "/templates/tds.html"
     },
     {
       "src": "/",
