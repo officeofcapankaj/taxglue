@@ -356,37 +356,39 @@ alert("clients.html script loading!")
 // Shared clients array - declared at top level
 let clients = [];
 
-// Initialize clients array - load from localStorage or use demo clients
+// Initialize clients function - will be called multiple times
 function initClients() {
-  const storedClients = localStorage.getItem('clients')
-  console.log('Initializing clients, stored:', storedClients ? 'yes' : 'no')
-  
-  clients = storedClients ? JSON.parse(storedClients) : []
+  try {
+    console.log('initClients running...')
+    const storedClients = localStorage.getItem('clients')
+    console.log('Initializing clients, stored:', storedClients ? 'yes' : 'no')
 
-  // If no clients in localStorage, load demo clients immediately
-  console.log('Clients length:', clients.length, 'DEMO_CLIENTS length:', DEMO_CLIENTS.length)
-  if (clients.length === 0 && DEMO_CLIENTS.length > 0) {
-    console.log('Initializing with demo clients')
-    clients = DEMO_CLIENTS
-    localStorage.setItem('clients', JSON.stringify(clients))
+    clients = storedClients ? JSON.parse(storedClients) : []
+
+    // If no clients in localStorage, load demo clients immediately
+    console.log('Clients length:', clients.length, 'DEMO_CLIENTS length:', DEMO_CLIENTS.length)
+    if (clients.length === 0 && DEMO_CLIENTS.length > 0) {
+      console.log('Initializing with demo clients')
+      clients = DEMO_CLIENTS
+      localStorage.setItem('clients', JSON.stringify(clients))
+    }
+
+    // Render clients
+    console.log('Calling renderClients, client count:', clients.length)
+    renderClients()
+  } catch (e) {
+    console.error('Error in initClients:', e)
   }
-
-  // Render clients
-  console.log('Calling renderClients, client count:', clients.length)
-  renderClients()
 }
 
 // Try immediately first
 initClients()
 
-// Also try after a short delay as fallback
-setTimeout(initClients, 500)
+// Also try after window loads to ensure all resources are ready
+window.addEventListener('load', initClients)
 
-// Debug: log what's in localStorage after a delay
-setTimeout(() => {
-  const stored = localStorage.getItem('clients')
-  console.log('DEBUG: clients in localStorage:', stored ? stored.substring(0, 200) + '...' : 'none')
-}, 1000)
+// Also try after a delay as last resort
+setTimeout(initClients, 2000)
 
 let contactPersonCount = 1
 let uploadedFiles = []
