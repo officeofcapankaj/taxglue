@@ -5,6 +5,18 @@ node_modules/
 npm-debug.log*
 yarn-error.log
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+venv/
+env/
+
 # Environment variables
 .env
 .env.local
