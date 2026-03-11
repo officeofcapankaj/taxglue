@@ -6,15 +6,11 @@
  * Do NOT hardcode any credentials in this file.
  *
  * Environment Variables (set in Vercel dashboard):
- * - VITE_SUPABASE_URL
- * - VITE_SUPABASE_ANON_KEY
- *
- * For local development, create a .env file with:
- * VITE_SUPABASE_URL=your-url
- * VITE_SUPABASE_ANON_KEY=your-key
+ * - SUPABASE_URL
+ * - SUPABASE_ANON_KEY
  */
 
-// Get Supabase URL from environment - MUST be set via env var
+// Get Supabase URL from environment
 const getEnv = (key, fallback) => {
   // Check window.__env__ (set by Vercel)
   if (typeof window !== 'undefined' && window.__env__ && window.__env__[key]) {
@@ -24,22 +20,23 @@ const getEnv = (key, fallback) => {
   if (typeof window !== 'undefined' && window[key]) {
     return window[key];
   }
-  // Return fallback (should only be used for local dev)
+  // Return fallback for demo mode
   return fallback;
 };
 
-// Validate required environment variables
-const SUPABASE_URL = getEnv('SUPABASE_URL');
-const SUPABASE_ANON_KEY = getEnv('SUPABASE_ANON_KEY');
+// Demo mode fallback values (empty strings - queries will fail gracefully)
+const SUPABASE_URL = getEnv('SUPABASE_URL', '');
+const SUPABASE_ANON_KEY = getEnv('SUPABASE_ANON_KEY', '');
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error('TaxGlue Error: Missing Supabase configuration. Please set SUPABASE_URL and SUPABASE_ANON_KEY environment variables.');
-}
-
-// Create and expose a single Supabase client globally
-const supabase = window.supabase.createClient(SUPABASE_URL || '', SUPABASE_ANON_KEY || '');
-
-// Log config in development (remove in production)
-if (window.location && window.location.hostname === 'localhost') {
-  console.log('TaxGlue: Supabase client initialized');
+// Create Supabase client (may fail if no credentials - that's ok for demo)
+let supabase = null;
+try {
+  if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('TaxGlue: Supabase client initialized');
+  } else {
+    console.log('TaxGlue: Running in demo mode (no Supabase credentials)');
+  }
+} catch (e) {
+  console.log('TaxGlue: Demo mode - Supabase not available');
 }

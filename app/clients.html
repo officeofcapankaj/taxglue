@@ -319,16 +319,19 @@ async function loadClientsFromSupabase() {
     return
   }
   
-  try {
-    const { data, error } = await supabase.from('clients').select('*').order('created_at', { ascending: false })
-    if (error) throw error
-    if (data && data.length > 0) {
-      clients = data
-      localStorage.setItem('clients', JSON.stringify(clients))
-      renderClients()
+  // Try Supabase only if client is available
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('clients').select('*').order('created_at', { ascending: false })
+      if (error) throw error
+      if (data && data.length > 0) {
+        clients = data
+        localStorage.setItem('clients', JSON.stringify(clients))
+        renderClients()
+      }
+    } catch (e) {
+      console.log('Loading from Supabase failed:', e)
     }
-  } catch (e) {
-    console.log('Loading from Supabase failed:', e)
   }
 }
 
@@ -427,16 +430,17 @@ async function saveClient() {
     contactPersons: contactPersons, documents: uploadedFiles, created_at: new Date().toISOString()
   }
   
-  // Save to Supabase
-  try {
-    const { data, error } = await supabase.from('clients').insert([client])
-    if (error) throw error
-  } catch (e) {
-    console.log('Supabase insert error:', e)
-    showError('Failed to save to cloud. Saved locally instead.')
+  // Save to Supabase (if available)
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('clients').insert([client])
+      if (error) throw error
+    } catch (e) {
+      console.log('Supabase insert error:', e)
+    }
   }
   
-  // Also save to localStorage
+  // Always save to localStorage
   clients.push(client)
   localStorage.setItem('clients', JSON.stringify(clients))
   document.getElementById('successMessage').classList.add('show')
