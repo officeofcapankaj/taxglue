@@ -244,7 +244,126 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="js/supabase-config.js"></script>
 <script>
+// Demo mode data - defined early so it can be used during initialization
+const DEMO_CLIENTS = [
+  {
+    id: 'demo-1',
+    name: 'Singla Steel Corporation',
+    constitution: 'Proprietorship',
+    phone: '9876543210',
+    email: 'info@singlasteel.com',
+    address: '#16/26 17/27, Industrial Area, Dehlon-Sahnewal Road, Paddi',
+    city: 'Ludhiana',
+    district: 'Ludhiana',
+    state: 'Punjab',
+    country: 'India',
+    pincode: '141015',
+    registrations: {
+      panNumber: 'ABPFS1234C',
+      gstin: '03ABPFS1234C1Z5'
+    }
+  },
+  {
+    id: 'demo-2',
+    name: 'Rana Industries',
+    constitution: 'Partnership Firm',
+    phone: '9876543211',
+    email: 'info@ranaindustries.com',
+    address: '25, Industrial Estate',
+    city: 'Ludhiana',
+    district: 'Ludhiana',
+    state: 'Punjab',
+    country: 'India',
+    pincode: '141003',
+    registrations: {
+      panNumber: 'AABCU1234E',
+      gstin: '03AABCU1234E1Z6'
+    }
+  },
+  {
+    id: 'demo-3',
+    name: 'Sharma Traders',
+    constitution: 'Sole Proprietorship',
+    phone: '9876543212',
+    email: 'contact@sharmatraders.com',
+    address: '42, Market Road',
+    city: 'Amritsar',
+    district: 'Amritsar',
+    state: 'Punjab',
+    country: 'India',
+    pincode: '143001',
+    registrations: {
+      panNumber: 'BBFPS5678D',
+      gstin: '03BBFPS5678C1Z4'
+    }
+  },
+  {
+    id: 'demo-4',
+    name: 'Gupta Construction',
+    constitution: 'Private Limited Company',
+    phone: '9876543213',
+    email: 'info@guptaconstruction.com',
+    address: '18, Civil Lines',
+    city: 'Jalandhar',
+    district: 'Jalandhar',
+    state: 'Punjab',
+    country: 'India',
+    pincode: '144001',
+    registrations: {
+      panNumber: 'AACCG9012H',
+      gstin: '03AACCG9012H1Z8'
+    }
+  },
+  {
+    id: 'demo-5',
+    name: 'Aggarwal Textiles',
+    constitution: 'LLP',
+    phone: '9876543214',
+    email: 'contact@aggarwaltextiles.com',
+    address: '78, Textile Market',
+    city: 'Panipat',
+    district: 'Panipat',
+    state: 'Haryana',
+    country: 'India',
+    pincode: '132103',
+    registrations: {
+      panNumber: 'CCFFI3456K',
+      gstin: '06CCFFI3456K1Z1'
+    }
+  },
+  {
+    id: 'demo-6',
+    name: 'Jain Logistics',
+    constitution: 'Proprietorship',
+    phone: '9876543215',
+    email: 'info@jainlogistics.com',
+    address: '156, Transport Nagar',
+    city: 'Sonipat',
+    district: 'Sonipat',
+    state: 'Haryana',
+    country: 'India',
+    pincode: '131001',
+    registrations: {
+      panNumber: 'DDGGH7890L',
+      gstin: '06DDGGH7890L1Z2'
+    }
+  }
+];
+
 console.log("clients.html script loaded");
+
+// Initialize clients array - load from localStorage or use demo clients
+let clients = JSON.parse(localStorage.getItem('clients')) || []
+
+// If no clients in localStorage, load demo clients immediately
+if (clients.length === 0 && DEMO_CLIENTS.length > 0) {
+  console.log('Initializing with demo clients')
+  clients = DEMO_CLIENTS
+  localStorage.setItem('clients', JSON.stringify(clients))
+}
+
+// Render clients immediately on page load
+renderClients()
 
 let contactPersonCount = 1
 let uploadedFiles = []
@@ -476,137 +595,6 @@ function renderClients() {
 function searchClients() {
   renderClients()
 }
-
-// Add logout and idle timeout functionality
-
-// Demo mode data
-const DEMO_CLIENTS = [
-  {
-    id: 'demo-1',
-    name: 'Singla Steel Corporation',
-    constitution: 'Proprietorship',
-    phone: '9876543210',
-    email: 'info@singlasteel.com',
-    address: '#16/26 17/27, Industrial Area, Dehlon-Sahnewal Road, Paddi',
-    city: 'Ludhiana',
-    state: 'Punjab',
-    pincode: '141206',
-    registrations: { 
-      panNumber: 'ASRPS7924E', 
-      gstin: '',
-      cin: 'U17309PB2020PTC052239'
-    },
-    tan: 'LBKR01234A',
-    contactPersons: [{ name: 'Mr. Singla', phone: '9876543210', email: 'info@singlasteel.com' }],
-    documents: [],
-    created_at: '2024-01-15'
-  },
-  {
-    id: 'demo-2',
-    name: 'Rana Industries Pvt Ltd',
-    constitution: 'Private Limited',
-    phone: '9877112233',
-    email: 'info@ranaindustries.com',
-    address: 'Plot No. 45, Industrial Area Phase II',
-    city: 'Mandi Gobindgarh',
-    state: 'Punjab',
-    pincode: '147301',
-    registrations: { 
-      panNumber: 'AAECR3456C', 
-      gstin: '03AAECR3456C1Z2',
-      cin: 'U29299PB2021PTC054321'
-    },
-    tan: 'LBKR01234A',
-    industry: 'Steel Manufacturing',
-    contactPersons: [{ name: 'Mr. Rana', phone: '9877112233', email: 'info@ranaindustries.com' }],
-    documents: [],
-    created_at: '2024-02-20'
-  },
-  {
-    id: 'demo-3',
-    name: 'Sharma Traders',
-    constitution: 'Proprietorship',
-    phone: '9888776655',
-    email: 'info@sharmatraders.com',
-    address: 'Shop No. 12, Main Market, GT Road',
-    city: 'Khanna',
-    state: 'Punjab',
-    pincode: '141401',
-    registrations: { 
-      panNumber: 'BXNPS5678D', 
-      gstin: '03BXNPS5678D1Z4',
-      cin: ''
-    },
-    tan: 'LKKR04567B',
-    industry: 'Trading (Hardware & Plywood)',
-    contactPersons: [{ name: 'Mr. Sharma', phone: '9888776655', email: 'info@sharmatraders.com' }],
-    documents: [],
-    created_at: '2024-03-10'
-  },
-  {
-    id: 'demo-4',
-    name: 'Gupta Construction Company',
-    constitution: 'Private Limited',
-    phone: '9899887766',
-    email: 'info@guptaconstruction.com',
-    address: 'Office No. 201, Anchal Complex, Civil Lines',
-    city: 'Ludhiana',
-    state: 'Punjab',
-    pincode: '141001',
-    registrations: { 
-      panNumber: 'AJHPG8901E', 
-      gstin: '03AJHPG8901E1Z6',
-      cin: 'U45201PB2022PTC056789'
-    },
-    tan: 'LBKR07890C',
-    industry: 'Construction & Real Estate',
-    contactPersons: [{ name: 'Mr. Gupta', phone: '9899887766', email: 'info@guptaconstruction.com' }],
-    documents: [],
-    created_at: '2024-04-01'
-  },
-  {
-    id: 'demo-5',
-    name: 'Aggarwal Textiles',
-    constitution: 'Partnership',
-    phone: '9800112233',
-    email: 'info@aggarwaltextiles.com',
-    address: 'B-XXII-1845, Industrial Area A',
-    city: 'Ludhiana',
-    state: 'Punjab',
-    pincode: '141003',
-    registrations: { 
-      panNumber: 'ACEPK2345F', 
-      gstin: '03ACEPK2345F1Z8',
-      cin: ''
-    },
-    tan: 'LBKR02345D',
-    industry: 'Textiles & Garments',
-    contactPersons: [{ name: 'Mr. Aggarwal', phone: '9800112233', email: 'info@aggarwaltextiles.com' }],
-    documents: [],
-    created_at: '2024-05-01'
-  },
-  {
-    id: 'demo-6',
-    name: 'Jain Logistics Services',
-    constitution: 'Private Limited',
-    phone: '9811223344',
-    email: 'info@jainlogistics.com',
-    address: 'G.T. Road, Near Bus Stand, Village Bhanohan',
-    city: 'Jalandhar',
-    state: 'Punjab',
-    pincode: '144001',
-    registrations: { 
-      panNumber: 'AABCJ6789K', 
-      gstin: '03AABCJ6789K1Z0',
-      cin: 'U60200PB2020PTC051234'
-    },
-    tan: 'JLPR01234E',
-    industry: 'Transportation & Logistics',
-    contactPersons: [{ name: 'Mr. Jain', phone: '9811223344', email: 'info@jainlogistics.com' }],
-    documents: [],
-    created_at: '2024-06-01'
-  }
-]
 
 // Check if demo mode
 function isDemoMode() {
