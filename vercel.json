@@ -2,6 +2,10 @@
   "version": 2,
   "builds": [
     {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
       "src": "app/**",
       "use": "@vercel/static"
     },
@@ -77,8 +81,12 @@
       "dest": "/app/incometax.html"
     },
     {
+      "src": "/index.html",
+      "dest": "/index.html"
+    },
+    {
       "src": "/",
-      "dest": "/app/index.html"
+      "dest": "/index.html"
     },
     {
       "handle": "filesystem"
