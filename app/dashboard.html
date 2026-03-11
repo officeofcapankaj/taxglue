@@ -741,7 +741,7 @@ body {
           <div class="user-email" id="userEmail">user@email.com</div>
         </div>
       </div>
-      <button class="logout-btn" id="logoutBtn" onclick="logout()">Logout</button>
+      <button class="logout-btn" id="logoutBtn" onclick="console.log('onclick fired'); logout()">Logout</button>
     </div>
   </header>
   
@@ -1017,16 +1017,11 @@ async function checkUser() {
 
 async function logout() {
   console.log('Logout function called')
-  try {
-    await supabase.auth.signOut()
-  } catch (e) {
-    console.log('Supabase signout error:', e)
-  }
-  // Clear localStorage
+  // Clear localStorage first (before any errors can occur)
   localStorage.clear()
-  console.log('Redirecting to login...')
-  // Redirect to login
-  window.location.href = "login.html"
+  console.log('localStorage cleared')
+  // Use replace to avoid going back to previous page
+  window.location.replace("/app/login.html")
 }
 
 // Auto logout after 2 minutes of inactivity
@@ -1053,18 +1048,6 @@ setInterval(function() {
 }, 1000);
 
 checkUser()
-
-// Add event listener for logout button
-document.addEventListener('DOMContentLoaded', function() {
-  const logoutBtn = document.getElementById('logoutBtn')
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', function(e) {
-      e.preventDefault()
-      console.log('Logout clicked')
-      logout()
-    })
-  }
-})
 </script>
 </body>
 </html>
