@@ -90,7 +90,7 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
 <main class="main">
   <header class="topbar">
     <h1 class="page-title">Client Master</h1>
-    <button class="logout-btn" id="logoutBtn">Logout</button>
+    <a href="/app/login.html" class="logout-btn" id="logoutBtn" onclick="localStorage.clear(); return true;">Logout</a>
   </header>
   <div class="content">
     <div class="success-message" id="successMessage">Client saved successfully!</div>
