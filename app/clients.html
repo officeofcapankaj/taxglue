@@ -356,20 +356,27 @@ console.log("clients.html script loaded");
 let clients = [];
 
 // Initialize clients array - load from localStorage or use demo clients
-// Use setTimeout to ensure DOM is fully ready before rendering
-setTimeout(function() {
-  clients = JSON.parse(localStorage.getItem('clients')) || []
+function initClients() {
+  const storedClients = localStorage.getItem('clients')
+  console.log('Initializing clients, stored:', storedClients ? 'yes' : 'no')
+  
+  clients = storedClients ? JSON.parse(storedClients) : []
 
   // If no clients in localStorage, load demo clients immediately
+  console.log('Clients length:', clients.length, 'DEMO_CLIENTS length:', DEMO_CLIENTS.length)
   if (clients.length === 0 && DEMO_CLIENTS.length > 0) {
     console.log('Initializing with demo clients')
     clients = DEMO_CLIENTS
     localStorage.setItem('clients', JSON.stringify(clients))
   }
 
-  // Render clients when DOM is ready
+  // Render clients
+  console.log('Calling renderClients, client count:', clients.length)
   renderClients()
-}, 100);
+}
+
+// Try immediately first
+initClients()
 
 let contactPersonCount = 1
 let uploadedFiles = []
