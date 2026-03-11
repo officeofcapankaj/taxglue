@@ -1015,12 +1015,11 @@ async function checkUser() {
   }
 }
 
-async function logout() {
+// Make logout a global function
+window.logout = function() {
   console.log('Logout function called')
-  // Clear localStorage first (before any errors can occur)
   localStorage.clear()
   console.log('localStorage cleared')
-  // Use replace to avoid going back to previous page
   window.location.replace("/app/login.html")
 }
 
