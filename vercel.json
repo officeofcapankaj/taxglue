@@ -33,6 +33,18 @@
       "dest": "/server.py"
     },
     {
+      "src": "/app/tds.html",
+      "dest": "/app/tds.html"
+    },
+    {
+      "src": "/app/gst.html",
+      "dest": "/app/gst.html"
+    },
+    {
+      "src": "/app/incometax.html",
+      "dest": "/app/incometax.html"
+    },
+    {
       "src": "/app/(.*)",
       "dest": "/app/$1"
     },
@@ -54,7 +66,15 @@
     },
     {
       "src": "/tds",
-      "dest": "/templates/tds.html"
+      "dest": "/app/tds.html"
+    },
+    {
+      "src": "/gst",
+      "dest": "/app/gst.html"
+    },
+    {
+      "src": "/incometax",
+      "dest": "/app/incometax.html"
     },
     {
       "src": "/",
