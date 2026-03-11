@@ -369,36 +369,73 @@ function renderBalanceSheet(clientName, fy) {
 function convertTBtoBS(tbData) {
   const bs = {}
   
-  if (!tbData || !Array.isArray(tbData)) return bs
+  if (!tbData || !Array.isArray(tbData)) {
+    console.log('Invalid TB data:', tbData)
+    return bs
+  }
+  
+  console.log('Converting TB data:', tbData)
   
   tbData.forEach(item => {
-    if (item.mainHead === 'Liabilities' || item.mainHead === 'Income') {
+    // Handle different property names (backward compatibility)
+    const mainHead = item.mainHead || item.main || item.category || ''
+    const sub1 = item.sub1 || item.subHead || item.account_type || ''
+    const debit = parseFloat(item.debit || item.Debit || 0)
+    const credit = parseFloat(item.credit || item.Credit || 0)
+    
+    console.log('Processing item:', { mainHead, sub1, debit, credit })
+    
+    if (mainHead === 'Liabilities' || mainHead === 'Income') {
       // Credit - add to liabilities or income
-      const credit = item.credit || 0
-      if (item.sub1 === 'Capital' || item.sub1 === 'Reserve & Surplus') {
+      if (sub1 === 'Owners Capital' || sub1 === 'Capital') {
         bs['Share Capital'] = (bs['Share Capital'] || 0) + credit
+      } else if (sub1 === 'Reserves Surplus' || sub1 === 'Reserve & Surplus') {
         bs['Reserves and Surplus'] = (bs['Reserves and Surplus'] || 0) + credit
-      } else if (item.mainHead === 'Liabilities') {
-        bs[item.sub1] = (bs[item.sub1] || 0) + credit
+      } else if (sub1 === 'Long Term Borrowings') {
+        bs['Long-Term Borrowings'] = (bs['Long-Term Borrowings'] || 0) + credit
+      } else if (sub1 === 'Short Term Borrowings') {
+        bs['Short-Term Borrowings'] = (bs['Short-Term Borrowings'] || 0) + credit
+      } else if (sub1 === 'Trade Payables') {
+        bs['Trade Payables'] = (bs['Trade Payables'] || 0) + credit
+      } else if (sub1 === 'Other Current Liabilities') {
+        bs['Other Current Liabilities'] = (bs['Other Current Liabilities'] || 0) + credit
+      } else if (sub1 === 'Short Term Provisions') {
+        bs['Short-Term Provisions'] = (bs['Short-Term Provisions'] || 0) + credit
+      } else if (mainHead === 'Income') {
+        // Income goes to Reserves and Surplus
+        bs['Reserves and Surplus'] = (bs['Reserves and Surplus'] || 0) + credit
+      } else {
+        bs[sub1] = (bs[sub1] || 0) + credit
       }
-    } else if (item.mainHead === 'Assets' || item.mainHead === 'Expense') {
+    } else if (mainHead === 'Assets' || mainHead === 'Expense') {
       // Debit - add to assets or expenses
-      const debit = item.debit || 0
-      if (item.sub1 === 'Fixed Assets' || item.sub1 === 'Long-term Loans') {
+      if (sub1 === 'Property Plant Equipment' || sub1 === 'Fixed Assets') {
         bs['Property, Plant and Equipment'] = (bs['Property, Plant and Equipment'] || 0) + debit
+      } else if (sub1 === 'Long Term Loans Advances') {
         bs['Long-Term Loans and Advances'] = (bs['Long-Term Loans and Advances'] || 0) + debit
-      } else if (item.sub1 === 'Sundry Debtors') {
+      } else if (sub1 === 'Trade Receivables' || sub1 === 'Sundry Debtors') {
         bs['Trade Receivables'] = (bs['Trade Receivables'] || 0) + debit
-      } else if (item.sub1 === 'Cash and Bank Balances') {
+      } else if (sub1 === 'Cash Bank Balances' || sub1 === 'Cash and Bank') {
         bs['Cash and Cash Equivalents'] = (bs['Cash and Cash Equivalents'] || 0) + debit
-      } else if (item.sub1 === 'Inventories') {
+      } else if (sub1 === 'Inventories') {
         bs['Inventories'] = (bs['Inventories'] || 0) + debit
-      } else if (item.mainHead === 'Assets') {
-        bs[item.sub1] = (bs[item.sub1] || 0) + debit
+      } else if (sub1 === 'Current Investments') {
+        bs['Current Investments'] = (bs['Current Investments'] || 0) + debit
+      } else if (sub1 === 'Short Term Loans Advances') {
+        bs['Short-Term Loans and Advances'] = (bs['Short-Term Loans and Advances'] || 0) + debit
+      } else if (sub1 === 'Other Current Assets') {
+        bs['Other Current Assets'] = (bs['Other Current Assets'] || 0) + debit
+      } else if (mainHead === 'Expense') {
+        // Expenses affect the P&L, not Balance Sheet directly
+        // But we'll track them for now
+        bs['Other Expenses'] = (bs['Other Expenses'] || 0) + debit
+      } else {
+        bs[sub1] = (bs[sub1] || 0) + debit
       }
     }
   })
   
+  console.log('Converted BS data:', bs)
   return bs
 }
 
@@ -541,23 +578,40 @@ function renderNotes(clientName, fy) {
 }
 
 function exportSingle(format) {
-  const clientName = getClientName()
+  const clientName = getClientName() || 'Report'
   const fy = getFY()
   const reportType = currentReport === 'bs' ? 'Balance Sheet' : currentReport === 'pl' ? 'Profit and Loss' : currentReport === 'cf' ? 'Cash Flow' : 'Notes to Accounts'
   
   if (format === 'excel') {
+    // Get the current report data
+    let reportData = []
+    if (currentReport === 'bs') {
+      reportData = renderBalanceSheetData(clientName, fy)
+    } else if (currentReport === 'pl') {
+      reportData = renderPLData(clientName, fy)
+    } else if (currentReport === 'cf') {
+      reportData = renderCFData(clientName, fy)
+    } else {
+      reportData = renderNotesData(clientName, fy)
+    }
+    
     const wb = XLSX.utils.book_new()
-    const ws = XLSX.utils.aoa_to_sheet([[`${reportType} - ${clientName}`], [`FY: ${fy}`], []])
+    const ws = XLSX.utils.aoa_to_sheet(reportData)
     XLSX.utils.book_append_sheet(wb, ws, 'Report')
-    XLSX.writeFile(wb, `${clientName}_${reportType}_${fy}.xlsx`)
+    XLSX.writeFile(wb, `${clientName.replace(/[^a-zA-Z0-9]/g, '_')}_${reportType.replace(/[^a-zA-Z0-9]/g, '_')}_${fy}.xlsx`)
   } else if (format === 'pdf') {
     window.print()
   } else if (format === 'word') {
-    const content = document.getElementById('printableReport').innerHTML
-    const blob = new Blob([`<html><body>${content}</body></html>`], { type: 'application/msword' })
+    const reportEl = document.getElementById('printableReport')
+    if (!reportEl) {
+      alert('No report to export. Please select a client and generate a report first.')
+      return
+    }
+    const content = reportEl.innerHTML
+    const blob = new Blob([`<html><head><style>body{font-family:Arial;padding:20px;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #000;padding:8px;text-align:left;} .amount{text-align:right;}</style></head><body>${content}</body></html>`], { type: 'application/msword' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
-    link.download = `${clientName}_${reportType}_${fy}.doc`
+    link.download = `${clientName.replace(/[^a-zA-Z0-9]/g, '_')}_${reportType.replace(/[^a-zA-Z0-9]/g, '_')}_${fy}.doc`
     link.click()
   }
 }
@@ -672,30 +726,43 @@ async function exportAllReports() {
   }
 }
 
-// Helper functions for Excel data
+// Helper functions for Excel data - now includes actual trial balance data
 function renderBalanceSheetData(clientName, fy) {
+  // Convert trial balance to balance sheet
+  const bsData = convertTBtoBS(financialData)
+  
   const data = [[`BALANCE SHEET - ${clientName}`], [`FY: ${fy}`], []]
   data.push(['Sch.', 'Particulars', 'Note No.', fy, (parseInt(fy.split('-')[0]) - 1) + '-' + (parseInt(fy.split('-')[0]) - 1).toString().slice(-2)])
   
+  let totalLiabilities = 0
+  let totalAssets = 0
+  
+  // Equity & Liabilities
   BS_STRUCTURE.assets.nonCurrentAssets.forEach(item => {
     if (item.isHeader || item.isSection) {
       data.push([item.code, item.name, '', '', ''])
     } else if (item.isTotal) {
-      data.push(['', item.name, '', '', ''])
+      // Calculate total
+      totalLiabilities = Object.values(bsData).reduce((a, b) => a + (parseFloat(b) || 0), 0)
+      data.push(['', item.name, '', totalLiabilities.toFixed(2), '0.00'])
     } else {
-      data.push([item.code, item.name, '', '', ''])
+      const value = bsData[item.name] || 0
+      data.push([item.code, item.name, '', parseFloat(value).toFixed(2), '0.00'])
     }
   })
   
   data.push(['', '', '', '', ''])
   
+  // Assets
   BS_STRUCTURE.assets.currentAssets.forEach(item => {
     if (item.isHeader || item.isSection) {
       data.push([item.code, item.name, '', '', ''])
     } else if (item.isTotal) {
-      data.push(['', item.name, '', '', ''])
+      totalAssets = Object.values(bsData).reduce((a, b) => a + (parseFloat(b) || 0), 0)
+      data.push(['', item.name, '', totalAssets.toFixed(2), '0.00'])
     } else {
-      data.push([item.code, item.name, '', '', ''])
+      const value = bsData[item.name] || 0
+      data.push([item.code, item.name, '', parseFloat(value).toFixed(2), '0.00'])
     }
   })
   
@@ -703,24 +770,64 @@ function renderBalanceSheetData(clientName, fy) {
 }
 
 function renderPLData(clientName, fy) {
+  // Calculate P&L from trial balance
+  let totalIncome = 0
+  let totalExpenses = 0
+  
+  if (financialData && Array.isArray(financialData)) {
+    financialData.forEach(item => {
+      const mainHead = item.mainHead || item.main || ''
+      const debit = parseFloat(item.debit || 0)
+      const credit = parseFloat(item.credit || 0)
+      
+      if (mainHead === 'Income') {
+        totalIncome += credit
+      } else if (mainHead === 'Expense') {
+        totalExpenses += debit
+      }
+    })
+  }
+  
+  const profitBeforeTax = totalIncome - totalExpenses
+  const tax = profitBeforeTax > 0 ? profitBeforeTax * 0.25 : 0 // Assume 25% tax
+  const netProfit = profitBeforeTax - tax
+  
   const data = [[`STATEMENT OF PROFIT AND LOSS - ${clientName}`], [`FY: ${fy}`], []]
   data.push(['Sch.', 'Particulars', 'Note No.', fy, (parseInt(fy.split('-')[0]) - 1) + '-' + (parseInt(fy.split('-')[0]) - 1).toString().slice(-2)])
   
+  // Income
   PL_STRUCTURE.income.forEach(item => {
-    if (item.isHeader || item.isSection || item.isTotal) {
+    if (item.isHeader) {
       data.push([item.code, item.name, '', '', ''])
+    } else if (item.name === 'Revenue from Operations') {
+      data.push([item.code, item.name, '', totalIncome.toFixed(2), '0.00'])
+    } else if (item.name === 'Other Income') {
+      data.push([item.code, item.name, '', '0.00', '0.00'])
+    } else if (item.name.includes('Total Revenue')) {
+      data.push(['', item.name, '', totalIncome.toFixed(2), '0.00'])
+    } else if (item.isTotal) {
+      data.push(['', item.name, '', profitBeforeTax.toFixed(2), '0.00'])
     } else {
-      data.push([item.code, item.name, '', '', ''])
+      data.push([item.code, item.name, '', '0.00', '0.00'])
     }
   })
   
   data.push(['', '', '', '', ''])
   
+  // Expenses
   PL_STRUCTURE.expenses.forEach(item => {
-    if (item.isHeader || item.isSection || item.isTotal) {
+    if (item.isHeader) {
       data.push([item.code, item.name, '', '', ''])
+    } else if (item.isTotal) {
+      data.push(['', item.name, '', totalExpenses.toFixed(2), '0.00'])
+    } else if (item.name === 'Profit Before Tax') {
+      data.push(['', item.name, '', profitBeforeTax.toFixed(2), '0.00'])
+    } else if (item.name.includes('Tax')) {
+      data.push([item.code, item.name, '', tax.toFixed(2), '0.00'])
+    } else if (item.name.includes('Profit for')) {
+      data.push(['', item.name, '', netProfit.toFixed(2), '0.00'])
     } else {
-      data.push([item.code, item.name, '', '', ''])
+      data.push([item.code, item.name, '', '0.00', '0.00'])
     }
   })
   
@@ -728,11 +835,76 @@ function renderPLData(clientName, fy) {
 }
 
 function renderCFData(clientName, fy) {
-  return [[`CASH FLOW STATEMENT - ${clientName}`], [`FY: ${fy}`], []]
+  // Calculate cash flow from trial balance
+  let netProfit = 0
+  let depreciation = 0
+  let changeInReceivables = 0
+  let changeInPayables = 0
+  
+  if (financialData && Array.isArray(financialData)) {
+    financialData.forEach(item => {
+      const mainHead = item.mainHead || item.main || ''
+      const sub1 = item.sub1 || ''
+      const debit = parseFloat(item.debit || 0)
+      const credit = parseFloat(item.credit || 0)
+      
+      if (mainHead === 'Income') {
+        netProfit += credit
+      } else if (mainHead === 'Expense') {
+        netProfit -= debit
+        if (sub1.includes('Depreciation')) {
+          depreciation += debit
+        }
+      }
+    })
+  }
+  
+  const data = [[`CASH FLOW STATEMENT - ${clientName}`], [`FY: ${fy}`], []]
+  data.push(['Particulars', fy, (parseInt(fy.split('-')[0]) - 1) + '-' + (parseInt(fy.split('-')[0]) - 1).toString().slice(-2)])
+  
+  // Operating Activities
+  data.push(['', 'CASH FLOW FROM OPERATING ACTIVITIES', ''])
+  data.push(['Net Profit before Tax', netProfit.toFixed(2), '0.00'])
+  data.push(['Add: Depreciation', depreciation.toFixed(2), '0.00'])
+  data.push(['Operating Profit before Working Capital Changes', (netProfit + depreciation).toFixed(2), '0.00'])
+  data.push(['Less: Increase in Receivables', changeInReceivables.toFixed(2), '0.00'])
+  data.push(['Less: Increase in Payables', changeInPayables.toFixed(2), '0.00'])
+  data.push(['Cash from Operations', (netProfit + depreciation - changeInReceivables - changeInPayables).toFixed(2), '0.00'])
+  
+  // Investing Activities
+  data.push(['', 'CASH FLOW FROM INVESTING ACTIVITIES', ''])
+  data.push(['Purchase of Fixed Assets', '0.00', '0.00'])
+  data.push(['Sale of Fixed Assets', '0.00', '0.00'])
+  data.push(['Net Cash from Investing', '0.00', '0.00'])
+  
+  // Financing Activities
+  data.push(['', 'CASH FLOW FROM FINANCING ACTIVITIES', ''])
+  data.push(['Proceeds from Borrowings', '0.00', '0.00'])
+  data.push(['Repayment of Borrowings', '0.00', '0.00'])
+  data.push(['Net Cash from Financing', '0.00', '0.00'])
+  
+  // Net Change
+  data.push(['', 'Net Increase in Cash', (netProfit + depreciation - changeInReceivables - changeInPayables).toFixed(2), '0.00'])
+  data.push(['Opening Cash', '0.00', '0.00'])
+  data.push(['Closing Cash', (netProfit + depreciation - changeInReceivables - changeInPayables).toFixed(2), '0.00'])
+  
+  return data
 }
 
 function renderNotesData(clientName, fy) {
-  return [[`NOTES TO ACCOUNTS - ${clientName}`], [`FY: ${fy}`], []]
+  const data = [[`NOTES TO ACCOUNTS - ${clientName}`], [`FY: ${fy}`], []]
+  data.push(['Note', 'Description', 'Details'])
+  
+  // Add notes based on trial balance data
+  if (financialData && Array.isArray(financialData)) {
+    data.push(['1', 'Share Capital', 'Details from trial balance'])
+    data.push(['2', 'Reserves and Surplus', 'Details from trial balance'])
+    data.push(['3', 'Property, Plant and Equipment', 'Details from trial balance'])
+    data.push(['4', 'Trade Receivables', 'Details from trial balance'])
+    data.push(['5', 'Trade Payables', 'Details from trial balance'])
+  }
+  
+  return data
 }
 
 // Initialize
@@ -743,7 +915,7 @@ let financialData = {}
 
 async function loadFinancialData(clientId, fy) {
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('trial_balance')
       .select('data')
       .eq('client_id', clientId)
@@ -752,13 +924,40 @@ async function loadFinancialData(clientId, fy) {
     
     if (data && data.data) {
       financialData = data.data
+      console.log('Loaded financial data from DB:', financialData)
       return financialData
     }
   } catch (e) {
-    console.log('Error loading financial data:', e)
+    console.log('Error loading from DB, trying localStorage:', e)
   }
   
-  financialData = {}
+  // Fallback to localStorage
+  const localKey = `trialBalance_${clientId}_${fy}`
+  const localData = localStorage.getItem(localKey)
+  if (localData) {
+    try {
+      financialData = JSON.parse(localData)
+      console.log('Loaded financial data from localStorage:', financialData)
+      return financialData
+    } catch (e) {
+      console.log('Error parsing localStorage data:', e)
+    }
+  }
+  
+  // Also check legacy key
+  const legacyData = localStorage.getItem("trialBalance")
+  if (legacyData) {
+    try {
+      financialData = JSON.parse(legacyData)
+      console.log('Loaded financial data from legacy localStorage')
+      return financialData
+    } catch (e) {
+      console.log('Error parsing legacy data:', e)
+    }
+  }
+  
+  console.log('No financial data found for client:', clientId, 'FY:', fy)
+  financialData = []
   return financialData
 }
 
