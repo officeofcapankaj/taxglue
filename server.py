@@ -1,5 +1,5 @@
 """
-TaxGlu - Web-based Bookkeeping Application
+TaxGlue - Web-based Bookkeeping Application
 Flask REST API + Static File Server
 """
 
@@ -16,11 +16,7 @@ CORS(app)
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 os.makedirs(DATA_DIR, exist_ok=True)
 
-USERS_FILE = os.path.join(DATA_DIR, 'users.json')
-CLIENTS_FILE = os.path.join(DATA_DIR, 'clients.json')
-ACCOUNTS_FILE = os.path.join(DATA_DIR, 'accounts.json')
-VOUCHERS_FILE = os.path.join(DATA_DIR, 'vouchers.json')
-
+# Helper functions
 def load_json(filepath, default=[]):
     if os.path.exists(filepath):
         with open(filepath, 'r') as f:
@@ -30,6 +26,572 @@ def load_json(filepath, default=[]):
 def save_json(filepath, data):
     with open(filepath, 'w') as f:
         json.dump(data, f, indent=2)
+
+# TDS Data Files
+TDS_DEDUCTORS_FILE = os.path.join(DATA_DIR, 'tds_deductors.json')
+TDS_DEDUCTEES_FILE = os.path.join(DATA_DIR, 'tds_deductees.json')
+TDS_TRANSACTIONS_FILE = os.path.join(DATA_DIR, 'tds_transactions.json')
+TDS_CHALLANS_FILE = os.path.join(DATA_DIR, 'tds_challans.json')
+TDS_RETURNS_FILE = os.path.join(DATA_DIR, 'tds_returns.json')
+
+# Original App Data Files
+USERS_FILE = os.path.join(DATA_DIR, 'users.json')
+CLIENTS_FILE = os.path.join(DATA_DIR, 'clients.json')
+ACCOUNTS_FILE = os.path.join(DATA_DIR, 'accounts.json')
+VOUCHERS_FILE = os.path.join(DATA_DIR, 'vouchers.json')
+
+# TDS Section Rates (as per Indian Income Tax Act)
+TDS_RATES = {
+    '192': {'name': 'Salary', 'rate': None, 'description': 'TDS on Salary'},
+    '194': {'name': 'Dividends', 'rate': 10, 'description': 'TDS on Dividends'},
+    '194A': {'name': 'Interest other than Interest on securities', 'rate': 10, 'description': 'TDS on Interest'},
+    '194C': {'name': 'Contractor Payment', 'rate': 2, 'description': 'TDS on Contractual Payments'},
+    '194D': {'name': 'Insurance Commission', 'rate': 5, 'description': 'TDS on Insurance Commission'},
+    '194H': {'name': 'Commission/Brokerage', 'rate': 5, 'description': 'TDS on Commission'},
+    '194I': {'name': 'Rent', 'rate': 2, 'description': 'TDS on Rent'},
+    '194IA': {'name': 'Transfer of Immovable Property', 'rate': 1, 'description': 'TDS on Property Transfer'},
+    '194IB': {'name': 'Rent by Individual/HUF', 'rate': 5, 'description': 'TDS on Rent (Individual/HUF)'},
+    '194J': {'name': 'Professional Fees', 'rate': 10, 'description': 'TDS on Professional Fees'},
+    '194Q': {'name': 'Purchase of Goods', 'rate': 0.1, 'description': 'TDS on Purchase of Goods'},
+    '195': {'name': 'Non-Resident Payments', 'rate': None, 'description': 'TDS on Non-Resident Payments'},
+    '206AB': {'name': 'Higher TDS Rate (Non-filers)', 'rate': 5, 'description': 'Higher TDS for non-filers of ITR'}
+}
+
+# Form Types
+FORM_TYPES = {
+    '24Q': {'name': 'Form 24Q', 'description': 'TDS from Salary'},
+    '26Q': {'name': 'Form 26Q', 'description': 'TDS from Non-Salary Payments'},
+    '27Q': {'name': 'Form 27Q', 'description': 'TDS from Non-Resident Payments'}
+}
+
+# Initialize TDS data
+def init_tds_data():
+    # Initialize deductors if not exists
+    if not os.path.exists(TDS_DEDUCTORS_FILE):
+        save_json(TDS_DEDUCTORS_FILE, [])
+    # Initialize deductees if not exists
+    if not os.path.exists(TDS_DEDUCTEES_FILE):
+        save_json(TDS_DEDUCTEES_FILE, [])
+    # Initialize transactions if not exists
+    if not os.path.exists(TDS_TRANSACTIONS_FILE):
+        save_json(TDS_TRANSACTIONS_FILE, [])
+    # Initialize challans if not exists
+    if not os.path.exists(TDS_CHALLANS_FILE):
+        save_json(TDS_CHALLANS_FILE, [])
+    # Initialize returns if not exists
+    if not os.path.exists(TDS_RETURNS_FILE):
+        save_json(TDS_RETURNS_FILE, [])
+
+init_tds_data()
+
+# Helper functions (must be defined before init_data uses them)
+
+# 1. TDS Deductor Management
+@app.route('/api/tds/rates', methods=['GET'])
+def get_tds_rates():
+    """Get all TDS sections and their rates"""
+    return jsonify(TDS_RATES)
+
+@app.route('/api/tds/deductors', methods=['GET'])
+def get_deductors():
+    """Get all TDS deductors"""
+    deductors = load_json(TDS_DEDUCTORS_FILE)
+    return jsonify(deductors)
+
+@app.route('/api/tds/deductors', methods=['POST'])
+def create_deductor():
+    """Create a new TDS deductor"""
+    data = request.json
+    deductor = {
+        "id": str(uuid.uuid4()),
+        "tan": data.get('tan', '').upper(),
+        "name": data.get('name', ''),
+        "ddo_type": data.get('ddo_type', 'NON_DDO'),
+        "gstin": data.get('gstin', ''),
+        "address": data.get('address', ''),
+        "city": data.get('city', ''),
+        "state": data.get('state', ''),
+        "pincode": data.get('pincode', ''),
+        "phone": data.get('phone', ''),
+        "email": data.get('email', ''),
+        "contact_person": data.get('contact_person', ''),
+        "fy": data.get('fy', '2024-25'),
+        "quarter": data.get('quarter', 'Q1'),
+        "status": 'ACTIVE',
+        "created_at": datetime.now().isoformat()
+    }
+    deductors = load_json(TDS_DEDUCTORS_FILE)
+    deductors.append(deductor)
+    save_json(TDS_DEDUCTORS_FILE, deductors)
+    return jsonify(deductor), 201
+
+@app.route('/api/tds/deductors/<deductor_id>', methods=['GET'])
+def get_deductor(deductor_id):
+    """Get a specific deductor"""
+    deductors = load_json(TDS_DEDUCTORS_FILE)
+    deductor = next((d for d in deductors if d['id'] == deductor_id), None)
+    if deductor:
+        return jsonify(deductor)
+    return jsonify({"error": "Deductor not found"}), 404
+
+@app.route('/api/tds/deductors/<deductor_id>', methods=['PUT'])
+def update_deductor(deductor_id):
+    """Update a deductor"""
+    data = request.json
+    deductors = load_json(TDS_DEDUCTORS_FILE)
+    for i, d in enumerate(deductors):
+        if d['id'] == deductor_id:
+            deductors[i].update(data)
+            deductors[i]['updated_at'] = datetime.now().isoformat()
+            save_json(TDS_DEDUCTORS_FILE, deductors)
+            return jsonify(deductors[i])
+    return jsonify({"error": "Deductor not found"}), 404
+
+@app.route('/api/tds/deductors/<deductor_id>', methods=['DELETE'])
+def delete_deductor(deductor_id):
+    """Delete a deductor"""
+    deductors = load_json(TDS_DEDUCTORS_FILE)
+    deductors = [d for d in deductors if d['id'] != deductor_id]
+    save_json(TDS_DEDUCTORS_FILE, deductors)
+    return jsonify({"message": "Deductor deleted"}), 200
+
+# 2. TDS Deductee Management
+@app.route('/api/tds/deductees', methods=['GET'])
+def get_deductees():
+    """Get all TDS deductees"""
+    deductees = load_json(TDS_DEDUCTEES_FILE)
+    return jsonify(deductees)
+
+@app.route('/api/tds/deductees', methods=['POST'])
+def create_deductee():
+    """Create a new TDS deductee"""
+    data = request.json
+    deductee = {
+        "id": str(uuid.uuid4()),
+        "deductor_id": data.get('deductor_id'),
+        "pan": data.get('pan', '').upper(),
+        "aadhaar": data.get('aadhaar', ''),
+        "name": data.get('name', ''),
+        "address": data.get('address', ''),
+        "city": data.get('city', ''),
+        "state": data.get('state', ''),
+        "pincode": data.get('pincode', ''),
+        "mobile": data.get('mobile', ''),
+        "email": data.get('email', ''),
+        "category": data.get('category', 'INDIVIDUAL'),
+        "deductee_type": data.get('deductee_type', 'RESIDENT'),
+        "fy": data.get('fy', '2024-25'),
+        "status": 'ACTIVE',
+        "created_at": datetime.now().isoformat()
+    }
+    deductees = load_json(TDS_DEDUCTEES_FILE)
+    deductees.append(deductee)
+    save_json(TDS_DEDUCTEES_FILE, deductees)
+    return jsonify(deductee), 201
+
+@app.route('/api/tds/deductees/<deductee_id>', methods=['GET'])
+def get_deductee(deductee_id):
+    """Get a specific deductee"""
+    deductees = load_json(TDS_DEDUCTEES_FILE)
+    deductee = next((d for d in deductees if d['id'] == deductee_id), None)
+    if deductee:
+        return jsonify(deductee)
+    return jsonify({"error": "Deductee not found"}), 404
+
+@app.route('/api/tds/deductees/<deductee_id>', methods=['PUT'])
+def update_deductee(deductee_id):
+    """Update a deductee"""
+    data = request.json
+    deductees = load_json(TDS_DEDUCTEES_FILE)
+    for i, d in enumerate(deductees):
+        if d['id'] == deductee_id:
+            deductees[i].update(data)
+            deductees[i]['updated_at'] = datetime.now().isoformat()
+            save_json(TDS_DEDUCTEES_FILE, deductees)
+            return jsonify(deductees[i])
+    return jsonify({"error": "Deductee not found"}), 404
+
+@app.route('/api/tds/deductees/<deductee_id>', methods=['DELETE'])
+def delete_deductee(deductee_id):
+    """Delete a deductee"""
+    deductees = load_json(TDS_DEDUCTEES_FILE)
+    deductees = [d for d in deductees if d['id'] != deductee_id]
+    save_json(TDS_DEDUCTEES_FILE, deductees)
+    return jsonify({"message": "Deductee deleted"}), 200
+
+# 3. TDS Transaction Engine
+def calculate_tds(section, amount, deductee_pan=None, is_filer=True):
+    """Calculate TDS based on section and amount"""
+    if section not in TDS_RATES:
+        return {"error": f"Invalid section: {section}"}
+    
+    section_info = TDS_RATES[section]
+    
+    # For salary section, rate is individual
+    if section == '192':
+        return {"tds_amount": 0, "rate": None, "message": "TDS on salary calculated separately"}
+    
+    # Check if deductee is non-filer (higher rate)
+    rate = section_info['rate']
+    if not is_filer and rate:
+        rate = max(rate * 2, 5)  # Higher of 2x or 5%
+    
+    tds_amount = round(amount * rate / 100, 2) if rate else 0
+    
+    return {
+        "tds_amount": tds_amount,
+        "rate": rate,
+        "net_payment": amount - tds_amount,
+        "section_name": section_info['name']
+    }
+
+@app.route('/api/tds/calculate', methods=['POST'])
+def calculate_tds_endpoint():
+    """Calculate TDS for a transaction"""
+    data = request.json
+    section = data.get('section', '')
+    amount = float(data.get('amount', 0))
+    deductee_pan = data.get('deductee_pan', '')
+    is_filer = data.get('is_filer', True)
+    
+    result = calculate_tds(section, amount, deductee_pan, is_filer)
+    return jsonify(result)
+
+@app.route('/api/tds/transactions', methods=['GET'])
+def get_tds_transactions():
+    """Get all TDS transactions"""
+    transactions = load_json(TDS_TRANSACTIONS_FILE)
+    
+    # Apply filters
+    deductor_id = request.args.get('deductor_id')
+    deductee_id = request.args.get('deductee_id')
+    fy = request.args.get('fy', '2024-25')
+    section = request.args.get('section')
+    quarter = request.args.get('quarter')
+    
+    if deductor_id:
+        transactions = [t for t in transactions if t.get('deductor_id') == deductor_id]
+    if deductee_id:
+        transactions = [t for t in transactions if t.get('deductee_id') == deductee_id]
+    if fy:
+        transactions = [t for t in transactions if t.get('fy') == fy]
+    if section:
+        transactions = [t for t in transactions if t.get('section') == section]
+    if quarter:
+        transactions = [t for t in transactions if t.get('quarter') == quarter]
+    
+    return jsonify(transactions)
+
+@app.route('/api/tds/transactions', methods=['POST'])
+def create_tds_transaction():
+    """Create a new TDS transaction"""
+    data = request.json
+    
+    section = data.get('section', '')
+    amount = float(data.get('amount', 0))
+    deductee_pan = data.get('deductee_pan', '')
+    is_filer = data.get('is_filer', True)
+    
+    # Calculate TDS
+    calc_result = calculate_tds(section, amount, deductee_pan, is_filer)
+    
+    transaction = {
+        "id": str(uuid.uuid4()),
+        "deductor_id": data.get('deductor_id'),
+        "deductee_id": data.get('deductee_id'),
+        "section": section,
+        "amount": amount,
+        "tds_rate": calc_result.get('rate', 0),
+        "tds_amount": calc_result.get('tds_amount', 0),
+        "net_payment": calc_result.get('net_payment', amount),
+        "payment_date": data.get('payment_date'),
+        "invoice_number": data.get('invoice_number', ''),
+        "nature_of_payment": data.get('nature_of_payment', ''),
+        "fy": data.get('fy', '2024-25'),
+        "quarter": data.get('quarter', 'Q1'),
+        "challan_id": None,
+        "status": 'UNPAID',
+        "is_filer": is_filer,
+        "created_at": datetime.now().isoformat()
+    }
+    
+    transactions = load_json(TDS_TRANSACTIONS_FILE)
+    transactions.append(transaction)
+    save_json(TDS_TRANSACTIONS_FILE, transactions)
+    
+    return jsonify(transaction), 201
+
+@app.route('/api/tds/transactions/<transaction_id>', methods=['GET'])
+def get_tds_transaction(transaction_id):
+    """Get a specific TDS transaction"""
+    transactions = load_json(TDS_TRANSACTIONS_FILE)
+    transaction = next((t for t in transactions if t['id'] == transaction_id), None)
+    if transaction:
+        return jsonify(transaction)
+    return jsonify({"error": "Transaction not found"}), 404
+
+@app.route('/api/tds/transactions/<transaction_id>', methods=['PUT'])
+def update_tds_transaction(transaction_id):
+    """Update a TDS transaction"""
+    data = request.json
+    transactions = load_json(TDS_TRANSACTIONS_FILE)
+    
+    for i, t in enumerate(transactions):
+        if t['id'] == transaction_id:
+            # Recalculate if amount or section changed
+            if 'amount' in data or 'section' in data:
+                section = data.get('section', t['section'])
+                amount = float(data.get('amount', t['amount']))
+                is_filer = data.get('is_filer', t.get('is_filer', True))
+                calc_result = calculate_tds(section, amount, '', is_filer)
+                data['tds_rate'] = calc_result.get('rate', 0)
+                data['tds_amount'] = calc_result.get('tds_amount', 0)
+                data['net_payment'] = calc_result.get('net_payment', amount)
+            
+            transactions[i].update(data)
+            transactions[i]['updated_at'] = datetime.now().isoformat()
+            save_json(TDS_TRANSACTIONS_FILE, transactions)
+            return jsonify(transactions[i])
+    
+    return jsonify({"error": "Transaction not found"}), 404
+
+@app.route('/api/tds/transactions/<transaction_id>', methods=['DELETE'])
+def delete_tds_transaction(transaction_id):
+    """Delete a TDS transaction"""
+    transactions = load_json(TDS_TRANSACTIONS_FILE)
+    transactions = [t for t in transactions if t['id'] != transaction_id]
+    save_json(TDS_TRANSACTIONS_FILE, transactions)
+    return jsonify({"message": "Transaction deleted"}), 200
+
+# 4. TDS Challan Management
+@app.route('/api/tds/challans', methods=['GET'])
+def get_tds_challans():
+    """Get all TDS challans"""
+    challans = load_json(TDS_CHALLANS_FILE)
+    return jsonify(challans)
+
+@app.route('/api/tds/challans', methods=['POST'])
+def create_tds_challan():
+    """Create a new TDS challan"""
+    data = request.json
+    challan = {
+        "id": str(uuid.uuid4()),
+        "deductor_id": data.get('deductor_id'),
+        "bsr_code": data.get('bsr_code', ''),
+        "challan_serial": data.get('challan_serial', ''),
+        "challan_date": data.get('challan_date'),
+        "challan_amount": float(data.get('challan_amount', 0)),
+        "tax_amount": float(data.get('tax_amount', 0)),
+        "surcharge": float(data.get('surcharge', 0)),
+        "education_cess": float(data.get('education_cess', 0)),
+        "total_amount": float(data.get('total_amount', 0)),
+        "bank_name": data.get('bank_name', ''),
+        "status": 'DEPOSITED',
+        "fy": data.get('fy', '2024-25'),
+        "quarter": data.get('quarter', 'Q1'),
+        "transaction_ids": data.get('transaction_ids', []),
+        "created_at": datetime.now().isoformat()
+    }
+    
+    # Update associated transactions
+    transactions = load_json(TDS_TRANSACTIONS_FILE)
+    for i, t in enumerate(transactions):
+        if t['id'] in challan['transaction_ids']:
+            transactions[i]['challan_id'] = challan['id']
+            transactions[i]['status'] = 'PAID'
+            transactions[i]['challan_date'] = challan['challan_date']
+    save_json(TDS_TRANSACTIONS_FILE, transactions)
+    
+    challans = load_json(TDS_CHALLANS_FILE)
+    challans.append(challan)
+    save_json(TDS_CHALLANS_FILE, challans)
+    
+    return jsonify(challan), 201
+
+@app.route('/api/tds/challans/<challan_id>', methods=['GET'])
+def get_tds_challan(challan_id):
+    """Get a specific TDS challan"""
+    challans = load_json(TDS_CHALLANS_FILE)
+    challan = next((c for c in challans if c['id'] == challan_id), None)
+    if challan:
+        return jsonify(challan)
+    return jsonify({"error": "Challan not found"}), 404
+
+# 5. TDS Return Preparation
+@app.route('/api/tds/returns', methods=['GET'])
+def get_tds_returns():
+    """Get all TDS returns"""
+    tds_returns = load_json(TDS_RETURNS_FILE)
+    return jsonify(tds_returns)
+
+@app.route('/api/tds/returns', methods=['POST'])
+def create_tds_return():
+    """Create a new TDS return"""
+    data = request.json
+    
+    # Determine form type based on sections
+    form_type = data.get('form_type', '26Q')
+    quarter = data.get('quarter', 'Q1')
+    fy = data.get('fy', '2024-25')
+    deductor_id = data.get('deductor_id')
+    
+    # Get transactions for this deductor/quarter/fy
+    transactions = load_json(TDS_TRANSACTIONS_FILE)
+    return_transactions = [t for t in transactions 
+                          if t.get('deductor_id') == deductor_id 
+                          and t.get('quarter') == quarter 
+                          and t.get('fy') == fy]
+    
+    # Calculate summary
+    total_amount = sum(t.get('amount', 0) for t in return_transactions)
+    total_tds = sum(t.get('tds_amount', 0) for t in return_transactions)
+    
+    # Group by section
+    section_summary = {}
+    for t in return_transactions:
+        section = t.get('section', 'Unknown')
+        if section not in section_summary:
+            section_summary[section] = {
+                'count': 0,
+                'amount': 0,
+                'tds': 0
+            }
+        section_summary[section]['count'] += 1
+        section_summary[section]['amount'] += t.get('amount', 0)
+        section_summary[section]['tds'] += t.get('tds_amount', 0)
+    
+    tds_return = {
+        "id": str(uuid.uuid4()),
+        "deductor_id": deductor_id,
+        "form_type": form_type,
+        "quarter": quarter,
+        "fy": fy,
+        "status": 'DRAFT',
+        "total_transactions": len(return_transactions),
+        "total_amount": total_amount,
+        "total_tds": total_tds,
+        "section_summary": section_summary,
+        "file_data": None,
+        "created_at": datetime.now().isoformat()
+    }
+    
+    tds_returns = load_json(TDS_RETURNS_FILE)
+    tds_returns.append(tds_return)
+    save_json(TDS_RETURNS_FILE, tds_returns)
+    
+    return jsonify(tds_return), 201
+
+@app.route('/api/tds/returns/<return_id>', methods=['GET'])
+def get_tds_return(return_id):
+    """Get a specific TDS return"""
+    tds_returns = load_json(TDS_RETURNS_FILE)
+    tds_return = next((r for r in tds_returns if r['id'] == return_id), None)
+    if tds_return:
+        return jsonify(tds_return)
+    return jsonify({"error": "Return not found"}), 404
+
+@app.route('/api/tds/returns/<return_id>/generate', methods=['POST'])
+def generate_tds_return(return_id):
+    """Generate TDS return file (NSDL RPU format)"""
+    tds_returns = load_json(TDS_RETURNS_FILE)
+    
+    for i, r in enumerate(tds_returns):
+        if r['id'] == return_id:
+            # Get associated transactions
+            transactions = load_json(TDS_TRANSACTIONS_FILE)
+            return_transactions = [t for t in transactions 
+                                  if t.get('deductor_id') == r['deductor_id'] 
+                                  and t.get('quarter') == r['quarter'] 
+                                  and t.get('fy') == r['fy']]
+            
+            # Generate file content
+            file_content = generate_return_file(r, return_transactions)
+            
+            tds_returns[i]['file_data'] = file_content
+            tds_returns[i]['status'] = 'GENERATED'
+            tds_returns[i]['generated_at'] = datetime.now().isoformat()
+            
+            save_json(TDS_RETURNS_FILE, tds_returns)
+            return jsonify(tds_returns[i])
+    
+    return jsonify({"error": "Return not found"}), 404
+
+def generate_return_file(tds_return, transactions):
+    """Generate TDS return file in text format (simplified NSDL format)"""
+    lines = []
+    lines.append(f"FORM TYPE: {tds_return.get('form_type', '26Q')}")
+    lines.append(f"QUARTER: {tds_return.get('quarter', 'Q1')}")
+    lines.append(f"FINANCIAL YEAR: {tds_return.get('fy', '2024-25')}")
+    lines.append(f"TOTAL TRANSACTIONS: {tds_return.get('total_transactions', 0)}")
+    lines.append(f"TOTAL AMOUNT: {tds_return.get('total_amount', 0)}")
+    lines.append(f"TOTAL TDS: {tds_return.get('total_tds', 0)}")
+    lines.append("")
+    lines.append("DETAILS:")
+    
+    for t in transactions:
+        lines.append(f"|{t.get('section', '')}|{t.get('amount', 0)}|{t.get('tds_amount', 0)}|{t.get('payment_date', '')}|{t.get('invoice_number', '')}|")
+    
+    return "\n".join(lines)
+
+# 6. TDS Summary/Reports
+@app.route('/api/tds/summary', methods=['GET'])
+def get_tds_summary():
+    """Get TDS summary report"""
+    deductor_id = request.args.get('deductor_id')
+    fy = request.args.get('fy', '2024-25')
+    quarter = request.args.get('quarter')
+    
+    transactions = load_json(TDS_TRANSACTIONS_FILE)
+    challans = load_json(TDS_CHALLANS_FILE)
+    
+    # Filter transactions
+    filtered_txns = transactions
+    if deductor_id:
+        filtered_txns = [t for t in filtered_txns if t.get('deductor_id') == deductor_id]
+    if fy:
+        filtered_txns = [t for t in filtered_txns if t.get('fy') == fy]
+    if quarter:
+        filtered_txns = [t for t in filtered_txns if t.get('quarter') == quarter]
+    
+    # Calculate summary
+    total_deduction = sum(t.get('tds_amount', 0) for t in filtered_txns)
+    paid_tds = sum(t.get('tds_amount', 0) for t in filtered_txns if t.get('status') == 'PAID')
+    unpaid_tds = total_deduction - paid_tds
+    
+    # Section-wise breakdown
+    section_wise = {}
+    for t in filtered_txns:
+        section = t.get('section', 'Unknown')
+        if section not in section_wise:
+            section_wise[section] = {'count': 0, 'amount': 0, 'tds': 0}
+        section_wise[section]['count'] += 1
+        section_wise[section]['amount'] += t.get('amount', 0)
+        section_wise[section]['tds'] += t.get('tds_amount', 0)
+    
+    # Challan summary
+    filtered_challans = challans
+    if deductor_id:
+        filtered_challans = [c for c in filtered_challans if c.get('deductor_id') == deductor_id]
+    if fy:
+        filtered_challans = [c for c in filtered_challans if c.get('fy') == fy]
+    
+    total_deposited = sum(c.get('tax_amount', 0) for c in filtered_challans)
+    
+    return jsonify({
+        "total_transactions": len(filtered_txns),
+        "total_deduction": total_deduction,
+        "total_deposited": total_deposited,
+        "balance_due": total_deduction - total_deposited,
+        "paid_tds": paid_tds,
+        "unpaid_tds": unpaid_tds,
+        "section_wise": section_wise,
+        "challans": filtered_challans
+    })
+
+@app.route('/api/tds/form-types', methods=['GET'])
+def get_form_types():
+    """Get available TDS form types"""
+    return jsonify(FORM_TYPES)
 
 def init_data():
     if not os.path.exists(USERS_FILE):

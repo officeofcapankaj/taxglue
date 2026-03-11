@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TaxGlu - Bookkeeping Software</title>
+  <title>TaxGlue - Bookkeeping Software</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -27,7 +27,7 @@
         <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
           <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
             <div class="text-center mb-8">
-              <h1 class="text-3xl font-bold text-gray-800">TaxGlu</h1>
+              <h1 class="text-3xl font-bold text-gray-800">TaxGlue</h1>
               <p class="text-gray-500 mt-2">Bookkeeping Made Simple</p>
             </div>
             <form id="loginForm" class="space-y-4">
@@ -53,7 +53,7 @@
       document.getElementById('app').innerHTML = `
         <div class="flex">
           <aside class="w-64 bg-gray-800 text-white sidebar fixed">
-            <div class="p-6"><h1 class="text-2xl font-bold">TaxGlu</h1><p class="text-gray-400 text-sm">Bookkeeping</p></div>
+            <div class="p-6"><h1 class="text-2xl font-bold">TaxGlue</h1><p class="text-gray-400 text-sm">Bookkeeping</p></div>
             <nav class="mt-6">
               <a href="#" onclick="showDashboard()" class="flex items-center px-6 py-3 bg-gray-700 hover:bg-gray-600"><i class="fas fa-home w-6"></i> Dashboard</a>
               <a href="#" onclick="showClients()" class="flex items-center px-6 py-3 hover:bg-gray-700"><i class="fas fa-users w-6"></i> Clients</a>
@@ -62,6 +62,7 @@
               <a href="#" onclick="showTrialBalance()" class="flex items-center px-6 py-3 hover:bg-gray-700"><i class="fas fa-balance-scale w-6"></i> Trial Balance</a>
               <a href="#" onclick="showBalanceSheet()" class="flex items-center px-6 py-3 hover:bg-gray-700"><i class="fas fa-chart-bar w-6"></i> Balance Sheet</a>
               <a href="#" onclick="showProfitLoss()" class="flex items-center px-6 py-3 hover:bg-gray-700"><i class="fas fa-chart-line w-6"></i> P&L Statement</a>
+              <a href="/tds" class="flex items-center px-6 py-3 hover:bg-gray-700"><i class="fas fa-file-invoice-dollar w-6"></i> TDS</a>
             </nav>
             <div class="absolute bottom-0 w-64 p-6"><button onclick="logout()" class="w-full bg-red-600 py-2 rounded hover:bg-red-700">Logout</button></div>
           </aside>

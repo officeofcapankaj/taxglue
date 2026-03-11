@@ -1,5 +1,5 @@
 """
-TaxGlu - Web-based Bookkeeping Application
+TaxGlue - Web-based Bookkeeping Application
 Flask REST API + Static File Server
 """
 

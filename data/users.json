@@ -1,0 +1,9 @@
+[
+  {
+    "id": "ae65ed67-3dbe-4edc-8325-e409fa351992",
+    "email": "admin@taxglue.com",
+    "password": "admin123",
+    "name": "Admin",
+    "role": "admin"
+  }
+]
