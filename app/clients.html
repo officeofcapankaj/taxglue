@@ -288,9 +288,31 @@ function switchTab(tabId) {
 
 // Load clients from Supabase on page load
 async function loadClientsFromSupabase() {
-  // Check demo mode first
+  // Check localStorage first
+  const storedClients = localStorage.getItem('clients')
+  if (storedClients) {
+    try {
+      clients = JSON.parse(storedClients)
+      if (clients.length > 0) {
+        console.log('Loaded clients from localStorage:', clients.length)
+        renderClients()
+        return
+      }
+    } catch (e) {}
+  }
+  
+  // Check demo mode
   if (isDemoMode()) {
     console.log('Demo mode: using demo data')
+    clients = DEMO_CLIENTS
+    localStorage.setItem('clients', JSON.stringify(clients))
+    renderClients()
+    return
+  }
+  
+  // Also try DEMO_CLIENTS as fallback if no other data
+  if (DEMO_CLIENTS.length > 0) {
+    console.log('Using demo clients as fallback')
     clients = DEMO_CLIENTS
     localStorage.setItem('clients', JSON.stringify(clients))
     renderClients()
@@ -306,7 +328,7 @@ async function loadClientsFromSupabase() {
       renderClients()
     }
   } catch (e) {
-    console.log('Loading from Supabase failed, using localStorage:', e)
+    console.log('Loading from Supabase failed:', e)
   }
 }
 
