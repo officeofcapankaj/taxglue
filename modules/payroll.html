@@ -844,7 +844,297 @@ function generatePayslips() {
     return;
   }
   
-  alert(`Generating payslips for ${month}... This feature will create individual payslip documents.`);
+  if (employees.length === 0) {
+    alert('No employees found. Please add employees first.');
+    return;
+  }
+  
+  // Load jsPDF dynamically if not already loaded
+  if (typeof jspdf === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    script.onload = () => generatePDFPayslips(month);
+    document.head.appendChild(script);
+  } else {
+    generatePDFPayslips(month);
+  }
+}
+
+function generatePDFPayslips(month) {
+  const { jsPDF } = window.jspdf;
+  
+  employees.forEach((emp) => {
+    const doc = new jsPDF();
+    
+    const gross = (emp.basic_salary || 0) + (emp.hra || 0) + (emp.allowances || 0);
+    const pfWage = Math.min(emp.basic_salary || 0, 15000);
+    const pf = emp.pf_applicable !== false ? pfWage * 0.12 : 0;
+    const esic = emp.esic_applicable && gross <= 21000 ? gross * 0.0175 : 0;
+    const pt = gross > 7500 ? 200 : 0;
+    const deductions = pf + esic + pt;
+    const net = gross - deductions;
+    
+    // Header
+    doc.setFillColor(30, 58, 95);
+    doc.rect(0, 0, 210, 40, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PAYSLIP', 105, 20, { align: 'center' });
+    doc.setFontSize(12);
+    doc.text(`${month} ${currentFY}`, 105, 32, { align: 'center' });
+    
+    // Company Info
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('TaxGlue', 14, 50);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Payroll Management System', 14, 56);
+    
+    // Employee Details Box
+    doc.setDrawColor(200, 200, 200);
+    doc.rect(14, 65, 182, 45);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Employee Details', 18, 73);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Employee Code: ${emp.code}`, 18, 82);
+    doc.text(`Name: ${emp.first_name} ${emp.last_name || ''}`, 18, 89);
+    doc.text(`Department: ${emp.department || '-'}`, 100, 82);
+    doc.text(`Designation: ${emp.designation || '-'}`, 100, 89);
+    doc.text(`Date of Joining: ${emp.date_of_joining || '-'}`, 18, 98);
+    
+    // Earnings Table
+    let y = 120;
+    doc.setFillColor(240, 240, 240);
+    doc.rect(14, y - 6, 182, 10, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.text('Earnings', 18, y);
+    doc.text('Amount (₹)', 160, y, { align: 'right' });
+    
+    y += 10;
+    doc.setFont('helvetica', 'normal');
+    doc.text('Basic Salary', 18, y);
+    doc.text((emp.basic_salary || 0).toLocaleString(), 160, y, { align: 'right' });
+    
+    y += 8;
+    doc.text('HRA', 18, y);
+    doc.text((emp.hra || 0).toLocaleString(), 160, y, { align: 'right' });
+    
+    y += 8;
+    doc.text('Conveyance & Other Allowances', 18, y);
+    doc.text((emp.allowances || 0).toLocaleString(), 160, y, { align: 'right' });
+    
+    y += 12;
+    doc.setDrawColor(0, 0, 0);
+    doc.line(14, y, 196, y);
+    y += 8;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Total Earnings', 18, y);
+    doc.text(gross.toLocaleString(), 160, y, { align: 'right' });
+    
+    // Deductions Table
+    y += 18;
+    doc.setFillColor(240, 240, 240);
+    doc.rect(14, y - 6, 182, 10, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.text('Deductions', 18, y);
+    doc.text('Amount (₹)', 160, y, { align: 'right' });
+    
+    y += 10;
+    doc.setFont('helvetica', 'normal');
+    doc.text('Provident Fund', 18, y);
+    doc.text(pf.toLocaleString(), 160, y, { align: 'right' });
+    
+    y += 8;
+    doc.text('ESIC', 18, y);
+    doc.text(esic.toLocaleString(), 160, y, { align: 'right' });
+    
+    y += 8;
+    doc.text('Professional Tax', 18, y);
+    doc.text(pt.toLocaleString(), 160, y, { align: 'right' });
+    
+    y += 12;
+    doc.line(14, y, 196, y);
+    y += 8;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Total Deductions', 18, y);
+    doc.text(deductions.toLocaleString(), 160, y, { align: 'right' });
+    
+    // Net Salary
+    y += 18;
+    doc.setFillColor(34, 197, 94);
+    doc.rect(14, y - 6, 182, 14, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.text('NET SALARY PAYABLE', 18, y + 4);
+    doc.text('₹' + net.toLocaleString(), 160, y + 4, { align: 'right' });
+    
+    // Bank Details
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    y = 250;
+    doc.setDrawColor(200, 200, 200);
+    doc.rect(14, y, 182, 25);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Bank Details', 18, y + 8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Bank Name: ${emp.bank_name || '-'}`, 18, y + 16);
+    doc.text(`Account No.: ${emp.bank_account_no || '-'}`, 100, y + 16);
+    doc.text(`IFSC Code: ${emp.bank_ifsc_code || '-'}`, 18, y + 23);
+    
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(128, 128, 128);
+    doc.text('This is a computer-generated payslip. Generated by TaxGlue.', 105, 285, { align: 'center' });
+    
+    // Save PDF
+    doc.save(`Payslip_${emp.code}_${month}_${currentFY}.pdf`);
+  });
+  
+  alert(`Generated ${employees.length} PDF payslips for ${month}!`);
+}
+
+function generatePayslipPDF(emp, month) {
+  // Load jsPDF dynamically
+  if (typeof jspdf === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    script.onload = () => createPDF(emp, month);
+    document.head.appendChild(script);
+  } else {
+    createPDF(emp, month);
+  }
+}
+
+function createPDF(emp, month) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  
+  const gross = (emp.basic_salary || 0) + (emp.hra || 0) + (emp.allowances || 0);
+  const pfWage = Math.min(emp.basic_salary || 0, 15000);
+  const pf = emp.pf_applicable !== false ? pfWage * 0.12 : 0;
+  const esic = emp.esic_applicable && gross <= 21000 ? gross * 0.0175 : 0;
+  const pt = gross > 7500 ? 200 : 0;
+  const deductions = pf + esic + pt;
+  const net = gross - deductions;
+  
+  // Header
+  doc.setFillColor(30, 58, 95);
+  doc.rect(0, 0, 210, 40, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(24);
+  doc.setFont('helvetica', 'bold');
+  doc.text('PAYSLIP', 105, 20, { align: 'center' });
+  doc.setFontSize(12);
+  doc.text(`${month} ${currentFY}`, 105, 32, { align: 'center' });
+  
+  // Company Info
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('TaxGlue', 14, 50);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Payroll Management System', 14, 56);
+  
+  // Employee Details Box
+  doc.setDrawColor(200, 200, 200);
+  doc.rect(14, 65, 182, 45);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Employee Details', 18, 73);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Employee Code: ${emp.code}`, 18, 82);
+  doc.text(`Name: ${emp.first_name} ${emp.last_name || ''}`, 18, 89);
+  doc.text(`Department: ${emp.department || '-'}`, 100, 82);
+  doc.text(`Designation: ${emp.designation || '-'}`, 100, 89);
+  doc.text(`Date of Joining: ${emp.date_of_joining || '-'}`, 18, 98);
+  
+  // Earnings Table
+  let y = 120;
+  doc.setFillColor(240, 240, 240);
+  doc.rect(14, y - 6, 182, 10, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.text('Earnings', 18, y);
+  doc.text('Amount (₹)', 160, y, { align: 'right' });
+  
+  y += 10;
+  doc.setFont('helvetica', 'normal');
+  doc.text('Basic Salary', 18, y);
+  doc.text((emp.basic_salary || 0).toLocaleString(), 160, y, { align: 'right' });
+  
+  y += 8;
+  doc.text('HRA', 18, y);
+  doc.text((emp.hra || 0).toLocaleString(), 160, y, { align: 'right' });
+  
+  y += 8;
+  doc.text('Conveyance & Other Allowances', 18, y);
+  doc.text((emp.allowances || 0).toLocaleString(), 160, y, { align: 'right' });
+  
+  y += 12;
+  doc.setDrawColor(0, 0, 0);
+  doc.line(14, y, 196, y);
+  y += 8;
+  doc.setFont('helvetica', 'bold');
+  doc.text('Total Earnings', 18, y);
+  doc.text(gross.toLocaleString(), 160, y, { align: 'right' });
+  
+  // Deductions Table
+  y += 18;
+  doc.setFillColor(240, 240, 240);
+  doc.rect(14, y - 6, 182, 10, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.text('Deductions', 18, y);
+  doc.text('Amount (₹)', 160, y, { align: 'right' });
+  
+  y += 10;
+  doc.setFont('helvetica', 'normal');
+  doc.text('Provident Fund', 18, y);
+  doc.text(pf.toLocaleString(), 160, y, { align: 'right' });
+  
+  y += 8;
+  doc.text('ESIC', 18, y);
+  doc.text(esic.toLocaleString(), 160, y, { align: 'right' });
+  
+  y += 8;
+  doc.text('Professional Tax', 18, y);
+  doc.text(pt.toLocaleString(), 160, y, { align: 'right' });
+  
+  y += 12;
+  doc.line(14, y, 196, y);
+  y += 8;
+  doc.setFont('helvetica', 'bold');
+  doc.text('Total Deductions', 18, y);
+  doc.text(deductions.toLocaleString(), 160, y, { align: 'right' });
+  
+  // Net Salary
+  y += 18;
+  doc.setFillColor(34, 197, 94);
+  doc.rect(14, y - 6, 182, 14, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(14);
+  doc.text('NET SALARY PAYABLE', 18, y + 4);
+  doc.text('₹' + net.toLocaleString(), 160, y + 4, { align: 'right' });
+  
+  // Bank Details
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(10);
+  y = 250;
+  doc.setDrawColor(200, 200, 200);
+  doc.rect(14, y, 182, 25);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Bank Details', 18, y + 8);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Bank Name: ${emp.bank_name || '-'}`, 18, y + 16);
+  doc.text(`Account No.: ${emp.bank_account_no || '-'}`, 100, y + 16);
+  doc.text(`IFSC Code: ${emp.bank_ifsc_code || '-'}`, 18, y + 23);
+  
+  // Footer
+  doc.setFontSize(8);
+  doc.setTextColor(128, 128, 128);
+  doc.text('This is a computer-generated payslip. Generated by TaxGlue.', 105, 285, { align: 'center' });
+  
+  // Save
+  doc.save(`Payslip_${emp.code}_${month}_${currentFY}.pdf`);
 }
 
 function viewPayslips() {
