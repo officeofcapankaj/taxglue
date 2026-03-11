@@ -378,6 +378,9 @@ function initClients() {
 // Try immediately first
 initClients()
 
+// Also try after a short delay as fallback
+setTimeout(initClients, 500)
+
 let contactPersonCount = 1
 let uploadedFiles = []
 
