@@ -10,10 +10,15 @@ import json
 import os
 from datetime import datetime
 
-app = Flask(__name__, static_folder='frontend/dist', static_url_path='')
+# Define BASE_DIR before Flask app creation - use absolute path
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if not BASE_DIR or BASE_DIR == '/workspace/project':
+    BASE_DIR = '/workspace/project/taxglue'
+
+app = Flask(__name__)
 CORS(app)
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+DATA_DIR = os.path.join(BASE_DIR, 'data')
 os.makedirs(DATA_DIR, exist_ok=True)
 
 # Helper functions
@@ -1052,16 +1057,33 @@ def get_it_summary():
 def health():
     return jsonify({"status": "ok", "timestamp": datetime.now().isoformat()})
 
-# Serve frontend
+# Serve frontend - Fixed to serve from app directory
 @app.route('/')
 def serve_index():
-    return send_from_directory('templates', 'index.html')
+    # Try templates first, then app directory
+    if os.path.exists(os.path.join(BASE_DIR, 'templates', 'index.html')):
+        return send_from_directory(os.path.join(BASE_DIR, 'templates'), 'index.html')
+    return send_from_directory(os.path.join(BASE_DIR, 'app'), 'login.html')
 
 @app.route('/<path:path>')
 def serve_static(path):
-    if os.path.exists(os.path.join('templates', path)):
-        return send_from_directory('templates', path)
-    return send_from_directory('templates', 'index.html')
+    # Check in app directory first (most common paths)
+    app_path = os.path.join(BASE_DIR, 'app', path)
+    if os.path.exists(app_path):
+        return send_from_directory(os.path.join(BASE_DIR, 'app'), path)
+    # Check in templates directory
+    templates_path = os.path.join(BASE_DIR, 'templates', path)
+    if os.path.exists(templates_path):
+        return send_from_directory(os.path.join(BASE_DIR, 'templates'), path)
+    # Check in other static directories
+    for static_dir in ['css', 'js', 'modules', 'data']:
+        static_path = os.path.join(BASE_DIR, static_dir, path)
+        if os.path.exists(static_path):
+            return send_from_directory(os.path.join(BASE_DIR, static_dir), path)
+    # Fallback to app directory for SPA
+    if os.path.exists(os.path.join(BASE_DIR, 'app', 'login.html')):
+        return send_from_directory(os.path.join(BASE_DIR, 'app'), 'login.html')
+    return send_from_directory(os.path.join(BASE_DIR, 'templates'), 'index.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True)
