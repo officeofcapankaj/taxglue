@@ -670,10 +670,15 @@ function resetForm() {
 
 // Load client data into form for editing
 function loadClient(clientId) {
-  alert('Loading client: ' + clientId)
-  
   // Find the client in our array
   const clientData = (clients && clients.length > 0) ? clients : window.globalClients
+  
+  if (!clientData || !Array.isArray(clientData)) {
+    console.error('Client data not available')
+    alert('Error: Client data not available. Please refresh the page.')
+    return
+  }
+  
   const client = clientData.find(c => c.id === clientId)
   
   if (!client) {
