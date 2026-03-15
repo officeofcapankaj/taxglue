@@ -429,23 +429,32 @@ let clients = [];
 function initClients() {
   try {
     console.log('initClients running...')
+    
+    // First try localStorage
     const storedClients = localStorage.getItem('clients')
     console.log('Initializing clients, stored:', storedClients ? 'yes' : 'no')
-
-    // Use stored clients if available
+    
+    // Use stored clients if available and not empty
     if (storedClients) {
-      clients = JSON.parse(storedClients)
-      console.log('Loaded clients from localStorage:', clients.length)
+      try {
+        const parsed = JSON.parse(storedClients)
+        if (parsed && Array.isArray(parsed) && parsed.length > 0) {
+          clients = parsed
+          console.log('Loaded clients from localStorage:', clients.length)
+        }
+      } catch(e) {
+        console.log('Failed to parse stored clients:', e)
+      }
     } 
     
     // If no clients in localStorage, load demo clients immediately
-    if (clients.length === 0 && DEMO_CLIENTS.length > 0) {
-      console.log('Initializing with demo clients')
+    if (clients.length === 0) {
+      console.log('Using demo clients')
       clients = DEMO_CLIENTS
       localStorage.setItem('clients', JSON.stringify(clients))
     }
 
-    // Render clients
+    // Always render clients after loading
     console.log('Calling renderClients, client count:', clients.length)
     renderClients()
   } catch (e) {
@@ -672,9 +681,15 @@ function resetForm() {
 }
 
 function renderClients() {
+  console.log('renderClients called, clients.length =', clients ? clients.length : 'undefined')
   const tbody = document.getElementById('clientTable')
   if (!tbody) {
     console.log('clientTable element not found, skipping render')
+    return
+  }
+  if (!clients || !Array.isArray(clients) || clients.length === 0) {
+    console.log('No clients to render')
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">No clients found</td></tr>'
     return
   }
   const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || ''
@@ -689,6 +704,7 @@ function renderClients() {
   }
   if (filteredClients.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">No clients found</td></tr>'; return }
   tbody.innerHTML = filteredClients.map(client => '<tr><td><span class="badge">' + (client.constitution || '-') + '</span></td><td><strong>' + (client.name || '-') + '</strong></td><td>' + (client.registrations?.panNumber || '-') + '</td><td>' + (client.registrations?.gstin || '-') + '</td><td>' + (client.phone || '-') + '</td><td>' + (client.contactPersons ? client.contactPersons.length : 0) + '</td><td>' + (client.documents ? client.documents.length : 0) + ' files</td></tr>').join('')
+  console.log('renderClients completed, rendered', filteredClients.length, 'clients')
 }
 
 function searchClients() {
