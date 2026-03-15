@@ -627,8 +627,14 @@ async function loadTrialBalance() {
 // Load clients on page load
 async function loadClients() {
   try {
-    const { data } = await supabase.from('clients').select('id, name')
-    if (data) {
+    // First try to load from Supabase
+    const { data, error } = await supabase.from('clients').select('id, name')
+    
+    if (error) {
+      console.log('Supabase error, using demo clients:', error.message)
+    }
+    
+    if (data && data.length > 0) {
       const select = document.getElementById('clientSelect')
       data.forEach(c => {
         const opt = document.createElement('option')
@@ -636,10 +642,38 @@ async function loadClients() {
         opt.textContent = c.name
         select.appendChild(opt)
       })
+    } else {
+      // Use demo clients as fallback
+      loadDemoClients()
     }
   } catch (e) {
-    console.log('Error loading clients:', e)
+    console.log('Error loading clients from Supabase, using demo clients:', e)
+    loadDemoClients()
   }
+}
+
+// Load demo clients
+function loadDemoClients() {
+  const demoClients = [
+    { id: 'demo-1', name: 'Singla Steel Corporation' },
+    { id: 'demo-2', name: 'Rana Industries' },
+    { id: 'demo-3', name: 'Sharma Traders' },
+    { id: 'demo-4', name: 'Gupta Construction' },
+    { id: 'demo-5', name: 'Aggarwal Textiles' },
+    { id: 'demo-6', name: 'Jain Logistics' },
+    { id: 'demo-7', name: 'Patel Electronics' },
+    { id: 'demo-8', name: 'Reddy & Co' },
+    { id: 'demo-9', name: 'Kumar Medical Stores' },
+    { id: 'demo-10', name: 'Chowdhury Consultants' }
+  ]
+  
+  const select = document.getElementById('clientSelect')
+  demoClients.forEach(c => {
+    const opt = document.createElement('option')
+    opt.value = c.id
+    opt.textContent = c.name
+    select.appendChild(opt)
+  })
 }
 
 // Initialize

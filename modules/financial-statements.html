@@ -211,7 +211,12 @@ const PL_STRUCTURE = {
 
 async function loadClients() {
   try {
-    const { data } = await supabase.from('clients').select('id, name, constitution')
+    const { data, error } = await supabase.from('clients').select('id, name, constitution')
+    
+    if (error) {
+      console.log('Supabase error, using demo clients:', error.message)
+    }
+    
     if (data && data.length > 0) {
       clients = data
       const select = document.getElementById('clientSelect')
@@ -233,23 +238,51 @@ async function loadClients() {
       setTimeout(() => {
         document.getElementById('reportContainer').innerHTML = renderBalanceSheet('Sample Company', '2024-25')
       }, 500)
+    } else {
+      loadDemoClients()
     }
   } catch (e) {
-    // Try localStorage
-    const localClients = JSON.parse(localStorage.getItem('clients')) || []
-    const select = document.getElementById('clientSelect')
-    localClients.forEach(c => {
-      const opt = document.createElement('option')
-      opt.value = c.id
-      opt.textContent = c.name + ' (' + c.constitution + ')'
-      select.appendChild(opt)
-    })
-    
-    // Show sample report
-    setTimeout(() => {
-      document.getElementById('reportContainer').innerHTML = renderBalanceSheet('Sample Company', '2024-25')
-    }, 500)
+    console.log('Error loading clients:', e)
+    loadDemoClients()
   }
+}
+
+// Load demo clients
+function loadDemoClients() {
+  const demoClients = [
+    { id: 'demo-1', name: 'Singla Steel Corporation', constitution: 'Proprietorship' },
+    { id: 'demo-2', name: 'Rana Industries', constitution: 'Partnership Firm' },
+    { id: 'demo-3', name: 'Sharma Traders', constitution: 'Sole Proprietorship' },
+    { id: 'demo-4', name: 'Gupta Construction', constitution: 'Private Limited Company' },
+    { id: 'demo-5', name: 'Aggarwal Textiles', constitution: 'LLP' },
+    { id: 'demo-6', name: 'Jain Logistics', constitution: 'Proprietorship' },
+    { id: 'demo-7', name: 'Patel Electronics', constitution: 'Private Limited Company' },
+    { id: 'demo-8', name: 'Reddy & Co', constitution: 'Partnership Firm' },
+    { id: 'demo-9', name: 'Kumar Medical Stores', constitution: 'Sole Proprietorship' },
+    { id: 'demo-10', name: 'Chowdhury Consultants', constitution: 'LLP' }
+  ]
+  
+  clients = demoClients
+  const select = document.getElementById('clientSelect')
+  
+  // Add default option
+  const defaultOpt = document.createElement('option')
+  defaultOpt.value = ""
+  defaultOpt.textContent = "-- Select Client --"
+  defaultOpt.selected = true
+  select.appendChild(defaultOpt)
+  
+  demoClients.forEach(c => {
+    const opt = document.createElement('option')
+    opt.value = c.id
+    opt.textContent = c.name + ' (' + c.constitution + ')'
+    select.appendChild(opt)
+  })
+  
+  // Show sample report
+  setTimeout(() => {
+    document.getElementById('reportContainer').innerHTML = renderBalanceSheet('Sample Company', '2024-25')
+  }, 500)
 }
 
 function loadClientData() {
