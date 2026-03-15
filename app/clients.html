@@ -242,7 +242,11 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="js/supabase-config.js"></script>
+<script>
+// Demo mode - define supabase client
+let supabase = null;
+</script>
+<script src="../js/supabase-config.js"></script>
 <script>
 // Demo mode data - defined early so it can be used during initialization
 const DEMO_CLIENTS = [
