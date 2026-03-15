@@ -681,17 +681,36 @@ function resetForm() {
 }
 
 function renderClients() {
-  console.log('renderClients called, clients.length =', clients ? clients.length : 'undefined')
+  console.log('=== renderClients called ===')
+  console.log('clients value:', clients)
+  console.log('clients type:', typeof clients)
+  console.log('clients isArray:', Array.isArray(clients))
+  console.log('clients length:', clients ? clients.length : 'N/A')
+  
   const tbody = document.getElementById('clientTable')
   if (!tbody) {
-    console.log('clientTable element not found, skipping render')
+    console.log('ERROR: clientTable element not found!')
     return
   }
-  if (!clients || !Array.isArray(clients) || clients.length === 0) {
-    console.log('No clients to render')
+  
+  if (!clients) {
+    console.log('clients is null/undefined')
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">Loading...</td></tr>'
+    return
+  }
+  
+  if (!Array.isArray(clients)) {
+    console.log('clients is not an array, type:', typeof clients)
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">Error: invalid data</td></tr>'
+    return
+  }
+  
+  if (clients.length === 0) {
+    console.log('clients array is empty')
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">No clients found</td></tr>'
     return
   }
+  
   const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || ''
   let filteredClients = clients
   if (searchTerm) {
@@ -702,9 +721,15 @@ function renderClients() {
       (c.email && c.email.toLowerCase().includes(searchTerm)) ||
       (c.contactPersons && c.contactPersons.some(cp => cp.name && cp.name.toLowerCase().includes(searchTerm)))
   }
-  if (filteredClients.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">No clients found</td></tr>'; return }
-  tbody.innerHTML = filteredClients.map(client => '<tr><td><span class="badge">' + (client.constitution || '-') + '</span></td><td><strong>' + (client.name || '-') + '</strong></td><td>' + (client.registrations?.panNumber || '-') + '</td><td>' + (client.registrations?.gstin || '-') + '</td><td>' + (client.phone || '-') + '</td><td>' + (client.contactPersons ? client.contactPersons.length : 0) + '</td><td>' + (client.documents ? client.documents.length : 0) + ' files</td></tr>').join('')
-  console.log('renderClients completed, rendered', filteredClients.length, 'clients')
+  
+  if (filteredClients.length === 0) { 
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">No clients found</td></tr>'; 
+    return 
+  }
+  
+  const html = filteredClients.map(client => '<tr><td><span class="badge">' + (client.constitution || '-') + '</span></td><td><strong>' + (client.name || '-') + '</strong></td><td>' + (client.registrations?.panNumber || '-') + '</td><td>' + (client.registrations?.gstin || '-') + '</td><td>' + (client.phone || '-') + '</td><td>' + (client.contactPersons ? client.contactPersons.length : 0) + '</td><td>' + (client.documents ? client.documents.length : 0) + ' files</td></tr>').join('')
+  tbody.innerHTML = html
+  console.log('=== renderClients complete, rendered', filteredClients.length, 'clients ===')
 }
 
 function searchClients() {
