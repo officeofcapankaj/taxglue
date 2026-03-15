@@ -668,6 +668,77 @@ function resetForm() {
   contactPersonCount = 1
 }
 
+// Load client data into form for editing
+function loadClient(clientId) {
+  console.log('Loading client:', clientId)
+  
+  // Find the client in our array
+  const clientData = (clients && clients.length > 0) ? clients : window.globalClients
+  const client = clientData.find(c => c.id === clientId)
+  
+  if (!client) {
+    console.error('Client not found:', clientId)
+    return
+  }
+  
+  console.log('Found client:', client.name)
+  
+  // Fill basic details
+  document.getElementById('constitution').value = client.constitution || ''
+  document.getElementById('clientName').value = client.name || ''
+  document.getElementById('address').value = client.address || ''
+  document.getElementById('pincode').value = client.pincode || ''
+  document.getElementById('city').value = client.city || ''
+  document.getElementById('district').value = client.district || ''
+  document.getElementById('state').value = client.state || ''
+  document.getElementById('country').value = client.country || 'India'
+  document.getElementById('phone').value = client.phone || ''
+  document.getElementById('email').value = client.email || ''
+  
+  // Fill registrations
+  if (client.registrations) {
+    document.getElementById('panNumber').value = client.registrations.panNumber || ''
+    document.getElementById('gstin').value = client.registrations.gstin || ''
+    document.getElementById('tanNumber').value = client.registrations.tanNumber || ''
+    document.getElementById('pfNumber').value = client.registrations.pfNumber || ''
+    document.getElementById('esiNumber').value = client.registrations.esiNumber || ''
+    document.getElementById('msmeNumber').value = client.registrations.msmeNumber || ''
+    document.getElementById('cinNumber').value = client.registrations.cinNumber || ''
+    document.getElementById('iecCode').value = client.registrations.iecCode || ''
+    document.getElementById('lutNumber').value = client.registrations.lutNumber || ''
+  }
+  
+  // Fill contact persons
+  if (client.contactPersons && client.contactPersons.length > 0) {
+    const container = document.getElementById('contactPersonsContainer')
+    container.innerHTML = ''
+    contactPersonCount = 0
+    
+    client.contactPersons.forEach((cp, index) => {
+      contactPersonCount++
+      addContactPerson()
+      
+      // Fill the contact person fields
+      const cpDiv = document.getElementById('contactPerson' + contactPersonCount)
+      if (cpDiv) {
+        cpDiv.querySelector('.cp-name').value = cp.name || ''
+        cpDiv.querySelector('.cp-designation').value = cp.designation || ''
+        cpDiv.querySelector('.cp-phone').value = cp.phone || ''
+        cpDiv.querySelector('.cp-email').value = cp.email || ''
+      }
+    })
+  }
+  
+  // Store client ID for update
+  window.editingClientId = clientId
+  
+  // Switch to basic tab
+  switchTab('basic')
+  
+  // Scroll to form
+  document.querySelector('.client-form').scrollIntoView({ behavior: 'smooth' })
+}
+
 function renderClients() {
   // Use globalClients if local clients is empty
   const clientData = (clients && clients.length > 0) ? clients : window.globalClients
@@ -720,7 +791,7 @@ function renderClientsInternal() {
     return 
   }
   
-  const html = filteredClients.map(client => '<tr><td><span class="badge">' + (client.constitution || '-') + '</span></td><td><strong>' + (client.name || '-') + '</strong></td><td>' + (client.registrations?.panNumber || '-') + '</td><td>' + (client.registrations?.gstin || '-') + '</td><td>' + (client.phone || '-') + '</td><td>' + (client.contactPersons ? client.contactPersons.length : 0) + '</td><td>' + (client.documents ? client.documents.length : 0) + ' files</td></tr>').join('')
+  const html = filteredClients.map(client => '<tr onclick="loadClient(\'' + client.id + '\')" style="cursor:pointer"><td><span class="badge">' + (client.constitution || '-') + '</span></td><td><strong>' + (client.name || '-') + '</strong></td><td>' + (client.registrations?.panNumber || '-') + '</td><td>' + (client.registrations?.gstin || '-') + '</td><td>' + (client.phone || '-') + '</td><td>' + (client.contactPersons ? client.contactPersons.length : 0) + '</td><td>' + (client.documents ? client.documents.length : 0) + ' files</td></tr>').join('')
   tbody.innerHTML = html
 }
 
