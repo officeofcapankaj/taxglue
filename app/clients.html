@@ -498,18 +498,18 @@ function switchTab(tabId) {
 async function loadClientsFromSupabase() {
   console.log('Loading clients from network...')
   
+  // If clients already loaded (from initClients), just render and return
+  if (clients.length > 0) {
+    console.log('Clients already loaded from initClients:', clients.length)
+    renderClients()
+    return
+  }
+  
   // Check demo mode (user is logged in) - use DEMO_CLIENTS directly
   if (isDemoMode()) {
     console.log('Demo mode: using demo data')
     clients = DEMO_CLIENTS
     localStorage.setItem('clients', JSON.stringify(clients))
-    renderClients()
-    return
-  }
-  
-  // If we already have clients, no need to load more
-  if (clients.length > 0) {
-    console.log('Clients already loaded:', clients.length)
     renderClients()
     return
   }
