@@ -796,8 +796,20 @@ function renderClientsInternal() {
     return 
   }
   
-  const html = filteredClients.map(client => '<tr><td><span class="badge">' + (client.constitution || '-') + '</span></td><td><strong onclick="loadClient(\'' + client.id + '\')" style="cursor:pointer;color:#2563eb">' + (client.name || '-') + '</strong></td><td>' + (client.registrations?.panNumber || '-') + '</td><td>' + (client.registrations?.gstin || '-') + '</td><td>' + (client.phone || '-') + '</td><td>' + (client.contactPersons ? client.contactPersons.length : 0) + '</td><td>' + (client.documents ? client.documents.length : 0) + ' files</td></tr>').join('')
+  const html = filteredClients.map(client => '<tr><td><span class="badge">' + (client.constitution || '-') + '</span></td><td><strong class="client-name-link" data-client-id="' + client.id + '">' + (client.name || '-') + '</strong></td><td>' + (client.registrations?.panNumber || '-') + '</td><td>' + (client.registrations?.gstin || '-') + '</td><td>' + (client.phone || '-') + '</td><td>' + (client.contactPersons ? client.contactPersons.length : 0) + '</td><td>' + (client.documents ? client.documents.length : 0) + ' files</td></tr>').join('')
   tbody.innerHTML = html
+  
+  // Add click handlers using event delegation
+  document.querySelectorAll('.client-name-link').forEach(el => {
+    el.style.cursor = 'pointer'
+    el.style.color = '#2563eb'
+    el.addEventListener('click', function(e) {
+      e.preventDefault()
+      e.stopPropagation()
+      const clientId = this.getAttribute('data-client-id')
+      loadClient(clientId)
+    })
+  })
 }
 
 function searchClients() {
@@ -843,8 +855,20 @@ window.globalClients = window.globalClients || []
 // CLIENT INITIALIZATION
 // ============================================
 
-// 1. After DOM is ready
+// Initialize after DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+  // Add event delegation for client name clicks
+  document.addEventListener('click', function(e) {
+    const link = e.target.closest('.client-name-link')
+    if (link) {
+      e.preventDefault()
+      const clientId = link.getAttribute('data-client-id')
+      if (clientId) {
+        loadClient(clientId)
+      }
+    }
+  })
+  
   setTimeout(initClients, 100)
 })
 
