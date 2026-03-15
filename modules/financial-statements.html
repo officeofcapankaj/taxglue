@@ -210,7 +210,9 @@ const PL_STRUCTURE = {
 }
 
 async function loadClients() {
-  // Load demo clients immediately while trying Supabase
+  // Load demo clients immediately 
+  const select = document.getElementById('clientSelect')
+  select.innerHTML = ''
   loadDemoClients()
   
   try {
@@ -223,8 +225,7 @@ async function loadClients() {
     
     if (data && data.length > 0) {
       clients = data
-      const select = document.getElementById('clientSelect')
-      // Clear demo clients first
+      // Clear and reload from Supabase
       select.innerHTML = ''
       
       // Add default option

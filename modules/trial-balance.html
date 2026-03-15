@@ -626,7 +626,9 @@ async function loadTrialBalance() {
 
 // Load clients on page load
 async function loadClients() {
-  // Load demo clients immediately while trying Supabase
+  // Load demo clients immediately 
+  const select = document.getElementById('clientSelect')
+  select.innerHTML = '<option value="">-- Select Client --</option>'
   loadDemoClients()
   
   try {
@@ -638,8 +640,7 @@ async function loadClients() {
     }
     
     if (data && data.length > 0) {
-      const select = document.getElementById('clientSelect')
-      // Clear demo clients first
+      // Clear and reload from Supabase
       select.innerHTML = '<option value="">-- Select Client --</option>'
       
       data.forEach(c => {
