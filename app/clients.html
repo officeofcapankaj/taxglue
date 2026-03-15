@@ -793,6 +793,15 @@ window.addEventListener('load', function() {
 // This function checks if clients are already loaded and only loads from network if needed
 setTimeout(loadClientsFromSupabase, 500)
 
+// 4. Add a refresh button for debugging
+function forceRefreshClients() {
+  console.log('=== Force refresh clients ===')
+  initClients()
+}
+
+// Make it globally accessible
+window.forceRefreshClients = forceRefreshClients;
+
 // ============================================
 // LOGOUT HANDLING
 // ============================================
