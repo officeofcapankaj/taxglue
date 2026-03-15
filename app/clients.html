@@ -447,8 +447,13 @@ function initClients() {
   console.log('=== initClients complete ===')
 }
 
-// Try immediately first
-initClients()
+// Try immediately first - but don't render yet since DOM might not be ready
+// initClients()
+
+// Only initialize after DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  initClients()
+})
 
 // Also try after window loads to ensure all resources are ready
 window.addEventListener('load', initClients)
@@ -753,18 +758,27 @@ setInterval(() => {
   if (idleTime >= idleTimeout) logout();
 }, 1000);
 
-// Ensure clients are rendered after page load
-window.addEventListener('load', function() {
-  setTimeout(function() {
-    if (typeof clients !== 'undefined' && clients.length > 0) {
-      renderClients()
-    }
-  }, 1000)
+// ============================================
+// CLIENT INITIALIZATION - Consolidated
+// ============================================
+
+// 1. After DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  initClients()
 })
 
+// 2. After window loads (fallback)
+window.addEventListener('load', function() {
+  initClients()
+})
+
+// 3. Also call loadClientsFromSupabase to ensure clients are loaded
+// This function checks if clients are already loaded and only loads from network if needed
 loadClientsFromSupabase()
 
-// Add event listener for logout button
+// ============================================
+// LOGOUT HANDLING
+// ============================================
 document.getElementById('logoutBtn').addEventListener('click', function() {
   console.log('Logout clicked')
   logout()
