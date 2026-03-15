@@ -626,29 +626,31 @@ async function loadTrialBalance() {
 
 // Load clients on page load
 async function loadClients() {
+  // Load demo clients immediately while trying Supabase
+  loadDemoClients()
+  
   try {
-    // First try to load from Supabase
     const { data, error } = await supabase.from('clients').select('id, name')
     
     if (error) {
       console.log('Supabase error, using demo clients:', error.message)
+      return
     }
     
     if (data && data.length > 0) {
       const select = document.getElementById('clientSelect')
+      // Clear demo clients first
+      select.innerHTML = '<option value="">-- Select Client --</option>'
+      
       data.forEach(c => {
         const opt = document.createElement('option')
         opt.value = c.id
         opt.textContent = c.name
         select.appendChild(opt)
       })
-    } else {
-      // Use demo clients as fallback
-      loadDemoClients()
     }
   } catch (e) {
     console.log('Error loading clients from Supabase, using demo clients:', e)
-    loadDemoClients()
   }
 }
 

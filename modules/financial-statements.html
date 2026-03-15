@@ -210,16 +210,23 @@ const PL_STRUCTURE = {
 }
 
 async function loadClients() {
+  // Load demo clients immediately while trying Supabase
+  loadDemoClients()
+  
   try {
     const { data, error } = await supabase.from('clients').select('id, name, constitution')
     
     if (error) {
       console.log('Supabase error, using demo clients:', error.message)
+      return
     }
     
     if (data && data.length > 0) {
       clients = data
       const select = document.getElementById('clientSelect')
+      // Clear demo clients first
+      select.innerHTML = ''
+      
       // Add default option
       const defaultOpt = document.createElement('option')
       defaultOpt.value = ""
@@ -233,17 +240,9 @@ async function loadClients() {
         opt.textContent = c.name + ' (' + c.constitution + ')'
         select.appendChild(opt)
       })
-      
-      // Show sample report after loading clients
-      setTimeout(() => {
-        document.getElementById('reportContainer').innerHTML = renderBalanceSheet('Sample Company', '2024-25')
-      }, 500)
-    } else {
-      loadDemoClients()
     }
   } catch (e) {
     console.log('Error loading clients:', e)
-    loadDemoClients()
   }
 }
 

@@ -395,28 +395,32 @@ function setDefaultDates() {
 
 // Load Clients
 async function loadClients() {
+  // Load demo clients immediately while trying Supabase
+  loadDemoClients()
+  
   try {
     const { data, error } = await supabase.from('clients').select('id, name')
     
     if (error) {
       console.log('Supabase error, using demo clients:', error.message)
+      return
     }
     
     if (data && data.length > 0) {
       clients = data
       const select = document.getElementById('clientSelect')
+      // Clear demo clients first
+      select.innerHTML = ''
+      
       data.forEach(c => {
         const opt = document.createElement('option')
         opt.value = c.id
         opt.textContent = c.name
         select.appendChild(opt)
       })
-    } else {
-      loadDemoClients()
     }
   } catch (e) {
     console.log('Error loading clients:', e)
-    loadDemoClients()
   }
 }
 
