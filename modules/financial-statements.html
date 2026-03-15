@@ -209,8 +209,8 @@ const PL_STRUCTURE = {
   ]
 }
 
-// Load clients immediately
-(function() {
+// Load clients when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
   // Demo clients - always available
   const demoClients = [
     { id: 'demo-1', name: 'Singla Steel Corporation', constitution: 'Proprietorship' },
@@ -225,7 +225,7 @@ const PL_STRUCTURE = {
     { id: 'demo-10', name: 'Chowdhury Consultants', constitution: 'LLP' }
   ]
   
-  // Populate dropdown immediately
+  // Populate dropdown
   const select = document.getElementById('clientSelect')
   if (select) {
     // Add default option first
@@ -243,7 +243,7 @@ const PL_STRUCTURE = {
     })
   }
   
-  // Try to load from Supabase in background (non-blocking)
+  // Try to load from Supabase in background
   if (typeof supabase !== 'undefined') {
     setTimeout(async () => {
       try {
@@ -271,7 +271,7 @@ const PL_STRUCTURE = {
       }
     }, 500)
   }
-})()
+})
 
 function loadClientData() {
   const clientId = document.getElementById('clientSelect').value

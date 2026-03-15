@@ -393,8 +393,8 @@ function setDefaultDates() {
   document.getElementById('daybookToDate').value = today
 }
 
-// Load clients immediately
-(function() {
+// Load clients when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
   // Demo clients - always available
   const demoClients = [
     { id: 'demo-1', name: 'Singla Steel Corporation' },
@@ -409,7 +409,7 @@ function setDefaultDates() {
     { id: 'demo-10', name: 'Chowdhury Consultants' }
   ]
   
-  // Populate dropdown immediately
+  // Populate dropdown
   const select = document.getElementById('clientSelect')
   if (select) {
     demoClients.forEach(c => {
@@ -420,7 +420,7 @@ function setDefaultDates() {
     })
   }
   
-  // Try to load from Supabase in background (non-blocking)
+  // Try to load from Supabase in background
   if (typeof supabase !== 'undefined') {
     setTimeout(async () => {
       try {
@@ -442,7 +442,7 @@ function setDefaultDates() {
       }
     }, 500)
   }
-})()
+})
 
 // Load client data
 async function loadClientData() {

@@ -624,9 +624,8 @@ async function loadTrialBalance() {
   }
 }
 
-// Load clients on page load
-// This runs immediately when the script loads
-(function() {
+// Load clients when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
   // Demo clients - always available
   const demoClients = [
     { id: 'demo-1', name: 'Singla Steel Corporation' },
@@ -641,7 +640,7 @@ async function loadTrialBalance() {
     { id: 'demo-10', name: 'Chowdhury Consultants' }
   ]
   
-  // Populate dropdown immediately
+  // Populate dropdown
   const select = document.getElementById('clientSelect')
   if (select) {
     demoClients.forEach(c => {
@@ -652,7 +651,7 @@ async function loadTrialBalance() {
     })
   }
   
-  // Try to load from Supabase in background (non-blocking)
+  // Try to load from Supabase in background
   if (typeof supabase !== 'undefined') {
     setTimeout(async () => {
       try {
@@ -674,7 +673,7 @@ async function loadTrialBalance() {
       }
     }, 500)
   }
-})()
+})
 
 // Event listeners
 document.getElementById('addRow').addEventListener('click', addRow)
