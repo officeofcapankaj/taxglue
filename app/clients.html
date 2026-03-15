@@ -698,6 +698,7 @@ function renderClients() {
 }
 
 function renderClientsInternal() {
+  console.log('=== renderClientsInternal called ===')
   const tbody = document.getElementById('clientTable')
   
   if (!clients) {
@@ -781,18 +782,26 @@ setInterval(() => {
 
 // 1. After DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOMContentLoaded fired')
   // Add small delay to ensure all elements are rendered
   setTimeout(initClients, 100)
 })
 
 // 2. After window loads (fallback)
 window.addEventListener('load', function() {
+  console.log('window.load fired')
   setTimeout(initClients, 100)
 })
 
+// Also run initClients after a short delay regardless of events
+setTimeout(function() {
+  console.log('setTimeout fallback fired')
+  initClients()
+}, 2000)
+
 // 3. Also call loadClientsFromSupabase to ensure clients are loaded
 // This function checks if clients are already loaded and only loads from network if needed
-setTimeout(loadClientsFromSupabase, 500)
+setTimeout(loadClientsFromSupabase, 2500)
 
 // 4. Add a refresh button for debugging
 function forceRefreshClients() {
