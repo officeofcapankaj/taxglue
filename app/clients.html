@@ -242,10 +242,6 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script>
-// Demo mode - define supabase client
-let supabase = null;
-</script>
 <script src="../js/supabase-config.js"></script>
 <script>
 // Demo mode data - defined early so it can be used during initialization
@@ -429,13 +425,22 @@ let clients = [];
 function initClients() {
   console.log('=== initClients running ===')
   
-  // ALWAYS use DEMO_CLIENTS for demo mode - skip localStorage entirely
-  // This ensures we always have data regardless of localStorage state
-  console.log('Setting clients to DEMO_CLIENTS directly')
-  clients = DEMO_CLIENTS
+  // HARDCODED demo clients to avoid any scope issues
+  const demoClients = [
+    { id: 'demo-1', name: 'Singla Steel Corporation', constitution: 'Proprietorship', phone: '9876543210', email: 'info@singlasteel.com', registrations: { panNumber: 'ABPFS1234C', gstin: '03ABPFS1234C1Z5' } },
+    { id: 'demo-2', name: 'Rana Industries', constitution: 'Partnership Firm', phone: '9876543211', email: 'info@ranaindustries.com', registrations: { panNumber: 'AABCU1234E', gstin: '03AABCU1234E1Z6' } },
+    { id: 'demo-3', name: 'Sharma Traders', constitution: 'Sole Proprietorship', phone: '9876543212', email: 'contact@sharmatraders.com', registrations: { panNumber: 'BBFPS5678D', gstin: '03BBFPS5678C1Z4' } },
+    { id: 'demo-4', name: 'Gupta Construction', constitution: 'Private Limited Company', phone: '9876543213', email: 'info@guptaconstruction.com', registrations: { panNumber: 'AACCG9012H', gstin: '03AACCG9012H1Z8' } },
+    { id: 'demo-5', name: 'Aggarwal Textiles', constitution: 'LLP', phone: '9876543214', email: 'contact@aggarwaltextiles.com', registrations: { panNumber: 'CCFFI3456K', gstin: '06CCFFI3456K1Z1' } },
+    { id: 'demo-6', name: 'Jain Logistics', constitution: 'Proprietorship', phone: '9876543215', email: 'info@jainlogistics.com', registrations: { panNumber: 'DDGGH7890L', gstin: '06DDGGH7890L1Z2' } },
+    { id: 'demo-7', name: 'Patel Electronics', constitution: 'Private Limited Company', phone: '9876543216', email: 'sales@patelelectronics.com', registrations: { panNumber: 'AADDJ1234M', gstin: '24AADDJ1234M1Z5' } },
+    { id: 'demo-8', name: 'Reddy & Co', constitution: 'Partnership Firm', phone: '9876543217', email: 'info@reddyandco.com', registrations: { panNumber: 'AAEEK5678N', gstin: '36AAEEK5678N1Z4' } },
+    { id: 'demo-9', name: 'Kumar Medical Stores', constitution: 'Sole Proprietorship', phone: '9876543218', email: 'kumar@medicalstores.com', registrations: { panNumber: 'BBFFL9012P', gstin: '10BBFFL9012P1Z3' } },
+    { id: 'demo-10', name: 'Chowdhury Consultants', constitution: 'LLP', phone: '9876543219', email: 'consult@chowdhury.com', registrations: { panNumber: 'CCGGM3456Q', gstin: '19CCGGM3456Q1Z2' } }
+  ]
   
-  console.log('clients has', clients.length, 'items')
-  console.log('First client:', clients[0]?.name)
+  clients = demoClients
+  console.log('Set clients to demoClients, length:', clients.length)
   
   // Always render
   renderClients()
