@@ -439,11 +439,12 @@ function initClients() {
     { id: 'demo-10', name: 'Chowdhury Consultants', constitution: 'LLP', phone: '9876543219', email: 'consult@chowdhury.com', registrations: { panNumber: 'CCGGM3456Q', gstin: '19CCGGM3456Q1Z2' } }
   ]
   
-  // Always reset clients to demo clients
+  // Always reset clients to demo clients in both local and global
   clients = demoClients
+  window.globalClients = demoClients
   console.log('Set clients to demoClients, length:', clients.length)
   
-  // Force render immediately
+  // Force render after a short delay
   setTimeout(renderClients, 50)
   console.log('=== initClients complete ===')
 }
@@ -673,10 +674,12 @@ function resetForm() {
 
 function renderClients() {
   console.log('=== renderClients called ===')
-  console.log('clients value:', clients)
-  console.log('clients type:', typeof clients)
-  console.log('clients isArray:', Array.isArray(clients))
-  console.log('clients length:', clients ? clients.length : 'N/A')
+  // Use globalClients if local clients is empty
+  const clientData = (clients && clients.length > 0) ? clients : window.globalClients
+  console.log('clients value:', clientData)
+  console.log('clients type:', typeof clientData)
+  console.log('clients isArray:', Array.isArray(clientData))
+  console.log('clients length:', clientData ? clientData.length : 'N/A')
 
   const tbody = document.getElementById('clientTable')
   if (!tbody) {
@@ -701,33 +704,32 @@ function renderClientsInternal() {
   console.log('=== renderClientsInternal called ===')
   const tbody = document.getElementById('clientTable')
   
-  if (!clients) {
-    console.log('clients is null/undefined')
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">Loading...</td></tr>'
+  // Use globalClients if local clients is empty
+  const clientData = (clients && clients.length > 0) ? clients : window.globalClients
+  console.log('renderClientsInternal using clientData length:', clientData ? clientData.length : 0)
+  
+  if (!clientData || clientData.length === 0) {
+    console.log('No clients to display')
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">No clients found. Click "+ Add Client" to create one.</td></tr>'
     return
   }
   
-  if (!Array.isArray(clients)) {
-    console.log('clients is not an array, type:', typeof clients)
+  if (!Array.isArray(clientData)) {
+    console.log('clientData is not an array, type:', typeof clientData)
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">Error: invalid data</td></tr>'
     return
   }
   
-  if (clients.length === 0) {
-    console.log('clients array is empty')
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">No clients found</td></tr>'
-    return
-  }
-  
   const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || ''
-  let filteredClients = clients
+  let filteredClients = clientData
   if (searchTerm) {
-    filteredClients = clients.filter(c => 
+    filteredClients = clientData.filter(c => 
       (c.name && c.name.toLowerCase().includes(searchTerm)) ||
       (c.registrations?.panNumber && c.registrations.panNumber.toLowerCase().includes(searchTerm)) ||
       (c.phone && c.phone.includes(searchTerm)) ||
       (c.email && c.email.toLowerCase().includes(searchTerm)) ||
       (c.contactPersons && c.contactPersons.some(cp => cp.name && cp.name.toLowerCase().includes(searchTerm)))
+    )
   }
   
   if (filteredClients.length === 0) { 
@@ -776,6 +778,9 @@ setInterval(() => {
   if (idleTime >= idleTimeout) logout();
 }, 1000);
 
+// Global clients array - accessible everywhere
+window.globalClients = window.globalClients || []
+
 // ============================================
 // CLIENT INITIALIZATION - Consolidated
 // ============================================
@@ -801,7 +806,9 @@ setTimeout(function() {
 
 // 3. Also call loadClientsFromSupabase to ensure clients are loaded
 // This function checks if clients are already loaded and only loads from network if needed
-setTimeout(loadClientsFromSupabase, 2500)
+setTimeout(function() {
+  loadClientsFromSupabase()
+}, 2500)
 
 // 4. Add a refresh button for debugging
 function forceRefreshClients() {
