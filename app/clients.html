@@ -764,17 +764,18 @@ setInterval(() => {
 
 // 1. After DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-  initClients()
+  // Add small delay to ensure all elements are rendered
+  setTimeout(initClients, 100)
 })
 
 // 2. After window loads (fallback)
 window.addEventListener('load', function() {
-  initClients()
+  setTimeout(initClients, 100)
 })
 
 // 3. Also call loadClientsFromSupabase to ensure clients are loaded
 // This function checks if clients are already loaded and only loads from network if needed
-loadClientsFromSupabase()
+setTimeout(loadClientsFromSupabase, 500)
 
 // ============================================
 // LOGOUT HANDLING
