@@ -676,12 +676,28 @@ function renderClients() {
   console.log('clients type:', typeof clients)
   console.log('clients isArray:', Array.isArray(clients))
   console.log('clients length:', clients ? clients.length : 'N/A')
-  
+
   const tbody = document.getElementById('clientTable')
   if (!tbody) {
-    console.log('ERROR: clientTable element not found!')
+    console.log('ERROR: clientTable element not found, retrying in 500ms...')
+    // Retry after a delay in case DOM isn't ready yet
+    setTimeout(() => {
+      const retryTable = document.getElementById('clientTable')
+      if (retryTable) {
+        console.log('Retry: clientTable found, rendering...')
+        renderClientsInternal()
+      } else {
+        console.log('Retry failed: clientTable still not found')
+      }
+    }, 500)
     return
   }
+
+  renderClientsInternal()
+}
+
+function renderClientsInternal() {
+  const tbody = document.getElementById('clientTable')
   
   if (!clients) {
     console.log('clients is null/undefined')
