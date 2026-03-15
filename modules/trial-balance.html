@@ -625,38 +625,8 @@ async function loadTrialBalance() {
 }
 
 // Load clients on page load
-async function loadClients() {
-  // Load demo clients immediately 
-  const select = document.getElementById('clientSelect')
-  select.innerHTML = '<option value="">-- Select Client --</option>'
-  loadDemoClients()
-  
-  try {
-    const { data, error } = await supabase.from('clients').select('id, name')
-    
-    if (error) {
-      console.log('Supabase error, using demo clients:', error.message)
-      return
-    }
-    
-    if (data && data.length > 0) {
-      // Clear and reload from Supabase
-      select.innerHTML = '<option value="">-- Select Client --</option>'
-      
-      data.forEach(c => {
-        const opt = document.createElement('option')
-        opt.value = c.id
-        opt.textContent = c.name
-        select.appendChild(opt)
-      })
-    }
-  } catch (e) {
-    console.log('Error loading clients from Supabase, using demo clients:', e)
-  }
-}
-
-// Load demo clients
-function loadDemoClients() {
+function loadClients() {
+  // Load demo clients immediately - no waiting for Supabase
   const demoClients = [
     { id: 'demo-1', name: 'Singla Steel Corporation' },
     { id: 'demo-2', name: 'Rana Industries' },
@@ -677,6 +647,24 @@ function loadDemoClients() {
     opt.textContent = c.name
     select.appendChild(opt)
   })
+  
+  // Try to load from Supabase in background and replace if data exists
+  setTimeout(async () => {
+    try {
+      const { data } = await supabase.from('clients').select('id, name')
+      if (data && data.length > 0) {
+        select.innerHTML = '<option value="">-- Select Client --</option>'
+        data.forEach(c => {
+          const opt = document.createElement('option')
+          opt.value = c.id
+          opt.textContent = c.name
+          select.appendChild(opt)
+        })
+      }
+    } catch (e) {
+      console.log('Supabase not available, using demo clients')
+    }
+  }, 100)
 }
 
 // Initialize
