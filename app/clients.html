@@ -427,39 +427,39 @@ let clients = [];
 
 // Initialize clients function - will be called multiple times
 function initClients() {
-  try {
-    console.log('initClients running...')
-    
-    // First try localStorage
-    const storedClients = localStorage.getItem('clients')
-    console.log('Initializing clients, stored:', storedClients ? 'yes' : 'no')
-    
-    // Use stored clients if available and not empty
-    if (storedClients) {
-      try {
-        const parsed = JSON.parse(storedClients)
-        if (parsed && Array.isArray(parsed) && parsed.length > 0) {
-          clients = parsed
-          console.log('Loaded clients from localStorage:', clients.length)
-        }
-      } catch(e) {
-        console.log('Failed to parse stored clients:', e)
+  console.log('=== initClients running ===')
+  
+  // Always start with DEMO_CLIENTS if no localStorage data
+  // This ensures we always have data to show
+  const storedClients = localStorage.getItem('clients')
+  console.log('Found stored clients:', storedClients ? 'yes (' + storedClients.length + ' chars)' : 'no')
+  
+  if (storedClients) {
+    try {
+      const parsed = JSON.parse(storedClients)
+      if (parsed && Array.isArray(parsed) && parsed.length > 0) {
+        clients = parsed
+        console.log('Using stored clients:', clients.length)
+      } else {
+        console.log('Stored clients empty, using DEMO_CLIENTS')
+        clients = DEMO_CLIENTS
+        localStorage.setItem('clients', JSON.stringify(clients))
       }
-    } 
-    
-    // If no clients in localStorage, load demo clients immediately
-    if (clients.length === 0) {
-      console.log('Using demo clients')
+    } catch(e) {
+      console.log('Parse error, using DEMO_CLIENTS')
       clients = DEMO_CLIENTS
       localStorage.setItem('clients', JSON.stringify(clients))
     }
-
-    // Always render clients after loading
-    console.log('Calling renderClients, client count:', clients.length)
-    renderClients()
-  } catch (e) {
-    console.error('Error in initClients:', e)
+  } else {
+    console.log('No stored clients, using DEMO_CLIENTS')
+    clients = DEMO_CLIENTS
+    localStorage.setItem('clients', JSON.stringify(clients))
   }
+
+  // Always render
+  console.log('Calling renderClients with', clients.length, 'clients')
+  renderClients()
+  console.log('=== initClients complete ===')
 }
 
 // Try immediately first
