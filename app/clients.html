@@ -432,10 +432,13 @@ function initClients() {
     const storedClients = localStorage.getItem('clients')
     console.log('Initializing clients, stored:', storedClients ? 'yes' : 'no')
 
-    clients = storedClients ? JSON.parse(storedClients) : []
-
+    // Use stored clients if available
+    if (storedClients) {
+      clients = JSON.parse(storedClients)
+      console.log('Loaded clients from localStorage:', clients.length)
+    } 
+    
     // If no clients in localStorage, load demo clients immediately
-    console.log('Clients length:', clients.length, 'DEMO_CLIENTS length:', DEMO_CLIENTS.length)
     if (clients.length === 0 && DEMO_CLIENTS.length > 0) {
       console.log('Initializing with demo clients')
       clients = DEMO_CLIENTS
@@ -455,9 +458,6 @@ initClients()
 
 // Also try after window loads to ensure all resources are ready
 window.addEventListener('load', initClients)
-
-// Also try after a delay as last resort
-setTimeout(initClients, 2000)
 
 let contactPersonCount = 1
 let uploadedFiles = []
