@@ -498,17 +498,18 @@ function switchTab(tabId) {
 async function loadClientsFromSupabase() {
   console.log('Loading clients from network...')
   
-  // If we already have clients, no need to load more
-  if (clients.length > 0) {
-    console.log('Clients already loaded:', clients.length)
-    return
-  }
-  
-  // Check demo mode (user is logged in)
+  // Check demo mode (user is logged in) - use DEMO_CLIENTS directly
   if (isDemoMode()) {
     console.log('Demo mode: using demo data')
     clients = DEMO_CLIENTS
     localStorage.setItem('clients', JSON.stringify(clients))
+    renderClients()
+    return
+  }
+  
+  // If we already have clients, no need to load more
+  if (clients.length > 0) {
+    console.log('Clients already loaded:', clients.length)
     renderClients()
     return
   }
@@ -522,10 +523,23 @@ async function loadClientsFromSupabase() {
         clients = data
         localStorage.setItem('clients', JSON.stringify(clients))
         renderClients()
+      } else {
+        // No data in Supabase, fall back to demo clients
+        clients = DEMO_CLIENTS
+        localStorage.setItem('clients', JSON.stringify(clients))
+        renderClients()
       }
     } catch (e) {
-      console.log('Loading from Supabase failed:', e)
+      console.log('Loading from Supabase failed, using demo clients:', e)
+      clients = DEMO_CLIENTS
+      localStorage.setItem('clients', JSON.stringify(clients))
+      renderClients()
     }
+  } else {
+    // No Supabase, use demo clients
+    clients = DEMO_CLIENTS
+    localStorage.setItem('clients', JSON.stringify(clients))
+    renderClients()
   }
 }
 
@@ -710,6 +724,13 @@ setInterval(() => {
 }, 1000);
 
 loadClientsFromSupabase()
+
+// Also ensure renderClients is called after initClients processes demo clients
+setTimeout(() => {
+  if (clients.length > 0) {
+    renderClients()
+  }
+}, 500)
 
 // Add event listener for logout button
 document.getElementById('logoutBtn').addEventListener('click', function() {
