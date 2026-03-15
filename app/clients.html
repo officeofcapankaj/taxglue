@@ -439,11 +439,12 @@ function initClients() {
     { id: 'demo-10', name: 'Chowdhury Consultants', constitution: 'LLP', phone: '9876543219', email: 'consult@chowdhury.com', registrations: { panNumber: 'CCGGM3456Q', gstin: '19CCGGM3456Q1Z2' } }
   ]
   
+  // Always reset clients to demo clients
   clients = demoClients
   console.log('Set clients to demoClients, length:', clients.length)
   
-  // Always render
-  renderClients()
+  // Force render immediately
+  setTimeout(renderClients, 50)
   console.log('=== initClients complete ===')
 }
 
