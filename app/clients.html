@@ -421,11 +421,9 @@ const DEMO_CLIENTS = [
 // Shared clients array - declared at top level
 let clients = [];
 
-// Initialize clients function - will be called multiple times
+// Initialize clients function
 function initClients() {
-  console.log('=== initClients running ===')
-  
-  // HARDCODED demo clients to avoid any scope issues
+  // HARDCODED demo clients
   const demoClients = [
     { id: 'demo-1', name: 'Singla Steel Corporation', constitution: 'Proprietorship', phone: '9876543210', email: 'info@singlasteel.com', registrations: { panNumber: 'ABPFS1234C', gstin: '03ABPFS1234C1Z5' } },
     { id: 'demo-2', name: 'Rana Industries', constitution: 'Partnership Firm', phone: '9876543211', email: 'info@ranaindustries.com', registrations: { panNumber: 'AABCU1234E', gstin: '03AABCU1234E1Z6' } },
@@ -439,14 +437,12 @@ function initClients() {
     { id: 'demo-10', name: 'Chowdhury Consultants', constitution: 'LLP', phone: '9876543219', email: 'consult@chowdhury.com', registrations: { panNumber: 'CCGGM3456Q', gstin: '19CCGGM3456Q1Z2' } }
   ]
   
-  // Always reset clients to demo clients in both local and global
+  // Set clients in both local and global scope
   clients = demoClients
   window.globalClients = demoClients
-  console.log('Set clients to demoClients, length:', clients.length)
   
-  // Force render after a short delay
+  // Render after a short delay
   setTimeout(renderClients, 50)
-  console.log('=== initClients complete ===')
 }
 
 // Try immediately first - but don't render yet since DOM might not be ready
@@ -673,25 +669,16 @@ function resetForm() {
 }
 
 function renderClients() {
-  console.log('=== renderClients called ===')
   // Use globalClients if local clients is empty
   const clientData = (clients && clients.length > 0) ? clients : window.globalClients
-  console.log('clients value:', clientData)
-  console.log('clients type:', typeof clientData)
-  console.log('clients isArray:', Array.isArray(clientData))
-  console.log('clients length:', clientData ? clientData.length : 'N/A')
 
   const tbody = document.getElementById('clientTable')
   if (!tbody) {
-    console.log('ERROR: clientTable element not found, retrying in 500ms...')
     // Retry after a delay in case DOM isn't ready yet
     setTimeout(() => {
       const retryTable = document.getElementById('clientTable')
       if (retryTable) {
-        console.log('Retry: clientTable found, rendering...')
         renderClientsInternal()
-      } else {
-        console.log('Retry failed: clientTable still not found')
       }
     }, 500)
     return
@@ -701,21 +688,17 @@ function renderClients() {
 }
 
 function renderClientsInternal() {
-  console.log('=== renderClientsInternal called ===')
   const tbody = document.getElementById('clientTable')
   
   // Use globalClients if local clients is empty
   const clientData = (clients && clients.length > 0) ? clients : window.globalClients
-  console.log('renderClientsInternal using clientData length:', clientData ? clientData.length : 0)
   
   if (!clientData || clientData.length === 0) {
-    console.log('No clients to display')
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">No clients found. Click "+ Add Client" to create one.</td></tr>'
     return
   }
   
   if (!Array.isArray(clientData)) {
-    console.log('clientData is not an array, type:', typeof clientData)
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">Error: invalid data</td></tr>'
     return
   }
@@ -739,7 +722,6 @@ function renderClientsInternal() {
   
   const html = filteredClients.map(client => '<tr><td><span class="badge">' + (client.constitution || '-') + '</span></td><td><strong>' + (client.name || '-') + '</strong></td><td>' + (client.registrations?.panNumber || '-') + '</td><td>' + (client.registrations?.gstin || '-') + '</td><td>' + (client.phone || '-') + '</td><td>' + (client.contactPersons ? client.contactPersons.length : 0) + '</td><td>' + (client.documents ? client.documents.length : 0) + ' files</td></tr>').join('')
   tbody.innerHTML = html
-  console.log('=== renderClients complete, rendered', filteredClients.length, 'clients ===')
 }
 
 function searchClients() {
@@ -782,42 +764,28 @@ setInterval(() => {
 window.globalClients = window.globalClients || []
 
 // ============================================
-// CLIENT INITIALIZATION - Consolidated
+// CLIENT INITIALIZATION
 // ============================================
 
 // 1. After DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOMContentLoaded fired')
-  // Add small delay to ensure all elements are rendered
   setTimeout(initClients, 100)
 })
 
 // 2. After window loads (fallback)
 window.addEventListener('load', function() {
-  console.log('window.load fired')
   setTimeout(initClients, 100)
 })
 
 // Also run initClients after a short delay regardless of events
 setTimeout(function() {
-  console.log('setTimeout fallback fired')
   initClients()
 }, 2000)
 
 // 3. Also call loadClientsFromSupabase to ensure clients are loaded
-// This function checks if clients are already loaded and only loads from network if needed
 setTimeout(function() {
   loadClientsFromSupabase()
 }, 2500)
-
-// 4. Add a refresh button for debugging
-function forceRefreshClients() {
-  console.log('=== Force refresh clients ===')
-  initClients()
-}
-
-// Make it globally accessible
-window.forceRefreshClients = forceRefreshClients;
 
 // ============================================
 // LOGOUT HANDLING
