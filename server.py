@@ -831,9 +831,22 @@ def save_gst_data(data):
 
 @app.route('/api/gst/invoices', methods=['GET'])
 def get_gst_invoices():
-    """Get all GST invoices"""
+    """Get all GST invoices, optionally filtered by client_id and fy"""
+    client_id = request.args.get('client_id')
+    fy = request.args.get('fy', '2024-25')
+    
     data = load_gst_data()
-    return jsonify(data.get("invoices", []))
+    invoices = data.get("invoices", [])
+    
+    # Filter by client_id if provided
+    if client_id:
+        invoices = [inv for inv in invoices if inv.get('client_id') == client_id]
+    
+    # Filter by fy if provided
+    if fy:
+        invoices = [inv for inv in invoices if inv.get('fy') == fy]
+    
+    return jsonify(invoices)
 
 @app.route('/api/gst/invoices', methods=['POST'])
 def create_gst_invoice():
@@ -842,6 +855,13 @@ def create_gst_invoice():
     invoice = request.json
     invoice["id"] = str(uuid.uuid4())
     invoice["created_at"] = datetime.now().isoformat()
+    
+    # Ensure client_id and fy are stored with the invoice
+    if 'client_id' not in invoice:
+        invoice['client_id'] = request.args.get('client_id', '')
+    if 'fy' not in invoice:
+        invoice['fy'] = request.args.get('fy', '2024-25')
+    
     data["invoices"].append(invoice)
     save_gst_data(data)
     return jsonify(invoice), 201

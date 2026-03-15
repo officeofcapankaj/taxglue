@@ -83,6 +83,18 @@ select.fy-select, select.qtr-select { padding: 8px 12px; border: 1px solid #e2e8
 <div class="sidebar-header">
 <div class="logo"><div class="logo-icon">📊</div>TaxGlue</div>
 </div>
+
+<!-- Global Client Selector -->
+<div style="padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+  <label style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); display: block; margin-bottom: 8px;">Active Client</label>
+  <select id="globalClientSelect" onchange="handleGlobalClientChange(this)" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 14px; cursor: pointer;">
+    <option value="">-- Select Client --</option>
+  </select>
+  <div id="selectedClientInfo" style="margin-top: 8px; font-size: 12px; color: rgba(255,255,255,0.7); display: none;">
+    <span id="selectedClientName" style="font-weight: 500;"></span>
+  </div>
+</div>
+
 <div class="sidebar-nav">
 <div class="nav-section"><div class="nav-section-title">Tax Compliance</div>
 <a href="/app/tds.html"><i class="fas fa-file-invoice-dollar"></i> TDS</a>
@@ -266,29 +278,56 @@ select.fy-select, select.qtr-select { padding: 8px 12px; border: 1px solid #e2e8
 const API_BASE = '';
 let invoices = [], gstReturns = [], ewaybills = [], gstRates = {};
 
+// Initialize global client selector on page load
+document.addEventListener('DOMContentLoaded', function() {
+  initGlobalClientSelector();
+  loadData();
+  
+  // Listen for client changes
+  window.addEventListener('clientChanged', function(e) {
+    console.log('Client changed, reloading data for:', e.detail.clientId);
+    loadData();
+  });
+});
+
 async function loadData() {
-try {
-const [invRes, retRes, ewRes, ratesRes, sumRes] = await Promise.all([
-fetch(API_BASE + '/api/gst/invoices'),
-fetch(API_BASE + '/api/gst/returns'),
-fetch(API_BASE + '/api/gst/ewaybills'),
-fetch(API_BASE + '/api/gst/rates'),
-fetch(API_BASE + '/api/gst/summary')
-]);
-invoices = await invRes.json();
-gstReturns = await retRes.json();
-ewaybills = await ewRes.json();
-gstRates = await ratesRes.json();
-const summary = await sumRes.json();
-document.getElementById('totalInvoices').textContent = summary.total_invoices;
-document.getElementById('totalTaxable').textContent = '₹' + (summary.total_taxable_value || 0).toLocaleString();
-document.getElementById('totalGST').textContent = '₹' + (summary.total_output_gst || 0).toLocaleString();
-document.getElementById('totalIGST').textContent = '₹' + (summary.total_igst || 0).toLocaleString();
-renderInvoices();
-renderReturns();
-renderEwaybills();
-renderRates();
-} catch(e) { console.error('Error loading data:', e); }
+  const clientId = getSelectedClientId();
+  const fy = document.getElementById('fySelect')?.value || getSelectedFY();
+  
+  // Build API URL with client filter
+  const clientFilter = clientId ? `?client_id=${clientId}&fy=${fy}` : `?fy=${fy}`;
+  
+  try {
+  const [invRes, retRes, ewRes, ratesRes, sumRes] = await Promise.all([
+  fetch(API_BASE + '/api/gst/invoices' + clientFilter),
+  fetch(API_BASE + '/api/gst/returns' + clientFilter),
+  fetch(API_BASE + '/api/gst/ewaybills'),
+  fetch(API_BASE + '/api/gst/rates'),
+  fetch(API_BASE + '/api/gst/summary' + clientFilter)
+  ]);
+  invoices = await invRes.json();
+  gstReturns = await retRes.json();
+  ewaybills = await ewRes.json();
+  gstRates = await ratesRes.json();
+  const summary = await sumRes.json();
+  
+  // Update client info display
+  if (clientId) {
+    const clientName = getSelectedClientName();
+    document.getElementById('clientInfo')?.classList.remove('hidden');
+    const clientInfoEl = document.getElementById('clientInfoText');
+    if (clientInfoEl) clientInfoEl.textContent = `Showing data for: ${clientName}`;
+  }
+  
+  document.getElementById('totalInvoices').textContent = summary.total_invoices;
+  document.getElementById('totalTaxable').textContent = '₹' + (summary.total_taxable_value || 0).toLocaleString();
+  document.getElementById('totalGST').textContent = '₹' + (summary.total_output_gst || 0).toLocaleString();
+  document.getElementById('totalIGST').textContent = '₹' + (summary.total_igst || 0).toLocaleString();
+  renderInvoices();
+  renderReturns();
+  renderEwaybills();
+  renderRates();
+  } catch(e) { console.error('Error loading data:', e); }
 }
 
 function renderInvoices() {
@@ -453,7 +492,126 @@ openModal('invoiceModal');
 function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-loadData();
-</script>
+// ============================================
+// Global Client Selector Functions (shared)
+// ============================================
+
+// Initialize global client selector on page load
+async function initGlobalClientSelector() {
+  const select = document.getElementById('globalClientSelect');
+  if (!select) return;
+  
+  try {
+    // Load Supabase if not already loaded
+    if (typeof supabase === 'undefined') {
+      const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm");
+      window.supabase = createClient(
+        "https://jgjeuybgideeqcjxvlmn.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnSmV1eWJnaWRlZXFjanh2bG1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDY3OTc4NDMsImV4cCI6MjAyMjM3Mzg0M30.N2uZQjDBprDZr7SbkZ鄂B0aZVmqSvhM1-nMvYQJ7wU"
+      );
+    }
+    
+    // Fetch clients from Supabase
+    const { data: clients, error } = await supabase
+      .from('clients')
+      .select('id, name, constitution')
+      .order('name');
+    
+    if (error) throw error;
+    
+    // Clear and populate selector
+    select.innerHTML = '<option value="">-- Select Client --</option>';
+    
+    if (clients && clients.length > 0) {
+      clients.forEach(client => {
+        const opt = document.createElement('option');
+        opt.value = client.id;
+        opt.textContent = `${client.name} (${client.constitution || 'N/A'})`;
+        opt.dataset.name = client.name;
+        select.appendChild(opt);
+      });
+    }
+    
+    // Restore previously selected client
+    const savedClientId = localStorage.getItem('taxglue_selected_client');
+    if (savedClientId) {
+      select.value = savedClientId;
+      updateSelectedClientDisplay();
+    }
+    
+  } catch (e) {
+    console.error('Error loading clients:', e);
+  }
+}
+
+// Handle global client selection change
+function handleGlobalClientChange(selectElement) {
+  const clientId = selectElement.value;
+  
+  // Save to localStorage
+  if (clientId) {
+    const clientName = selectElement.options[selectElement.selectedIndex]?.dataset?.name || '';
+    localStorage.setItem('taxglue_selected_client', clientId);
+    localStorage.setItem('taxglue_selected_client_name', clientName);
+  } else {
+    localStorage.removeItem('taxglue_selected_client');
+    localStorage.removeItem('taxglue_selected_client_name');
+  }
+  
+  updateSelectedClientDisplay();
+  
+  // Notify other components
+  window.dispatchEvent(new CustomEvent('clientChanged', { 
+    detail: { clientId } 
+  }));
+}
+
+// Update the selected client display
+function updateSelectedClientDisplay() {
+  const infoDiv = document.getElementById('selectedClientInfo');
+  const nameSpan = document.getElementById('selectedClientName');
+  const select = document.getElementById('globalClientSelect');
+  const clientId = localStorage.getItem('taxglue_selected_client');
+  
+  if (clientId && select) {
+    const selectedOption = select.options[select.selectedIndex];
+    const clientName = selectedOption?.dataset?.name || selectedOption?.textContent || '';
+    
+    if (infoDiv && nameSpan) {
+      nameSpan.textContent = 'Working on: ' + clientName;
+      infoDiv.style.display = 'block';
+    }
+  } else if (infoDiv) {
+    infoDiv.style.display = 'none';
+  }
+}
+
+// Get currently selected client ID
+function getSelectedClientId() {
+  return localStorage.getItem('taxglue_selected_client') || '';
+}
+
+// Get currently selected client name
+function getSelectedClientName() {
+  return localStorage.getItem('taxglue_selected_client_name') || '';
+}
+
+// Get selected financial year
+function getSelectedFY() {
+  return localStorage.getItem('taxglue_selected_fy') || '2024-25';
+}
+
+// Set selected financial year
+function setSelectedFY(fy) {
+  localStorage.setItem('taxglue_selected_fy', fy);
+}
+
+// Make functions globally available
+window.handleGlobalClientChange = handleGlobalClientChange;
+window.getSelectedClientId = getSelectedClientId;
+window.getSelectedClientName = getSelectedClientName;
+window.getSelectedFY = getSelectedFY;
+window.setSelectedFY = setSelectedFY;
+
 </body>
 </html>

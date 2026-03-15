@@ -18,6 +18,18 @@
         <!-- Sidebar -->
         <aside class="sidebar text-white">
             <div class="p-6"><h1 class="text-2xl font-bold">TaxGlue</h1><p class="text-gray-400 text-sm">Tax Compliance</p></div>
+            
+            <!-- Global Client Selector -->
+            <div style="padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+              <label style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); display: block; margin-bottom: 8px;">Active Client</label>
+              <select id="globalClientSelect" onchange="handleGlobalClientChange(this)" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 14px; cursor: pointer;">
+                <option value="">-- Select Client --</option>
+              </select>
+              <div id="selectedClientInfo" style="margin-top: 8px; font-size: 12px; color: rgba(255,255,255,0.7); display: none;">
+                <span id="selectedClientName" style="font-weight: 500;"></span>
+              </div>
+            </div>
+            
             <nav class="mt-6">
                 <a href="/app/dashboard.html" class="flex items-center px-6 py-3 hover:bg-gray-700"><i class="fas fa-home w-6"></i> Dashboard</a>
                 <a href="/app/tds.html" class="flex items-center px-6 py-3 bg-gray-700"><i class="fas fa-file-invoice-dollar w-6"></i> TDS</a>
@@ -478,15 +490,29 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            initGlobalClientSelector();
             loadTDSData();
             loadTDSSummary();
+            
+            // Listen for client changes
+            window.addEventListener('clientChanged', function(e) {
+                console.log('Client changed, reloading TDS data for:', e.detail.clientId);
+                loadTDSData();
+                loadTDSSummary();
+            });
         });
 
         async function loadTDSData() {
+            const clientId = getSelectedClientId();
+            const fy = document.getElementById('fySelect')?.value || getSelectedFY();
+            
+            // Build API URL with client filter
+            const clientFilter = clientId ? `&client_id=${clientId}` : '';
+            
             await Promise.all([
                 loadDeductors(),
                 loadDeductees(),
-                loadTransactions(),
+                loadTransactions(clientFilter),
                 loadChallans(),
                 loadReturns(),
                 loadRates()
@@ -496,9 +522,14 @@
         async function loadTDSSummary() {
             const fy = document.getElementById('fySelect').value;
             const quarter = document.getElementById('quarterSelect').value;
+            const clientId = getSelectedClientId();
             
             try {
-                const res = await fetch(`${API_URL}/tds/summary?fy=${fy}${quarter ? '&quarter=' + quarter : ''}`);
+                let url = `${API_URL}/tds/summary?fy=${fy}`;
+                if (quarter) url += '&quarter=' + quarter;
+                if (clientId) url += '&client_id=' + clientId;
+                
+                const res = await fetch(url);
                 const data = await res.json();
                 
                 document.getElementById('statDeductions').textContent = '₹' + (data.total_deduction || 0).toLocaleString();
@@ -933,6 +964,117 @@
                 }
             });
         });
+
+        // ============================================
+        // Global Client Selector Functions
+        // ============================================
+        
+        async function initGlobalClientSelector() {
+          const select = document.getElementById('globalClientSelect');
+          if (!select) return;
+          
+          try {
+            // Load Supabase if not already loaded
+            if (typeof supabase === 'undefined') {
+              const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm");
+              window.supabase = createClient(
+                "https://jgjeuybgideeqcjxvlmn.supabase.co",
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnSmV1eWJnaWRlZXFjanh2bG1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDY3OTc4NDMsImV4cCI6MjAyMjM3Mzg0M30.N2uZQjDBprDZr7SbkZ鄂B0aZVmqSvhM1-nMvYQJ7wU"
+              );
+            }
+            
+            // Fetch clients from Supabase
+            const { data: clients, error } = await supabase
+              .from('clients')
+              .select('id, name, constitution')
+              .order('name');
+            
+            if (error) throw error;
+            
+            // Clear and populate selector
+            select.innerHTML = '<option value="">-- Select Client --</option>';
+            
+            if (clients && clients.length > 0) {
+              clients.forEach(client => {
+                const opt = document.createElement('option');
+                opt.value = client.id;
+                opt.textContent = client.name + ' (' + (client.constitution || 'N/A') + ')';
+                opt.dataset.name = client.name;
+                select.appendChild(opt);
+              });
+            }
+            
+            // Restore previously selected client
+            const savedClientId = localStorage.getItem('taxglue_selected_client');
+            if (savedClientId) {
+              select.value = savedClientId;
+              updateSelectedClientDisplay();
+            }
+            
+          } catch (e) {
+            console.error('Error loading clients:', e);
+          }
+        }
+
+        function handleGlobalClientChange(selectElement) {
+          const clientId = selectElement.value;
+          
+          if (clientId) {
+            const clientName = selectElement.options[selectElement.selectedIndex]?.dataset?.name || '';
+            localStorage.setItem('taxglue_selected_client', clientId);
+            localStorage.setItem('taxglue_selected_client_name', clientName);
+          } else {
+            localStorage.removeItem('taxglue_selected_client');
+            localStorage.removeItem('taxglue_selected_client_name');
+          }
+          
+          updateSelectedClientDisplay();
+          
+          window.dispatchEvent(new CustomEvent('clientChanged', { 
+            detail: { clientId } 
+          }));
+        }
+
+        function updateSelectedClientDisplay() {
+          const infoDiv = document.getElementById('selectedClientInfo');
+          const nameSpan = document.getElementById('selectedClientName');
+          const select = document.getElementById('globalClientSelect');
+          const clientId = localStorage.getItem('taxglue_selected_client');
+          
+          if (clientId && select) {
+            const selectedOption = select.options[select.selectedIndex];
+            const clientName = selectedOption?.dataset?.name || selectedOption?.textContent || '';
+            
+            if (infoDiv && nameSpan) {
+              nameSpan.textContent = 'Working on: ' + clientName;
+              infoDiv.style.display = 'block';
+            }
+          } else if (infoDiv) {
+            infoDiv.style.display = 'none';
+          }
+        }
+
+        function getSelectedClientId() {
+          return localStorage.getItem('taxglue_selected_client') || '';
+        }
+
+        function getSelectedClientName() {
+          return localStorage.getItem('taxglue_selected_client_name') || '';
+        }
+
+        function getSelectedFY() {
+          return localStorage.getItem('taxglue_selected_fy') || '2024-25';
+        }
+
+        function setSelectedFY(fy) {
+          localStorage.setItem('taxglue_selected_fy', fy);
+        }
+
+        window.handleGlobalClientChange = handleGlobalClientChange;
+        window.getSelectedClientId = getSelectedClientId;
+        window.getSelectedClientName = getSelectedClientName;
+        window.getSelectedFY = getSelectedFY;
+        window.setSelectedFY = setSelectedFY;
     </script>
 </body>
 </html>

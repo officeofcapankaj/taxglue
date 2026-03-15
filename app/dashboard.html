@@ -676,6 +676,17 @@ body {
     </div>
   </div>
   
+  <!-- Global Client Selector -->
+  <div style="padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+    <label style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); display: block; margin-bottom: 8px;">Active Client</label>
+    <select id="globalClientSelect" onchange="handleGlobalClientChange(this)" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 14px; cursor: pointer;">
+      <option value="">-- Select Client --</option>
+    </select>
+    <div id="selectedClientInfo" style="margin-top: 8px; font-size: 12px; color: rgba(255,255,255,0.7); display: none;">
+      <span id="selectedClientName" style="font-weight: 500;"></span>
+    </div>
+  </div>
+  
   <div class="sidebar-nav">
     <div class="nav-section">
       <div class="nav-section-title">Main</div>
@@ -1014,6 +1025,9 @@ async function checkUser() {
     document.getElementById("userEmail").innerText = email
     document.getElementById("userName").innerText = email.split('@')[0]
     document.getElementById("userAvatar").innerText = email.charAt(0).toUpperCase()
+    
+    // Initialize global client selector after auth check
+    initGlobalClientSelector()
   }
 }
 
@@ -1024,6 +1038,149 @@ window.logout = function() {
   console.log('localStorage cleared')
   window.location.replace("/app/login.html")
 }
+
+// ============================================
+// Global Client Selector Functions
+// ============================================
+
+// Initialize global client selector on page load
+async function initGlobalClientSelector() {
+  const select = document.getElementById('globalClientSelect');
+  if (!select) return;
+  
+  try {
+    // First add loading option
+    const loadingOpt = document.createElement('option');
+    loadingOpt.textContent = 'Loading...';
+    select.appendChild(loadingOpt);
+    
+    // Fetch clients from Supabase
+    const { data: clients, error } = await supabase
+      .from('clients')
+      .select('id, name, constitution')
+      .order('name');
+    
+    if (error) throw error;
+    
+    // Clear loading option and add client options
+    select.innerHTML = '<option value="">-- Select Client --</option>';
+    
+    if (clients && clients.length > 0) {
+      clients.forEach(client => {
+        const opt = document.createElement('option');
+        opt.value = client.id;
+        opt.textContent = `${client.name} (${client.constitution || 'N/A'})`;
+        opt.dataset.name = client.name;
+        select.appendChild(opt);
+      });
+    } else {
+      // Add message if no clients
+      const noClientOpt = document.createElement('option');
+      noClientOpt.value = '';
+      noClientOpt.textContent = '-- No Clients Added --';
+      noClientOpt.disabled = true;
+      select.appendChild(noClientOpt);
+    }
+    
+    // Restore previously selected client
+    const savedClientId = localStorage.getItem('taxglue_selected_client');
+    if (savedClientId) {
+      select.value = savedClientId;
+      updateSelectedClientDisplay(savedClientId);
+    }
+    
+  } catch (e) {
+    console.error('Error loading clients:', e);
+    select.innerHTML = '<option value="">-- Error Loading --</option>';
+  }
+}
+
+// Handle global client selection change
+function handleGlobalClientChange(selectElement) {
+  const clientId = selectElement.value;
+  
+  // Save to localStorage
+  if (clientId) {
+    const clientName = selectElement.options[selectElement.selectedIndex]?.dataset?.name || '';
+    localStorage.setItem('taxglue_selected_client', clientId);
+    localStorage.setItem('taxglue_selected_client_name', clientName);
+    updateSelectedClientDisplay(clientId);
+  } else {
+    localStorage.removeItem('taxglue_selected_client');
+    localStorage.removeItem('taxglue_selected_client_name');
+    hideSelectedClientDisplay();
+  }
+  
+  // Notify other components
+  window.dispatchEvent(new CustomEvent('clientChanged', { 
+    detail: { clientId } 
+  }));
+}
+
+// Update the selected client display
+function updateSelectedClientDisplay(clientId) {
+  const infoDiv = document.getElementById('selectedClientInfo');
+  const nameSpan = document.getElementById('selectedClientName');
+  const select = document.getElementById('globalClientSelect');
+  
+  if (clientId && select) {
+    const selectedOption = select.options[select.selectedIndex];
+    const clientName = selectedOption?.dataset?.name || selectedOption?.textContent || '';
+    
+    if (infoDiv && nameSpan) {
+      nameSpan.textContent = 'Working on: ' + clientName;
+      infoDiv.style.display = 'block';
+    }
+  }
+}
+
+// Hide selected client display
+function hideSelectedClientDisplay() {
+  const infoDiv = document.getElementById('selectedClientInfo');
+  if (infoDiv) {
+    infoDiv.style.display = 'none';
+  }
+}
+
+// Get currently selected client ID
+function getSelectedClientId() {
+  return localStorage.getItem('taxglue_selected_client') || '';
+}
+
+// Get currently selected client name
+function getSelectedClientName() {
+  return localStorage.getItem('taxglue_selected_client_name') || '';
+}
+
+// Get selected financial year
+function getSelectedFY() {
+  return localStorage.getItem('taxglue_selected_fy') || '2024-25';
+}
+
+// Set selected financial year
+function setSelectedFY(fy) {
+  localStorage.setItem('taxglue_selected_fy', fy);
+}
+
+// Require client selection - returns true if client is selected
+function requireClientSelection() {
+  const clientId = getSelectedClientId();
+  if (!clientId) {
+    alert('Please select a client first using the dropdown in the sidebar.');
+    const select = document.getElementById('globalClientSelect');
+    if (select) select.focus();
+    return false;
+  }
+  return true;
+}
+
+// Make functions globally available
+window.handleGlobalClientChange = handleGlobalClientChange;
+window.getSelectedClientId = getSelectedClientId;
+window.getSelectedClientName = getSelectedClientName;
+window.getSelectedFY = getSelectedFY;
+window.setSelectedFY = setSelectedFY;
+window.requireClientSelection = requireClientSelection;
 
 // Auto logout after 2 minutes of inactivity
 let idleTime = 0;
