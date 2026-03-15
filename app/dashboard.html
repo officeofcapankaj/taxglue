@@ -1049,37 +1049,69 @@ async function initGlobalClientSelector() {
   if (!select) return;
   
   try {
-    // First add loading option
-    const loadingOpt = document.createElement('option');
-    loadingOpt.textContent = 'Loading...';
-    select.appendChild(loadingOpt);
+    // First try to load from localStorage (for demo mode)
+    const storedClients = localStorage.getItem('clients');
+    let clients = [];
     
-    // Fetch clients from Supabase
-    const { data: clients, error } = await supabase
-      .from('clients')
-      .select('id, name, constitution')
-      .order('name');
+    if (storedClients) {
+      try {
+        clients = JSON.parse(storedClients);
+      } catch (e) {
+        console.log('Error parsing stored clients:', e);
+      }
+    }
     
-    if (error) throw error;
+    // If no local clients, try Supabase
+    if (clients.length === 0) {
+      try {
+        // Load Supabase if not already loaded
+        if (typeof supabase === 'undefined') {
+          const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm");
+          window.supabase = createClient(
+            "https://jgjeuybgideeqcjxvlmn.supabase.co",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnSmV1eWJnaWRlZXFjanh2bG1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDY3OTc4NDMsImV4cCI6MjAyMjM3Mzg0M30.N2uZQjDBprDZr7SbkZ鄂B0aZVmqSvhM1-nMvYQJ7wU"
+          );
+        }
+        
+        // Fetch clients from Supabase
+        const { data: supabaseClients, error } = await supabase
+          .from('clients')
+          .select('id, name, constitution')
+          .order('name');
+        
+        if (!error && supabaseClients) {
+          clients = supabaseClients;
+        }
+      } catch (supabaseError) {
+        console.log('Supabase not available, using demo clients:', supabaseError.message);
+      }
+    }
     
-    // Clear loading option and add client options
+    // Populate selector with available clients
     select.innerHTML = '<option value="">-- Select Client --</option>';
     
     if (clients && clients.length > 0) {
       clients.forEach(client => {
         const opt = document.createElement('option');
         opt.value = client.id;
-        opt.textContent = `${client.name} (${client.constitution || 'N/A'})`;
-        opt.dataset.name = client.name;
+        opt.textContent = `${client.name || client.client_name || 'Unnamed'} (${client.constitution || 'N/A'})`;
+        opt.dataset.name = client.name || client.client_name || '';
         select.appendChild(opt);
       });
     } else {
-      // Add message if no clients
-      const noClientOpt = document.createElement('option');
-      noClientOpt.value = '';
-      noClientOpt.textContent = '-- No Clients Added --';
-      noClientOpt.disabled = true;
-      select.appendChild(noClientOpt);
+      // Add demo clients if none available
+      const demoClients = [
+        { id: 'demo-1', name: 'Acme Corporation', constitution: 'Company' },
+        { id: 'demo-2', name: 'John Doe', constitution: 'Individual' },
+        { id: 'demo-3', name: 'Tech Solutions LLP', constitution: 'LLP' }
+      ];
+      demoClients.forEach(client => {
+        const opt = document.createElement('option');
+        opt.value = client.id;
+        opt.textContent = `${client.name} (${client.constitution})`;
+        opt.dataset.name = client.name;
+        select.appendChild(opt);
+      });
     }
     
     // Restore previously selected client
@@ -1091,7 +1123,6 @@ async function initGlobalClientSelector() {
     
   } catch (e) {
     console.error('Error loading clients:', e);
-    select.innerHTML = '<option value="">-- Error Loading --</option>';
   }
 }
 
