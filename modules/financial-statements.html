@@ -209,46 +209,9 @@ const PL_STRUCTURE = {
   ]
 }
 
-async function loadClients() {
-  // Load demo clients immediately 
-  const select = document.getElementById('clientSelect')
-  select.innerHTML = ''
-  loadDemoClients()
-  
-  try {
-    const { data, error } = await supabase.from('clients').select('id, name, constitution')
-    
-    if (error) {
-      console.log('Supabase error, using demo clients:', error.message)
-      return
-    }
-    
-    if (data && data.length > 0) {
-      clients = data
-      // Clear and reload from Supabase
-      select.innerHTML = ''
-      
-      // Add default option
-      const defaultOpt = document.createElement('option')
-      defaultOpt.value = ""
-      defaultOpt.textContent = "-- Select Client --"
-      defaultOpt.selected = true
-      select.appendChild(defaultOpt)
-      
-      data.forEach(c => {
-        const opt = document.createElement('option')
-        opt.value = c.id
-        opt.textContent = c.name + ' (' + c.constitution + ')'
-        select.appendChild(opt)
-      })
-    }
-  } catch (e) {
-    console.log('Error loading clients:', e)
-  }
-}
-
-// Load demo clients
-function loadDemoClients() {
+// Load clients immediately
+(function() {
+  // Demo clients - always available
   const demoClients = [
     { id: 'demo-1', name: 'Singla Steel Corporation', constitution: 'Proprietorship' },
     { id: 'demo-2', name: 'Rana Industries', constitution: 'Partnership Firm' },
@@ -262,28 +225,53 @@ function loadDemoClients() {
     { id: 'demo-10', name: 'Chowdhury Consultants', constitution: 'LLP' }
   ]
   
-  clients = demoClients
+  // Populate dropdown immediately
   const select = document.getElementById('clientSelect')
+  if (select) {
+    // Add default option first
+    const defaultOpt = document.createElement('option')
+    defaultOpt.value = ""
+    defaultOpt.textContent = "-- Select Client --"
+    defaultOpt.selected = true
+    select.appendChild(defaultOpt)
+    
+    demoClients.forEach(c => {
+      const opt = document.createElement('option')
+      opt.value = c.id
+      opt.textContent = c.name + ' (' + c.constitution + ')'
+      select.appendChild(opt)
+    })
+  }
   
-  // Add default option
-  const defaultOpt = document.createElement('option')
-  defaultOpt.value = ""
-  defaultOpt.textContent = "-- Select Client --"
-  defaultOpt.selected = true
-  select.appendChild(defaultOpt)
-  
-  demoClients.forEach(c => {
-    const opt = document.createElement('option')
-    opt.value = c.id
-    opt.textContent = c.name + ' (' + c.constitution + ')'
-    select.appendChild(opt)
-  })
-  
-  // Show sample report
-  setTimeout(() => {
-    document.getElementById('reportContainer').innerHTML = renderBalanceSheet('Sample Company', '2024-25')
-  }, 500)
-}
+  // Try to load from Supabase in background (non-blocking)
+  if (typeof supabase !== 'undefined') {
+    setTimeout(async () => {
+      try {
+        const { data } = await supabase.from('clients').select('id, name, constitution')
+        if (data && data.length > 0) {
+          const sel = document.getElementById('clientSelect')
+          if (sel) {
+            sel.innerHTML = ''
+            const defaultOpt = document.createElement('option')
+            defaultOpt.value = ""
+            defaultOpt.textContent = "-- Select Client --"
+            defaultOpt.selected = true
+            sel.appendChild(defaultOpt)
+            
+            data.forEach(c => {
+              const opt = document.createElement('option')
+              opt.value = c.id
+              opt.textContent = c.name + ' (' + c.constitution + ')'
+              sel.appendChild(opt)
+            })
+          }
+        }
+      } catch (e) {
+        console.log('Supabase not available')
+      }
+    }, 500)
+  }
+})()
 
 function loadClientData() {
   const clientId = document.getElementById('clientSelect').value

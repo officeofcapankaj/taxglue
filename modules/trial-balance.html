@@ -625,8 +625,9 @@ async function loadTrialBalance() {
 }
 
 // Load clients on page load
-function loadClients() {
-  // Load demo clients immediately - no waiting for Supabase
+// This runs immediately when the script loads
+(function() {
+  // Demo clients - always available
   const demoClients = [
     { id: 'demo-1', name: 'Singla Steel Corporation' },
     { id: 'demo-2', name: 'Rana Industries' },
@@ -640,35 +641,40 @@ function loadClients() {
     { id: 'demo-10', name: 'Chowdhury Consultants' }
   ]
   
+  // Populate dropdown immediately
   const select = document.getElementById('clientSelect')
-  demoClients.forEach(c => {
-    const opt = document.createElement('option')
-    opt.value = c.id
-    opt.textContent = c.name
-    select.appendChild(opt)
-  })
+  if (select) {
+    demoClients.forEach(c => {
+      const opt = document.createElement('option')
+      opt.value = c.id
+      opt.textContent = c.name
+      select.appendChild(opt)
+    })
+  }
   
-  // Try to load from Supabase in background and replace if data exists
-  setTimeout(async () => {
-    try {
-      const { data } = await supabase.from('clients').select('id, name')
-      if (data && data.length > 0) {
-        select.innerHTML = '<option value="">-- Select Client --</option>'
-        data.forEach(c => {
-          const opt = document.createElement('option')
-          opt.value = c.id
-          opt.textContent = c.name
-          select.appendChild(opt)
-        })
+  // Try to load from Supabase in background (non-blocking)
+  if (typeof supabase !== 'undefined') {
+    setTimeout(async () => {
+      try {
+        const { data } = await supabase.from('clients').select('id, name')
+        if (data && data.length > 0) {
+          const sel = document.getElementById('clientSelect')
+          if (sel) {
+            sel.innerHTML = '<option value="">-- Select Client --</option>'
+            data.forEach(c => {
+              const opt = document.createElement('option')
+              opt.value = c.id
+              opt.textContent = c.name
+              sel.appendChild(opt)
+            })
+          }
+        }
+      } catch (e) {
+        console.log('Supabase not available')
       }
-    } catch (e) {
-      console.log('Supabase not available, using demo clients')
-    }
-  }, 100)
-}
-
-// Initialize
-loadClients()
+    }, 500)
+  }
+})()
 
 // Event listeners
 document.getElementById('addRow').addEventListener('click', addRow)
