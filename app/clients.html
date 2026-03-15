@@ -723,14 +723,16 @@ setInterval(() => {
   if (idleTime >= idleTimeout) logout();
 }, 1000);
 
-loadClientsFromSupabase()
+// Ensure clients are rendered after page load
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    if (typeof clients !== 'undefined' && clients.length > 0) {
+      renderClients()
+    }
+  }, 1000)
+})
 
-// Also ensure renderClients is called after initClients processes demo clients
-setTimeout(() => {
-  if (clients.length > 0) {
-    renderClients()
-  }
-}, 500)
+loadClientsFromSupabase()
 
 // Add event listener for logout button
 document.getElementById('logoutBtn').addEventListener('click', function() {
