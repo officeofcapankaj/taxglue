@@ -796,7 +796,7 @@ function renderClientsInternal() {
     return 
   }
   
-  const html = filteredClients.map(client => '<tr onclick="loadClient(\'' + client.id + '\')" style="cursor:pointer"><td><span class="badge">' + (client.constitution || '-') + '</span></td><td><strong>' + (client.name || '-') + '</strong></td><td>' + (client.registrations?.panNumber || '-') + '</td><td>' + (client.registrations?.gstin || '-') + '</td><td>' + (client.phone || '-') + '</td><td>' + (client.contactPersons ? client.contactPersons.length : 0) + '</td><td>' + (client.documents ? client.documents.length : 0) + ' files</td></tr>').join('')
+  const html = filteredClients.map(client => '<tr><td><span class="badge">' + (client.constitution || '-') + '</span></td><td><strong onclick="loadClient(\'' + client.id + '\')" style="cursor:pointer;color:#2563eb">' + (client.name || '-') + '</strong></td><td>' + (client.registrations?.panNumber || '-') + '</td><td>' + (client.registrations?.gstin || '-') + '</td><td>' + (client.phone || '-') + '</td><td>' + (client.contactPersons ? client.contactPersons.length : 0) + '</td><td>' + (client.documents ? client.documents.length : 0) + ' files</td></tr>').join('')
   tbody.innerHTML = html
 }
 
