@@ -535,18 +535,26 @@ let supabase = null
 
 // Wait for supabase library to be available
 function initSupabase() {
+  console.log('Checking for Supabase...', typeof supabase)
   if (typeof supabase !== 'undefined' && supabase && supabase.createClient) {
     window.supabase = supabase = supabase.createClient(supabaseUrl, supabaseKey)
-    console.log('Supabase initialized')
-    initApp() // Start app after supabase ready
+    console.log('✅ Supabase initialized successfully')
+    initApp()
   } else {
-    setTimeout(initSupabase, 50)
+    console.log('Retrying Supabase init...')
+    setTimeout(initSupabase, 100)
   }
 }
 
-// Initialize app after DOM ready
+// Initialize app
+function initApp() {
+  console.log('App initializing...')
+  loadClients()
+  setDefaultDates()
+  loadDemoClients()
+}
+
 document.addEventListener('DOMContentLoaded', initSupabase)
-initSupabase()
 
 let clients = []
 let vouchers = []
@@ -554,12 +562,7 @@ let accounts = []
 let currentClientId = ''
 let currentFY = ''
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-  loadClients()
-  setDefaultDates()
-})
-
+// Set default dates
 function setDefaultDates() {
   const today = new Date().toISOString().split('T')[0]
   document.getElementById('voucherDate').value = today
@@ -569,9 +572,8 @@ function setDefaultDates() {
   document.getElementById('daybookToDate').value = today
 }
 
-// Load clients when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-  // Demo clients - always available
+// Load demo clients
+function loadDemoClients() {
   const demoClients = [
     { id: 'demo-1', name: 'Singla Steel Corporation' },
     { id: 'demo-2', name: 'Rana Industries' },
@@ -585,7 +587,6 @@ document.addEventListener('DOMContentLoaded', function() {
     { id: 'demo-10', name: 'Chowdhury Consultants' }
   ]
   
-  // Populate dropdown
   const select = document.getElementById('clientSelect')
   if (select) {
     demoClients.forEach(c => {
@@ -597,10 +598,10 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Try to load from Supabase in background
-  if (typeof supabase !== 'undefined') {
+  if (window.supabase) {
     setTimeout(async () => {
       try {
-        const { data } = await supabase.from('clients').select('id, name')
+        const { data } = await window.supabase.from('clients').select('id, name')
         if (data && data.length > 0) {
           const sel = document.getElementById('clientSelect')
           if (sel) {
@@ -614,11 +615,11 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         }
       } catch (e) {
-        console.log('Supabase not available')
+        console.log('Using demo clients (Supabase not available)')
       }
-    }, 500)
+    }, 1000)
   }
-})
+}
 
 // Load client data
 async function loadClientData() {
