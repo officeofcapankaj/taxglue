@@ -50,7 +50,7 @@ th { background: #f8fafc; font-weight: 600; }
 .total-row { background: #f1f5f9; font-weight: 600; }
 .success-message { background: #dcfce7; color: #16a34a; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; display: none; }
 .success-message.show { display: block; }
-.voucher-form { display: none; }
+.voucher-form { display: block; }
 .voucher-form.active { display: block; }
 .voucher-row { display: grid; grid-template-columns: 2fr 2fr 1fr 1fr 40px; gap: 10px; margin-bottom: 10px; align-items: center; }
 .voucher-header { font-weight: 600; background: #f8fafc; padding: 10px; border-radius: 8px 8px 0 0; }
@@ -141,7 +141,7 @@ th { background: #f8fafc; font-weight: 600; }
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">Create New Voucher</h3>
-          <button class="btn btn-primary" onclick="alert('Hello! Button works!')">➕ New Voucher</button>
+          <button class="btn btn-primary" onclick="showVoucherForm()">➕ New Voucher</button>
         </div>
         
         <!-- Voucher Type Selection -->
@@ -1168,23 +1168,12 @@ function updateAccountDropdowns() {
 
 // ==================== VOUCHERS ====================
 function showVoucherForm() {
-  alert('Opening voucher form...')
   const form = document.getElementById('voucherForm')
   if (!form) {
-    alert('ERROR: voucherForm element not found!')
+    console.error('voucherForm element not found')
     return
   }
   form.style.display = 'block'
-  form.style.position = 'fixed'
-  form.style.top = '50%'
-  form.style.left = '50%'
-  form.style.transform = 'translate(-50%, -50%)'
-  form.style.zIndex = '9999'
-  form.style.background = 'white'
-  form.style.padding = '20px'
-  form.style.border = '2px solid red'
-  form.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)'
-  console.log('Form should now be visible')
   document.getElementById('voucherLines').innerHTML = ''
   addVoucherLine()
   addVoucherLine()
