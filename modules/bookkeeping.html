@@ -1168,14 +1168,22 @@ function updateAccountDropdowns() {
 
 // ==================== VOUCHERS ====================
 function showVoucherForm() {
-  console.log('showVoucherForm called')
+  alert('Opening voucher form...')
   const form = document.getElementById('voucherForm')
-  console.log('voucherForm element:', form)
   if (!form) {
     alert('ERROR: voucherForm element not found!')
     return
   }
   form.style.display = 'block'
+  form.style.position = 'fixed'
+  form.style.top = '50%'
+  form.style.left = '50%'
+  form.style.transform = 'translate(-50%, -50%)'
+  form.style.zIndex = '9999'
+  form.style.background = 'white'
+  form.style.padding = '20px'
+  form.style.border = '2px solid red'
+  form.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)'
   console.log('Form should now be visible')
   document.getElementById('voucherLines').innerHTML = ''
   addVoucherLine()
