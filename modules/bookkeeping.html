@@ -708,22 +708,39 @@ async function loadClientData() {
 
 // Switch tabs
 function switchTab(tab) {
+  console.log('switchTab called with:', tab)
   // Remove active class from all tabs
   document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'))
   
   // Add active class to the clicked tab
   const tabButton = document.getElementById(tab + 'Tab')
+  console.log('Found tab button:', tabButton)
   if (tabButton) tabButton.classList.add('active')
   
-  document.getElementById('mastersSection').style.display = tab === 'masters' ? 'block' : 'none'
-  document.getElementById('voucherSection').style.display = tab === 'voucher' ? 'block' : 'none'
-  document.getElementById('ledgerSection').style.display = tab === 'ledger' ? 'block' : 'none'
-  document.getElementById('daybookSection').style.display = tab === 'daybook' ? 'block' : 'none'
-  document.getElementById('cashbookSection').style.display = tab === 'cashbook' ? 'block' : 'none'
-  document.getElementById('accountsSection').style.display = tab === 'accounts' ? 'block' : 'none'
-  document.getElementById('stockSection').style.display = tab === 'stock' ? 'block' : 'none'
-  document.getElementById('trialbalanceSection').style.display = tab === 'trialbalance' ? 'block' : 'none'
-  document.getElementById('financialsSection').style.display = tab === 'financials' ? 'block' : 'none'
+  // Show/hide sections
+  const mastersSection = document.getElementById('mastersSection')
+  const voucherSection = document.getElementById('voucherSection')
+  const ledgerSection = document.getElementById('ledgerSection')
+  const daybookSection = document.getElementById('daybookSection')
+  const cashbookSection = document.getElementById('cashbookSection')
+  const accountsSection = document.getElementById('accountsSection')
+  const stockSection = document.getElementById('stockSection')
+  const trialbalanceSection = document.getElementById('trialbalanceSection')
+  const financialsSection = document.getElementById('financialsSection')
+  
+  console.log('Setting sections for tab:', tab)
+  mastersSection.style.display = tab === 'masters' ? 'block' : 'none'
+  voucherSection.style.display = tab === 'voucher' ? 'block' : 'none'
+  ledgerSection.style.display = tab === 'ledger' ? 'block' : 'none'
+  daybookSection.style.display = tab === 'daybook' ? 'block' : 'none'
+  cashbookSection.style.display = tab === 'cashbook' ? 'block' : 'none'
+  accountsSection.style.display = tab === 'accounts' ? 'block' : 'none'
+  stockSection.style.display = tab === 'stock' ? 'block' : 'none'
+  trialbalanceSection.style.display = tab === 'trialbalance' ? 'block' : 'none'
+  financialsSection.style.display = tab === 'financials' ? 'block' : 'none'
+  
+  console.log('mastersSection display:', mastersSection.style.display)
+  console.log('voucherSection display:', voucherSection.style.display)
   
   if (tab === 'masters') loadMastersData()
   if (tab === 'ledger') loadLedger()
