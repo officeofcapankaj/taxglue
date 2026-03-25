@@ -126,8 +126,8 @@ th { background: #f8fafc; font-weight: 600; }
     <div class="success-message" id="successMessage">Saved successfully!</div>
     
     <div class="tabs">
-      <button class="tab active" id="mastersTab" onclick="switchTab('masters')">📋 Masters</button>
-      <button class="tab" id="voucherTab" onclick="switchTab('voucher')">📝 Voucher Entry</button>
+      <button class="tab active" id="mastersTab" onclick="switchTab('masters'); console.log('Masters clicked')">📋 Masters</button>
+      <button class="tab" id="voucherTab" onclick="switchTab('voucher'); console.log('Voucher clicked')">📝 Voucher Entry</button>
       <button class="tab" id="ledgerTab" onclick="switchTab('ledger')">📒 Ledger</button>
       <button class="tab" id="daybookTab" onclick="switchTab('daybook')">📖 Day Book</button>
       <button class="tab" id="cashbookTab" onclick="switchTab('cashbook')">💰 Cash Book</button>
@@ -706,23 +706,35 @@ async function loadClientData() {
 
 // Switch tabs
 function switchTab(tab) {
+  console.log('switchTab called with:', tab)
+  
+  // Get all tab buttons
+  const allTabs = document.querySelectorAll('.tabs .tab')
+  console.log('Found tabs:', allTabs.length)
+  
   // Remove active class from all tabs
-  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'))
+  allTabs.forEach(t => {
+    t.classList.remove('active')
+  })
   
   // Add active class to the clicked tab
   const tabButton = document.getElementById(tab + 'Tab')
-  if (tabButton) tabButton.classList.add('active')
+  console.log('Found tab button:', tabButton)
+  if (tabButton) {
+    tabButton.classList.add('active')
+  } else {
+    console.error('Tab button not found:', tab + 'Tab')
+  }
   
-  // Show/hide sections
-  document.getElementById('mastersSection').style.display = tab === 'masters' ? 'block' : 'none'
-  document.getElementById('voucherSection').style.display = tab === 'voucher' ? 'block' : 'none'
-  document.getElementById('ledgerSection').style.display = tab === 'ledger' ? 'block' : 'none'
-  document.getElementById('daybookSection').style.display = tab === 'daybook' ? 'block' : 'none'
-  document.getElementById('cashbookSection').style.display = tab === 'cashbook' ? 'block' : 'none'
-  document.getElementById('accountsSection').style.display = tab === 'accounts' ? 'block' : 'none'
-  document.getElementById('stockSection').style.display = tab === 'stock' ? 'block' : 'none'
-  document.getElementById('trialbalanceSection').style.display = tab === 'trialbalance' ? 'block' : 'none'
-  document.getElementById('financialsSection').style.display = tab === 'financials' ? 'block' : 'none'
+  // Show/hide sections by directly setting style
+  const sections = ['masters', 'voucher', 'ledger', 'daybook', 'cashbook', 'accounts', 'stock', 'trialbalance', 'financials']
+  sections.forEach(section => {
+    const el = document.getElementById(section + 'Section')
+    if (el) {
+      el.style.display = (section === tab) ? 'block' : 'none'
+      console.log(section + 'Section display set to:', el.style.display)
+    }
+  })
   
   if (tab === 'masters') loadMastersData()
   if (tab === 'ledger') loadLedger()
