@@ -130,7 +130,10 @@ th { background: #f8fafc; font-weight: 600; }
       <button class="tab" onclick="switchTab('ledger')">📒 Ledger</button>
       <button class="tab" onclick="switchTab('daybook')">📖 Day Book</button>
       <button class="tab" onclick="switchTab('cashbook')">💰 Cash Book</button>
-      <button class="tab" onclick="switchTab('accounts')">🏢 Chart of Accounts</button>
+      <button class="tab" onclick="switchTab('accounts')">🏢 Accounts</button>
+      <button class="tab" onclick="switchTab('stock')">📦 Stock</button>
+      <button class="tab" onclick="switchTab('trialbalance')">📊 Trial Balance</button>
+      <button class="tab" onclick="switchTab('financials')">📈 Financials</button>
     </div>
     
     <!-- Voucher Entry Section -->
@@ -313,28 +316,170 @@ th { background: #f8fafc; font-weight: 600; }
     
     <!-- Chart of Accounts Section -->
     <div id="accountsSection" style="display: none;">
+      <!-- Groups & Ledgers -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Chart of Accounts</h3>
-          <button class="btn btn-primary" onclick="showAddAccountModal()">➕ Add Account</button>
+          <h3 class="card-title">📁 Groups & Ledgers</h3>
+          <button class="btn btn-primary" onclick="showAddGroupModal()">➕ Add Group</button>
         </div>
-        
+        <div id="groupsContainer" class="groups-tree">
+          <!-- Groups and ledgers will be loaded here -->
+        </div>
+      </div>
+
+      <!-- Stock Items -->
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h3 class="card-title">📦 Stock Items</h3>
+          <button class="btn btn-primary" onclick="showAddStockItemModal()">➕ Add Stock Item</button>
+        </div>
         <div class="table-container">
           <table>
             <thead>
               <tr>
-                <th>Account Code</th>
-                <th>Account Name</th>
-                <th>Nature</th>
-                <th>Type</th>
-                <th>Opening Balance</th>
+                <th>Item Code</th>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Unit</th>
+                <th>Opening Qty</th>
+                <th>Rate</th>
+                <th>Value</th>
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody id="accountsTable">
-              <!-- Accounts will be loaded here -->
+            <tbody id="stockItemsTable">
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Stock Section -->
+    <div id="stockSection" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📦 Stock Items</h3>
+          <button class="btn btn-primary" onclick="showAddStockItemModal()">➕ Add Stock Item</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Item Code</th>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Unit</th>
+                <th>Opening Qty</th>
+                <th>Rate</th>
+                <th>Value</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="stockItemsTable">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Stock Report -->
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h3 class="card-title">📊 Stock Report</h3>
+        </div>
+        <div id="stockReport" class="stock-report">
+          <p style="color: #64748b;">Stock summary will appear here based on transactions.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trial Balance Section -->
+    <div id="trialbalanceSection" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📊 Trial Balance</h3>
+          <button class="btn btn-outline" onclick="generateTrialBalance()">🔄 Refresh</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Account</th>
+                <th>Group</th>
+                <th style="text-align: right;">Debit (₹)</th>
+                <th style="text-align: right;">Credit (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="trialBalanceTable">
+            </tbody>
+            <tfoot id="trialBalanceTotals">
+              <tr>
+                <th colspan="2" style="text-align: right;">Total</th>
+                <th style="text-align: right;" id="tbDebitTotal">0.00</th>
+                <th style="text-align: right;" id="tbCreditTotal">0.00</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial Statements Section -->
+    <div id="financialsSection" style="display: none;">
+      <!-- Profit & Loss Account -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📈 Profit & Loss Account</h3>
+        </div>
+        <div id="profitLossReport">
+          <table style="width: 100%;">
+            <thead>
+              <tr>
+                <th style="width: 60%;">Particulars</th>
+                <th style="text-align: right;">Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="plTable">
+            </tbody>
+            <tfoot id="plTotals">
+              <tr>
+                <th>Net Profit</th>
+                <th style="text-align: right;" id="plNetProfit">0.00</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      <!-- Balance Sheet -->
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h3 class="card-title">⚖️ Balance Sheet</h3>
+        </div>
+        <div id="balanceSheet">
+          <div class="bs-section">
+            <h4>Liabilities</h4>
+            <table style="width: 100%;">
+              <tbody id="bsLiabilities">
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Total Liabilities</th>
+                  <th style="text-align: right;" id="bsLiabilitiesTotal">0.00</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div class="bs-section" style="margin-top: 20px;">
+            <h4>Assets</h4>
+            <table style="width: 100%;">
+              <tbody id="bsAssets">
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Total Assets</th>
+                  <th style="text-align: right;" id="bsAssetsTotal">0.00</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -500,10 +645,17 @@ function switchTab(tab) {
   document.getElementById('daybookSection').style.display = tab === 'daybook' ? 'block' : 'none'
   document.getElementById('cashbookSection').style.display = tab === 'cashbook' ? 'block' : 'none'
   document.getElementById('accountsSection').style.display = tab === 'accounts' ? 'block' : 'none'
+  document.getElementById('stockSection').style.display = tab === 'stock' ? 'block' : 'none'
+  document.getElementById('trialbalanceSection').style.display = tab === 'trialbalance' ? 'block' : 'none'
+  document.getElementById('financialsSection').style.display = tab === 'financials' ? 'block' : 'none'
   
   if (tab === 'ledger') loadLedger()
   if (tab === 'daybook') loadDayBook()
   if (tab === 'cashbook') loadCashBook()
+  if (tab === 'accounts') loadGroupsAndLedgers()
+  if (tab === 'stock') loadStockItems()
+  if (tab === 'trialbalance') generateTrialBalance()
+  if (tab === 'financials') generateFinancialStatements()
 }
 
 // ==================== ACCOUNTS ====================
@@ -628,6 +780,366 @@ async function deleteAccount(id) {
   
   await supabase.from('accounts').delete().eq('id', id)
   loadAccounts()
+}
+
+// ==================== GROUPS & LEDGERS ====================
+async function loadGroupsAndLedgers() {
+  try {
+    const { data: groups } = await supabase.from('account_groups')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+      .order('name')
+    
+    const { data: ledgers } = await supabase.from('accounts')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+      .order('name')
+    
+    renderGroupsTree(groups || [], ledgers || [])
+  } catch (e) {
+    console.error('Error loading groups:', e)
+  }
+}
+
+function renderGroupsTree(groups, ledgers) {
+  const container = document.getElementById('groupsContainer')
+  if (!container) return
+  
+  const ledgersByGroup = {}
+  ledgers.forEach(l => {
+    const gid = l.group_id || 'ungrouped'
+    if (!ledgersByGroup[gid]) ledgersByGroup[gid] = []
+    ledgersByGroup[gid].push(l)
+  })
+  
+  const defaultGroups = [
+    { id: 'sundry_debtors', name: 'Sundry Debtors', nature: 'Assets' },
+    { id: 'sundry_creditors', name: 'Sundry Creditors', nature: 'Liabilities' },
+    { id: 'cash', name: 'Cash', nature: 'Assets' },
+    { id: 'bank', name: 'Bank', nature: 'Assets' },
+    { id: 'sales', name: 'Sales', nature: 'Income' },
+    { id: 'purchases', name: 'Purchases', nature: 'Expense' }
+  ]
+  
+  const allGroups = groups.length ? groups : defaultGroups
+  
+  container.innerHTML = allGroups.map(g => `
+    <div class="group-item">
+      <div class="group-header" onclick="toggleGroup('${g.id}')">
+        <span class="group-toggle">▶</span>
+        <strong>📁 ${g.name}</strong>
+        <span class="group-nature">${g.nature || ''}</span>
+      </div>
+      <div class="group-ledgers" id="group-${g.id}" style="display: none;">
+        ${(ledgersByGroup[g.id] || []).map(l => `
+          <div class="ledger-row">
+            <span>📓 ${l.name}</span>
+            <span class="amount">${formatCurrency(l.opening_balance || 0)}</span>
+          </div>
+        `).join('')}
+        <button class="btn btn-outline" style="margin: 8px 0; font-size: 12px;" onclick="showAddLedgerModal('${g.id}')">+ Add Ledger</button>
+      </div>
+    </div>
+  `).join('')
+}
+
+function toggleGroup(groupId) {
+  const el = document.getElementById(`group-${groupId}`)
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none'
+}
+
+function showAddGroupModal() {
+  document.getElementById('addGroupModal').classList.add('active')
+}
+
+function showAddLedgerModal(groupId) {
+  document.getElementById('ledgerGroupId').value = groupId
+  document.getElementById('addLedgerModal').classList.add('active')
+}
+
+async function saveGroup() {
+  const name = document.getElementById('newGroupName').value
+  const nature = document.getElementById('newGroupNature').value
+  
+  if (!name) { alert('Please enter group name'); return }
+  
+  try {
+    await supabase.from('account_groups').insert({
+      client_id: currentClientId,
+      fy: currentFY,
+      name: name,
+      nature: nature
+    })
+    document.getElementById('addGroupModal').classList.remove('active')
+    loadGroupsAndLedgers()
+    showSuccess('Group created!')
+  } catch (e) {
+    console.error('Error:', e)
+    alert('Error creating group')
+  }
+}
+
+async function saveLedger() {
+  const name = document.getElementById('newLedgerName').value
+  const groupId = document.getElementById('ledgerGroupId').value
+  const openingBalance = parseFloat(document.getElementById('ledgerOpeningBalance')?.value) || 0
+  
+  if (!name) { alert('Please enter ledger name'); return }
+  
+  try {
+    await supabase.from('accounts').insert({
+      client_id: currentClientId,
+      fy: currentFY,
+      name: name,
+      group_id: groupId,
+      opening_balance: openingBalance
+    })
+    document.getElementById('addLedgerModal').classList.remove('active')
+    loadGroupsAndLedgers()
+    showSuccess('Ledger created!')
+  } catch (e) {
+    console.error('Error:', e)
+    alert('Error creating ledger')
+  }
+}
+
+// ==================== STOCK ITEMS ====================
+async function loadStockItems() {
+  try {
+    const { data } = await supabase.from('stock_items')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+      .order('name')
+    
+    renderStockItems(data || [])
+  } catch (e) {
+    console.error('Error loading stock:', e)
+  }
+}
+
+function renderStockItems(items) {
+  const tbody = document.getElementById('stockItemsTable')
+  if (!tbody) return
+  
+  tbody.innerHTML = items.map(item => `
+    <tr>
+      <td>${item.code || ''}</td>
+      <td>${item.name}</td>
+      <td>${item.category || ''}</td>
+      <td>${item.unit || ''}</td>
+      <td>${item.opening_qty || 0}</td>
+      <td class="amount">${formatCurrency(item.rate || 0)}</td>
+      <td class="amount">${formatCurrency((item.opening_qty || 0) * (item.rate || 0))}</td>
+      <td>
+        <button class="btn btn-outline" style="padding: 4px 8px; font-size: 11px;" onclick="deleteStockItem('${item.id}')">Delete</button>
+      </td>
+    </tr>
+  `).join('')
+}
+
+function showAddStockItemModal() {
+  document.getElementById('addStockItemModal').classList.add('active')
+}
+
+async function saveStockItem() {
+  const name = document.getElementById('stockItemName').value
+  const code = document.getElementById('stockItemCode').value
+  const category = document.getElementById('stockItemCategory').value
+  const unit = document.getElementById('stockItemUnit').value
+  const qty = parseFloat(document.getElementById('stockItemQty').value) || 0
+  const rate = parseFloat(document.getElementById('stockItemRate').value) || 0
+  
+  if (!name) { alert('Please enter item name'); return }
+  
+  try {
+    await supabase.from('stock_items').insert({
+      client_id: currentClientId,
+      fy: currentFY,
+      name: name,
+      code: code,
+      category: category,
+      unit: unit,
+      opening_qty: qty,
+      rate: rate
+    })
+    document.getElementById('addStockItemModal').classList.remove('active')
+    loadStockItems()
+    showSuccess('Stock item added!')
+  } catch (e) {
+    console.error('Error:', e)
+    alert('Error adding stock item')
+  }
+}
+
+async function deleteStockItem(id) {
+  if (!confirm('Delete this stock item?')) return
+  try {
+    await supabase.from('stock_items').delete().eq('id', id)
+    loadStockItems()
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+// ==================== TRIAL BALANCE ====================
+async function generateTrialBalance() {
+  try {
+    const { data: accounts } = await supabase.from('accounts')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+    
+    const { data: vouchers } = await supabase.from('vouchers')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+    
+    const accountBalances = {}
+    accounts.forEach(a => {
+      accountBalances[a.id] = {
+        name: a.name,
+        nature: a.nature,
+        group: a.group_id || 'Primary',
+        debit: 0,
+        credit: a.opening_balance || 0
+      }
+    })
+    
+    vouchers.forEach(v => {
+      if (v.debit_account_id && accountBalances[v.debit_account_id]) {
+        accountBalances[v.debit_account_id].debit += v.debit_amount || 0
+      }
+      if (v.credit_account_id && accountBalances[v.credit_account_id]) {
+        accountBalances[v.credit_account_id].credit += v.credit_amount || 0
+      }
+    })
+    
+    let totalDebit = 0, totalCredit = 0
+    const rows = Object.values(accountBalances).map(ab => {
+      let debit = ab.debit, credit = ab.credit
+      
+      if (ab.nature === 'Expense' || ab.nature === 'Assets') {
+        const balance = debit - credit
+        if (balance > 0) {
+          totalDebit += balance
+          return { ...ab, netDebit: balance, netCredit: 0 }
+        } else {
+          totalCredit += Math.abs(balance)
+          return { ...ab, netDebit: 0, netCredit: Math.abs(balance) }
+        }
+      } else {
+        const balance = credit - debit
+        if (balance > 0) {
+          totalCredit += balance
+          return { ...ab, netDebit: 0, netCredit: balance }
+        } else {
+          totalDebit += Math.abs(balance)
+          return { ...ab, netDebit: Math.abs(balance), netCredit: 0 }
+        }
+      }
+    })
+    
+    const tbody = document.getElementById('trialBalanceTable')
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td>${r.name}</td>
+        <td>${r.group}</td>
+        <td style="text-align: right;">${r.netDebit ? formatCurrency(r.netDebit) : '-'}</td>
+        <td style="text-align: right;">${r.netCredit ? formatCurrency(r.netCredit) : '-'}</td>
+      </tr>
+    `).join('')
+    
+    document.getElementById('tbDebitTotal').textContent = formatCurrency(totalDebit)
+    document.getElementById('tbCreditTotal').textContent = formatCurrency(totalCredit)
+  } catch (e) {
+    console.error('Error generating TB:', e)
+  }
+}
+
+// ==================== FINANCIAL STATEMENTS ====================
+async function generateFinancialStatements() {
+  try {
+    const { data: accounts } = await supabase.from('accounts')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+    
+    const { data: vouchers } = await supabase.from('vouchers')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+    
+    const balances = {}
+    accounts.forEach(a => balances[a.id] = { name: a.name, nature: a.nature, debit: 0, credit: a.opening_balance || 0 })
+    
+    vouchers.forEach(v => {
+      if (v.debit_account_id && balances[v.debit_account_id]) balances[v.debit_account_id].debit += v.debit_amount || 0
+      if (v.credit_account_id && balances[v.credit_account_id]) balances[v.credit_account_id].credit += v.credit_amount || 0
+    })
+    
+    let totalIncome = 0, totalExpense = 0
+    const plRows = []
+    
+    Object.values(balances).forEach(b => {
+      const net = b.credit - b.debit
+      if (b.nature === 'Income') {
+        totalIncome += net > 0 ? net : 0
+        if (net > 0) plRows.push({ name: b.name, amount: net, type: 'income' })
+      } else if (b.nature === 'Expense') {
+        const exp = b.debit - b.credit
+        totalExpense += exp > 0 ? exp : 0
+        if (exp > 0) plRows.push({ name: b.name, amount: exp, type: 'expense' })
+      }
+    })
+    
+    const netProfit = totalIncome - totalExpense
+    
+    document.getElementById('plTable').innerHTML = plRows.map(r => `
+      <tr><td>${r.name}</td><td style="text-align: right;">${formatCurrency(r.amount)}</td></tr>
+    `).join('')
+    document.getElementById('plNetProfit').textContent = formatCurrency(netProfit)
+    
+    let totalAssets = 0, totalLiabilities = 0
+    const bsLiabilities = []
+    const bsAssets = []
+    
+    Object.values(balances).forEach(b => {
+      if (b.nature === 'Liabilities' || b.nature === 'Capital') {
+        const amt = b.credit - b.debit
+        if (amt > 0) {
+          totalLiabilities += amt
+          bsLiabilities.push({ name: b.name, amount: amt })
+        }
+      } else if (b.nature === 'Assets') {
+        const amt = b.debit - b.credit
+        if (amt > 0) {
+          totalAssets += amt
+          bsAssets.push({ name: b.name, amount: amt })
+        }
+      }
+    })
+    
+    if (netProfit > 0) {
+      totalLiabilities += netProfit
+      bsLiabilities.push({ name: 'Profit & Loss A/c', amount: netProfit })
+    }
+    
+    document.getElementById('bsLiabilities').innerHTML = bsLiabilities.map(b => `
+      <tr><td>${b.name}</td><td style="text-align: right;">${formatCurrency(b.amount)}</td></tr>
+    `).join('') || '<tr><td>No data</td><td>0.00</td></tr>'
+    document.getElementById('bsLiabilitiesTotal').textContent = formatCurrency(totalLiabilities)
+    
+    document.getElementById('bsAssets').innerHTML = bsAssets.map(b => `
+      <tr><td>${b.name}</td><td style="text-align: right;">${formatCurrency(b.amount)}</td></tr>
+    `).join('') || '<tr><td>No data</td><td>0.00</td></tr>'
+    document.getElementById('bsAssetsTotal').textContent = formatCurrency(totalAssets)
+    
+  } catch (e) {
+    console.error('Error generating financials:', e)
+  }
 }
 
 function updateAccountDropdowns() {
@@ -1012,6 +1524,140 @@ function showSuccess(message) {
   msg.classList.add('show')
   setTimeout(() => msg.classList.remove('show'), 3000)
 }
+
+// Add Group Modal
+function hideAddGroupModal() {
+  document.getElementById('addGroupModal').classList.remove('active')
+}
+
+// Add Ledger Modal
+function hideAddLedgerModal() {
+  document.getElementById('addLedgerModal').classList.remove('active')
+}
+
+// Add Stock Item Modal
+function hideAddStockItemModal() {
+  document.getElementById('addStockItemModal').classList.remove('active')
+}
 </script>
+
+<!-- Add Group Modal -->
+<div id="addGroupModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Add New Group</h3>
+      <button class="modal-close" onclick="hideAddGroupModal()">&times;</button>
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Group Name</label>
+      <input type="text" class="form-input" id="newGroupName" placeholder="Enter group name">
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Nature</label>
+      <select class="form-select" id="newGroupNature">
+        <option value="Assets">Assets</option>
+        <option value="Liabilities">Liabilities</option>
+        <option value="Income">Income</option>
+        <option value="Expense">Expense</option>
+      </select>
+    </div>
+    <div style="display: flex; gap: 12px;">
+      <button class="btn btn-outline" onclick="hideAddGroupModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGroup()">Save Group</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Ledger Modal -->
+<div id="addLedgerModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Add New Ledger</h3>
+      <button class="modal-close" onclick="hideAddLedgerModal()">&times;</button>
+    </div>
+    <input type="hidden" id="ledgerGroupId">
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Ledger Name</label>
+      <input type="text" class="form-input" id="newLedgerName" placeholder="Enter ledger name">
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Opening Balance</label>
+      <input type="number" class="form-input" id="ledgerOpeningBalance" value="0" step="0.01">
+    </div>
+    <div style="display: flex; gap: 12px;">
+      <button class="btn btn-outline" onclick="hideAddLedgerModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLedger()">Save Ledger</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Stock Item Modal -->
+<div id="addStockItemModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Add Stock Item</h3>
+      <button class="modal-close" onclick="hideAddStockItemModal()">&times;</button>
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Item Name</label>
+      <input type="text" class="form-input" id="stockItemName" placeholder="Enter item name">
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Item Code</label>
+      <input type="text" class="form-input" id="stockItemCode" placeholder="Enter item code">
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Category</label>
+      <select class="form-select" id="stockItemCategory">
+        <option value="Raw Material">Raw Material</option>
+        <option value="Finished Goods">Finished Goods</option>
+        <option value="Trading Goods">Trading Goods</option>
+        <option value="Packing Material">Packing Material</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Unit</label>
+      <select class="form-select" id="stockItemUnit">
+        <option value="PCS">PCS</option>
+        <option value="KG">KG</option>
+        <option value="LTR">LTR</option>
+        <option value="MTR">MTR</option>
+        <option value="BOX">BOX</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Opening Qty</label>
+      <input type="number" class="form-input" id="stockItemQty" value="0" step="0.01">
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Rate (₹)</label>
+      <input type="number" class="form-input" id="stockItemRate" value="0" step="0.01">
+    </div>
+    <div style="display: flex; gap: 12px;">
+      <button class="btn btn-outline" onclick="hideAddStockItemModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveStockItem()">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.groups-tree { margin-top: 10px; }
+.group-item { margin-bottom: 8px; }
+.group-header { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  padding: 10px; 
+  background: #f1f5f9; 
+  border-radius: 6px; 
+  cursor: pointer;
+}
+.group-toggle { font-size: 10px; }
+.group-nature { font-size: 12px; color: #64748b; margin-left: auto; }
+.group-ledgers { margin-left: 24px; padding: 8px; border-left: 2px solid #e2e8f0; }
+.ledger-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
+.stock-report { padding: 16px; background: #f8fafc; border-radius: 8px; margin-top: 16px; }
+.bs-section h4 { color: #1e293b; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+</style>
 </body>
 </html>
