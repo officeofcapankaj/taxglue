@@ -130,7 +130,7 @@ th { background: #f8fafc; font-weight: 600; }
     
     <div class="tabs">
       <button class="tab active" id="mastersTab" onclick="document.getElementById('mastersSection').style.display='block'; document.getElementById('voucherSection').style.display='none'; this.classList.add('active'); document.getElementById('voucherTab').classList.remove('active');">📋 Masters</button>
-      <button class="tab" id="voucherTab" onclick="var s=document.getElementById('voucherSection'); s.style.display='block'; s.style.setProperty('display','block','important'); document.getElementById('mastersSection').style.display='none'; this.classList.add('active'); document.getElementById('mastersTab').classList.remove('active');">📝 Voucher Entry</button>
+      <button class="tab" id="voucherTab" onclick="alert('Voucher clicked!'); var s=document.getElementById('voucherSection'); s.style.display='block'; s.style.setProperty('display','block','important'); document.getElementById('mastersSection').style.display='none'; this.classList.add('active'); document.getElementById('mastersTab').classList.remove('active');">📝 Voucher Entry</button>
       <button class="tab" id="ledgerTab" onclick="switchTab('ledger')">📒 Ledger</button>
       <button class="tab" id="daybookTab" onclick="switchTab('daybook')">📖 Day Book</button>
       <button class="tab" id="cashbookTab" onclick="switchTab('cashbook')">💰 Cash Book</button>
