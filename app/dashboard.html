@@ -1018,6 +1018,9 @@ async function checkUser() {
         document.getElementById("userEmail").innerText = email
         document.getElementById("userName").innerText = name
         document.getElementById("userAvatar").innerText = name.charAt(0).toUpperCase()
+        
+        // Initialize global client selector in demo mode too
+        initGlobalClientSelector()
         return // Allow access in demo mode
       }
     } catch (e) {
@@ -1109,11 +1112,18 @@ async function initGlobalClientSelector() {
         select.appendChild(opt);
       });
     } else {
-      // Add demo clients if none available
+      // Fallback to full demo clients if none available from localStorage or Supabase
       const demoClients = [
-        { id: 'demo-1', name: 'Acme Corporation', constitution: 'Company' },
-        { id: 'demo-2', name: 'John Doe', constitution: 'Individual' },
-        { id: 'demo-3', name: 'Tech Solutions LLP', constitution: 'LLP' }
+        { id: 'demo-1', name: 'Singla Steel Corporation', constitution: 'Proprietorship' },
+        { id: 'demo-2', name: 'Rana Industries', constitution: 'Partnership Firm' },
+        { id: 'demo-3', name: 'Sharma Traders', constitution: 'Sole Proprietorship' },
+        { id: 'demo-4', name: 'Gupta Construction', constitution: 'Private Limited Company' },
+        { id: 'demo-5', name: 'Aggarwal Textiles', constitution: 'LLP' },
+        { id: 'demo-6', name: 'Jain Logistics', constitution: 'Proprietorship' },
+        { id: 'demo-7', name: 'Patel Electronics', constitution: 'Private Limited Company' },
+        { id: 'demo-8', name: 'Reddy & Co', constitution: 'Partnership Firm' },
+        { id: 'demo-9', name: 'Kumar Medical Stores', constitution: 'Sole Proprietorship' },
+        { id: 'demo-10', name: 'Chowdhury Consultants', constitution: 'LLP' }
       ];
       demoClients.forEach(client => {
         const opt = document.createElement('option');
@@ -1122,6 +1132,8 @@ async function initGlobalClientSelector() {
         opt.dataset.name = client.name;
         select.appendChild(opt);
       });
+      // Also save to localStorage for future use
+      localStorage.setItem('clients', JSON.stringify(demoClients));
     }
     
     // Restore previously selected client
