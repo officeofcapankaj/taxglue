@@ -1153,8 +1153,17 @@ async function initGlobalClientSelector() {
     const savedClientId = localStorage.getItem('taxglue_selected_client');
     if (savedClientId) {
       select.value = savedClientId;
-      updateSelectedClientDisplay(savedClientId);
+      // Show saved client info
+      const savedClientName = localStorage.getItem('taxglue_selected_client_name');
+      const infoDiv = document.getElementById('selectedClientInfo');
+      const nameSpan = document.getElementById('selectedClientName');
+      if (infoDiv && nameSpan && savedClientName) {
+        nameSpan.textContent = savedClientName;
+        infoDiv.style.display = 'block';
+      }
     }
+    
+    console.log('Client selector initialized, saved client:', savedClientId);
     
   } catch (e) {
     console.error('Error loading clients:', e);
@@ -1164,21 +1173,22 @@ async function initGlobalClientSelector() {
 // Handle global client selection change
 function handleGlobalClientChange(selectElement) {
   const clientId = selectElement.value;
+  const clientName = selectElement.options[selectElement.selectedIndex]?.text || '';
+  
+  console.log('Client change handler triggered:', clientId, clientName);
   
   if (clientId) {
-    const clientName = selectElement.options[selectElement.selectedIndex]?.text || '';
     localStorage.setItem('taxglue_selected_client', clientId);
     localStorage.setItem('taxglue_selected_client_name', clientName);
     
-    // Visual feedback - show selected client
+    // Show visual feedback
     const infoDiv = document.getElementById('selectedClientInfo');
     const nameSpan = document.getElementById('selectedClientName');
     if (infoDiv && nameSpan) {
       nameSpan.textContent = clientName;
       infoDiv.style.display = 'block';
+      console.log('Showing client:', clientName);
     }
-    
-    console.log('Client selected:', clientId, clientName);
   } else {
     localStorage.removeItem('taxglue_selected_client');
     localStorage.removeItem('taxglue_selected_client_name');
@@ -1188,8 +1198,29 @@ function handleGlobalClientChange(selectElement) {
   
   // Notify other components
   window.dispatchEvent(new CustomEvent('clientChanged', { 
-    detail: { clientId } 
+    detail: { clientId, clientName } 
   }));
+}
+
+// Restore selected client on page load
+function restoreSelectedClient() {
+  const select = document.getElementById('globalClientSelect');
+  const savedClientId = localStorage.getItem('taxglue_selected_client');
+  const savedClientName = localStorage.getItem('taxglue_selected_client_name');
+  
+  console.log('Restoring client:', savedClientId, savedClientName);
+  
+  if (savedClientId && select) {
+    select.value = savedClientId;
+    
+    // Show the saved client
+    const infoDiv = document.getElementById('selectedClientInfo');
+    const nameSpan = document.getElementById('selectedClientName');
+    if (infoDiv && nameSpan && savedClientName) {
+      nameSpan.textContent = savedClientName;
+      infoDiv.style.display = 'block';
+    }
+  }
 }
 
 // Update the selected client display
