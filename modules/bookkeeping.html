@@ -491,8 +491,9 @@ async function loadClientData() {
 
 // Switch tabs
 function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
-  document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active')
+  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'))
+  const tabButton = document.querySelector(`.tabs .tab[onclick="switchTab('${tab}')"]`)
+  if (tabButton) tabButton.classList.add('active')
   
   document.getElementById('voucherSection').style.display = tab === 'voucher' ? 'block' : 'none'
   document.getElementById('ledgerSection').style.display = tab === 'ledger' ? 'block' : 'none'
