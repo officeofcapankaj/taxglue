@@ -7,6 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <style>
+/* Tab sections - hidden by default */
+#mastersSection, #voucherSection, #ledgerSection, #daybookSection, #cashbookSection, #accountsSection, #stockSection, #trialbalanceSection, #financialsSection { display: none; }
+#mastersSection.active, #voucherSection.active, #ledgerSection.active, #daybookSection.active, #cashbookSection.active, #accountsSection.active, #stockSection.active, #trialbalanceSection.active, #financialsSection.active { display: block; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
 .container { display: flex; min-height: 100vh; }
@@ -138,7 +141,7 @@ th { background: #f8fafc; font-weight: 600; }
     </div>
     
     <!-- Masters Section -->
-    <div id="mastersSection" style="display: block;">
+    <div id="mastersSection" class="active">
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">📋 Masters</h3>
@@ -206,7 +209,7 @@ th { background: #f8fafc; font-weight: 600; }
     </div>
     
     <!-- Voucher Entry Section -->
-    <div id="voucherSection" style="display: none;">
+    <div id="voucherSection">
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">Create New Voucher</h3>
@@ -295,7 +298,7 @@ th { background: #f8fafc; font-weight: 600; }
     </div>
     
     <!-- Ledger Section -->
-    <div id="ledgerSection" style="display: none;">
+    <div id="ledgerSection">
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">Ledger Report</h3>
@@ -315,7 +318,7 @@ th { background: #f8fafc; font-weight: 600; }
     </div>
     
     <!-- Day Book Section -->
-    <div id="daybookSection" style="display: none;">
+    <div id="daybookSection">
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">Day Book - All Transactions</h3>
@@ -347,7 +350,7 @@ th { background: #f8fafc; font-weight: 600; }
     </div>
     
     <!-- Cash Book Section -->
-    <div id="cashbookSection" style="display: none;">
+    <div id="cashbookSection">
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">Cash Book</h3>
@@ -384,7 +387,7 @@ th { background: #f8fafc; font-weight: 600; }
     </div>
     
     <!-- Chart of Accounts Section -->
-    <div id="accountsSection" style="display: none;">
+    <div id="accountsSection">
       <!-- Groups & Ledgers -->
       <div class="card">
         <div class="card-header">
@@ -424,7 +427,7 @@ th { background: #f8fafc; font-weight: 600; }
     </div>
     
     <!-- Stock Section -->
-    <div id="stockSection" style="display: none;">
+    <div id="stockSection">
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">📦 Stock Items</h3>
@@ -461,7 +464,7 @@ th { background: #f8fafc; font-weight: 600; }
     </div>
 
     <!-- Trial Balance Section -->
-    <div id="trialbalanceSection" style="display: none;">
+    <div id="trialbalanceSection">
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">📊 Trial Balance</h3>
@@ -492,7 +495,7 @@ th { background: #f8fafc; font-weight: 600; }
     </div>
 
     <!-- Financial Statements Section -->
-    <div id="financialsSection" style="display: none;">
+    <div id="financialsSection">
       <!-- Profit & Loss Account -->
       <div class="card">
         <div class="card-header">
@@ -726,13 +729,16 @@ function switchTab(tab) {
     console.error('Tab button not found:', tab + 'Tab')
   }
   
-  // Show/hide sections by directly setting style
+  // Show/hide sections using CSS class
   const sections = ['masters', 'voucher', 'ledger', 'daybook', 'cashbook', 'accounts', 'stock', 'trialbalance', 'financials']
   sections.forEach(section => {
     const el = document.getElementById(section + 'Section')
     if (el) {
-      el.style.display = (section === tab) ? 'block' : 'none'
-      console.log(section + 'Section display set to:', el.style.display)
+      if (section === tab) {
+        el.classList.add('active')
+      } else {
+        el.classList.remove('active')
+      }
     }
   })
   
@@ -1111,7 +1117,7 @@ function renderGroupsTree(groups, ledgers) {
         <strong>📁 ${g.name}</strong>
         <span class="group-nature">${g.nature || ''}</span>
       </div>
-      <div class="group-ledgers" id="group-${g.id}" style="display: none;">
+      <div class="group-ledgers" id="group-${g.id}">
         ${(ledgersByGroup[g.id] || []).map(l => `
           <div class="ledger-row">
             <span>📓 ${l.name}</span>
