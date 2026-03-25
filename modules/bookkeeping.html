@@ -126,15 +126,15 @@ th { background: #f8fafc; font-weight: 600; }
     <div class="success-message" id="successMessage">Saved successfully!</div>
     
     <div class="tabs">
-      <button class="tab" onclick="switchTab('masters')">📋 Masters</button>
-      <button class="tab active" onclick="switchTab('voucher')">📝 Voucher Entry</button>
-      <button class="tab" onclick="switchTab('ledger')">📒 Ledger</button>
-      <button class="tab" onclick="switchTab('daybook')">📖 Day Book</button>
-      <button class="tab" onclick="switchTab('cashbook')">💰 Cash Book</button>
-      <button class="tab" onclick="switchTab('accounts')">🏢 Accounts</button>
-      <button class="tab" onclick="switchTab('stock')">📦 Stock</button>
-      <button class="tab" onclick="switchTab('trialbalance')">📊 Trial Balance</button>
-      <button class="tab" onclick="switchTab('financials')">📈 Financials</button>
+      <button class="tab active" id="mastersTab" onclick="switchTab('masters')">📋 Masters</button>
+      <button class="tab" id="voucherTab" onclick="switchTab('voucher')">📝 Voucher Entry</button>
+      <button class="tab" id="ledgerTab" onclick="switchTab('ledger')">📒 Ledger</button>
+      <button class="tab" id="daybookTab" onclick="switchTab('daybook')">📖 Day Book</button>
+      <button class="tab" id="cashbookTab" onclick="switchTab('cashbook')">💰 Cash Book</button>
+      <button class="tab" id="accountsTab" onclick="switchTab('accounts')">🏢 Accounts</button>
+      <button class="tab" id="stockTab" onclick="switchTab('stock')">📦 Stock</button>
+      <button class="tab" id="trialbalanceTab" onclick="switchTab('trialbalance')">📊 Trial Balance</button>
+      <button class="tab" id="financialsTab" onclick="switchTab('financials')">📈 Financials</button>
     </div>
     
     <!-- Masters Section -->
@@ -621,6 +621,8 @@ function initApp() {
   loadClients()
   setDefaultDates()
   loadDemoClients()
+  // Show Masters section by default
+  setTimeout(() => switchTab('masters'), 200)
 }
 
 document.addEventListener('DOMContentLoaded', initSupabase)
@@ -706,8 +708,11 @@ async function loadClientData() {
 
 // Switch tabs
 function switchTab(tab) {
+  // Remove active class from all tabs
   document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'))
-  const tabButton = document.querySelector(`.tabs .tab[onclick="switchTab('${tab}')"]`)
+  
+  // Add active class to the clicked tab
+  const tabButton = document.getElementById(tab + 'Tab')
   if (tabButton) tabButton.classList.add('active')
   
   document.getElementById('mastersSection').style.display = tab === 'masters' ? 'block' : 'none'
