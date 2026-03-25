@@ -725,15 +725,19 @@ function switchTab(tab) {
     console.error('Tab button not found:', tab + 'Tab')
   }
   
-  // Show/hide sections using CSS class
+  // Show/hide sections - force display with !important to override any inline styles
   const sections = ['masters', 'voucher', 'ledger', 'daybook', 'cashbook', 'accounts', 'stock', 'trialbalance', 'financials']
   sections.forEach(section => {
     const el = document.getElementById(section + 'Section')
     if (el) {
       if (section === tab) {
         el.classList.add('active')
+        // Force display to block with !important to ensure it works
+        el.style.setProperty('display', 'block', 'important')
       } else {
         el.classList.remove('active')
+        // Force display to none with !important
+        el.style.setProperty('display', 'none', 'important')
       }
     }
   })
