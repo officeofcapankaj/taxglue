@@ -1085,3 +1085,8 @@ def serve_static(path):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True)
+
+# Vercel handler - Vercel Python runtime expects a handler function
+def handler(request):
+    """Vercel serverless handler"""
+    return app
