@@ -7,9 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <style>
-/* Tab sections - all hidden, only active tab shows */
-#mastersSection, #voucherSection, #ledgerSection, #daybookSection, #cashbookSection, #accountsSection, #stockSection, #trialbalanceSection, #financialsSection { visibility: hidden; position: absolute; width: 100%; }
-#mastersSection.active, #voucherSection.active, #ledgerSection.active, #daybookSection.active, #cashbookSection.active, #accountsSection.active, #stockSection.active, #trialbalanceSection.active, #financialsSection.active { visibility: visible; position: relative; }
+/* Tab sections - use display: none/block with class toggling */
+#mastersSection, #voucherSection, #ledgerSection, #daybookSection, #cashbookSection, #accountsSection, #stockSection, #trialbalanceSection, #financialsSection { display: none; }
+#mastersSection.active, #voucherSection.active, #ledgerSection.active, #daybookSection.active, #cashbookSection.active, #accountsSection.active, #stockSection.active, #trialbalanceSection.active, #financialsSection.active { display: block; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
 .container { display: flex; min-height: 100vh; }
