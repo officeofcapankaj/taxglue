@@ -725,19 +725,22 @@ function switchTab(tab) {
     console.error('Tab button not found:', tab + 'Tab')
   }
   
-  // Show/hide sections - force display with !important to override any inline styles
+  // Show/hide sections - remove any inline display first, then force with !important
   const sections = ['masters', 'voucher', 'ledger', 'daybook', 'cashbook', 'accounts', 'stock', 'trialbalance', 'financials']
   sections.forEach(section => {
     const el = document.getElementById(section + 'Section')
     if (el) {
+      // Remove inline style to avoid conflicts
+      el.removeAttribute('style')
+      
       if (section === tab) {
         el.classList.add('active')
-        // Force display to block with !important to ensure it works
-        el.style.setProperty('display', 'block', 'important')
+        // Force display to block
+        el.style.display = 'block'
       } else {
         el.classList.remove('active')
-        // Force display to none with !important
-        el.style.setProperty('display', 'none', 'important')
+        // Force display to none
+        el.style.display = 'none'
       }
     }
   })
