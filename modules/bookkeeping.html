@@ -144,13 +144,19 @@ th { background: #f8fafc; font-weight: 600; }
         <!-- Voucher Type Selection -->
         <div id="voucherTypeSelect" style="margin-bottom: 20px;">
           <label class="form-label">Voucher Type</label>
-          <select class="form-select" id="voucherType" style="min-width: 200px;" onchange="showVoucherForm()">
+          <select class="form-select" id="voucherType" style="min-width: 250px;" onchange="showVoucherForm()">
+            <option value="sale">Sale</option>
+            <option value="salereturn">Sale Return</option>
+            <option value="creditnotesale">Credit Note against Sale</option>
+            <option value="debitnotesale">Debit Note against Sale</option>
+            <option value="purchase">Purchase</option>
+            <option value="purchasereturn">Purchase Return</option>
+            <option value="debitnotepurchase">Debit Note against Purchase</option>
+            <option value="creditnotepurchase">Credit Note against Purchase</option>
             <option value="journal">Journal Voucher (JV)</option>
             <option value="payment">Payment Voucher (PV)</option>
             <option value="receipt">Receipt Voucher (RV)</option>
             <option value="contra">Contra Voucher (CV)</option>
-            <option value="debitnote">Debit Note (DN)</option>
-            <option value="creditnote">Credit Note (CN)</option>
           </select>
         </div>
         
@@ -639,7 +645,12 @@ function hideVoucherForm() {
 
 function generateVoucherNo() {
   const type = document.getElementById('voucherType').value
-  const prefix = type.charAt(0).toUpperCase()
+  const prefixes = {
+    'sale': 'SA', 'salereturn': 'SR', 'creditnotesale': 'CNS', 'debitnotesale': 'DNS',
+    'purchase': 'PU', 'purchasereturn': 'PR', 'debitnotepurchase': 'DNP', 'creditnotepurchase': 'CNP',
+    'journal': 'JV', 'payment': 'PV', 'receipt': 'RV', 'contra': 'CV'
+  }
+  const prefix = prefixes[type] || type.charAt(0).toUpperCase()
   const num = String(vouchers.length + 1).padStart(4, '0')
   document.getElementById('voucherNo').value = `${prefix}/${num}`
 }
