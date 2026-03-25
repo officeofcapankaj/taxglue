@@ -611,39 +611,62 @@ function showError(msg) {
 }
 
 async function saveClient() {
-  const constitution = document.getElementById('constitution').value
-  const clientName = document.getElementById('clientName').value
-  if (!constitution || !clientName) { showError('Please fill mandatory fields in Basic Details'); switchTab('basic'); return }
-  const contactPersons = []
-  document.querySelectorAll('.contact-person').forEach((cp) => {
-    const name = cp.querySelector('.cp-name').value
-    const designation = cp.querySelector('.cp-designation')?.value || ''
-    const phone = cp.querySelector('.cp-phone').value
-    const email = cp.querySelector('.cp-email').value
-    if (name || phone || email) contactPersons.push({ name, designation, phone, email })
-  })
-  const client = {
-    id: Date.now(), constitution: constitution, name: clientName, 
-    address: document.getElementById('address').value,
-    pincode: document.getElementById('pincode').value,
-    city: document.getElementById('city').value,
-    district: document.getElementById('district').value,
-    state: document.getElementById('state').value,
-    country: document.getElementById('country').value,
-    phone: document.getElementById('phone').value, email: document.getElementById('email').value,
-    registrations: { panNumber: document.getElementById('panNumber').value, gstin: document.getElementById('gstin').value,
-      tanNumber: document.getElementById('tanNumber').value, pfNumber: document.getElementById('pfNumber').value,
-      esiNumber: document.getElementById('esiNumber').value, msmeNumber: document.getElementById('msmeNumber').value,
-      cinNumber: document.getElementById('cinNumber').value, iecCode: document.getElementById('iecCode').value,
-      lutNumber: document.getElementById('lutNumber').value },
-    contactPersons: contactPersons, documents: uploadedFiles, created_at: new Date().toISOString()
+  // Dynamic form data collection - captures all fields automatically
+  const formId = 'basicForm'
+  const form = document.getElementById(formId)
+  const registrationForm = document.getElementById('registrationForm')
+  
+  // Collect all form fields dynamically
+  const client = { id: Date.now(), created_at: new Date().toISOString() }
+  
+  // Basic form fields
+  if (form) {
+    const formData = new FormData(form)
+    for (let [key, value] of formData.entries()) {
+      if (value) client[key] = value
+    }
   }
   
-  // Save to Supabase (if available)
+  // Registration form fields (nested object)
+  const registrations = {}
+  if (registrationForm) {
+    const regData = new FormData(registrationForm)
+    for (let [key, value] of regData.entries()) {
+      if (value) registrations[key] = value
+    }
+  }
+  if (Object.keys(registrations).length > 0) client.registrations = registrations
+  
+  // Contact persons
+  const contactPersons = []
+  document.querySelectorAll('.contact-person').forEach((cp) => {
+    const cpData = {}
+    cp.querySelectorAll('input, select').forEach(field => {
+      if (field.value) cpData[field.name || field.className] = field.value
+    })
+    if (Object.keys(cpData).length > 0) contactPersons.push(cpData)
+  })
+  if (contactPersons.length > 0) client.contactPersons = contactPersons
+  
+  // Documents
+  if (uploadedFiles.length > 0) client.documents = uploadedFiles
+  
+  // Validate mandatory fields
+  const constitution = document.getElementById('constitution')?.value
+  const clientName = document.getElementById('clientName')?.value
+  if (!constitution || !clientName) { 
+    showError('Please fill mandatory fields in Basic Details'); 
+    switchTab('basic'); 
+    return 
+  }
+  
+  // Save to Supabase (dynamic - adds any new columns automatically)
   if (supabase) {
     try {
+      // Supabase creates columns dynamically if they don't exist
       const { data, error } = await supabase.from('clients').insert([client])
       if (error) throw error
+      console.log('Saved to Supabase:', client)
     } catch (e) {
       console.log('Supabase insert error:', e)
     }
@@ -686,31 +709,28 @@ function loadClient(clientId) {
     return
   }
   
-  console.log('Found client:', client.name)
+  console.log('Loading client:', client.name)
   
-  // Fill basic details
-  document.getElementById('constitution').value = client.constitution || ''
-  document.getElementById('clientName').value = client.name || ''
-  document.getElementById('address').value = client.address || ''
-  document.getElementById('pincode').value = client.pincode || ''
-  document.getElementById('city').value = client.city || ''
-  document.getElementById('district').value = client.district || ''
-  document.getElementById('state').value = client.state || ''
-  document.getElementById('country').value = client.country || 'India'
-  document.getElementById('phone').value = client.phone || ''
-  document.getElementById('email').value = client.email || ''
+  // Dynamically fill all form fields from client data
+  const basicForm = document.getElementById('basicForm')
+  if (basicForm) {
+    basicForm.querySelectorAll('input, select, textarea').forEach(field => {
+      const fieldName = field.name || field.id
+      if (fieldName && client[fieldName] !== undefined) {
+        field.value = client[fieldName]
+      }
+    })
+  }
   
-  // Fill registrations
-  if (client.registrations) {
-    document.getElementById('panNumber').value = client.registrations.panNumber || ''
-    document.getElementById('gstin').value = client.registrations.gstin || ''
-    document.getElementById('tanNumber').value = client.registrations.tanNumber || ''
-    document.getElementById('pfNumber').value = client.registrations.pfNumber || ''
-    document.getElementById('esiNumber').value = client.registrations.esiNumber || ''
-    document.getElementById('msmeNumber').value = client.registrations.msmeNumber || ''
-    document.getElementById('cinNumber').value = client.registrations.cinNumber || ''
-    document.getElementById('iecCode').value = client.registrations.iecCode || ''
-    document.getElementById('lutNumber').value = client.registrations.lutNumber || ''
+  // Fill registrations (nested object)
+  const regForm = document.getElementById('registrationForm')
+  if (regForm && client.registrations) {
+    regForm.querySelectorAll('input, select, textarea').forEach(field => {
+      const fieldName = field.name || field.id
+      if (fieldName && client.registrations[fieldName] !== undefined) {
+        field.value = client.registrations[fieldName]
+      }
+    })
   }
   
   // Fill contact persons
@@ -719,17 +739,19 @@ function loadClient(clientId) {
     container.innerHTML = ''
     contactPersonCount = 0
     
-    client.contactPersons.forEach((cp, index) => {
+    client.contactPersons.forEach((cp) => {
       contactPersonCount++
       addContactPerson()
       
-      // Fill the contact person fields
+      // Fill the contact person fields dynamically
       const cpDiv = document.getElementById('contactPerson' + contactPersonCount)
       if (cpDiv) {
-        cpDiv.querySelector('.cp-name').value = cp.name || ''
-        cpDiv.querySelector('.cp-designation').value = cp.designation || ''
-        cpDiv.querySelector('.cp-phone').value = cp.phone || ''
-        cpDiv.querySelector('.cp-email').value = cp.email || ''
+        cpDiv.querySelectorAll('input, select').forEach(field => {
+          const fieldName = field.name || field.className
+          if (fieldName && cp[fieldName] !== undefined) {
+            field.value = cp[fieldName]
+          }
+        })
       }
     })
   }
