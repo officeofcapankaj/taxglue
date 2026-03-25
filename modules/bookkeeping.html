@@ -1175,7 +1175,7 @@ function showVoucherForm() {
     alert('ERROR: voucherForm element not found!')
     return
   }
-  form.classList.add('active')
+  form.style.display = 'block'
   console.log('Form should now be visible')
   document.getElementById('voucherLines').innerHTML = ''
   addVoucherLine()
@@ -1184,7 +1184,7 @@ function showVoucherForm() {
 }
 
 function hideVoucherForm() {
-  document.getElementById('voucherForm').classList.remove('active')
+  document.getElementById('voucherForm').style.display = 'none'
 }
 
 function generateVoucherNo() {
