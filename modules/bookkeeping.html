@@ -126,6 +126,7 @@ th { background: #f8fafc; font-weight: 600; }
     <div class="success-message" id="successMessage">Saved successfully!</div>
     
     <div class="tabs">
+      <button class="tab" onclick="switchTab('masters')">📋 Masters</button>
       <button class="tab active" onclick="switchTab('voucher')">📝 Voucher Entry</button>
       <button class="tab" onclick="switchTab('ledger')">📒 Ledger</button>
       <button class="tab" onclick="switchTab('daybook')">📖 Day Book</button>
@@ -134,6 +135,74 @@ th { background: #f8fafc; font-weight: 600; }
       <button class="tab" onclick="switchTab('stock')">📦 Stock</button>
       <button class="tab" onclick="switchTab('trialbalance')">📊 Trial Balance</button>
       <button class="tab" onclick="switchTab('financials')">📈 Financials</button>
+    </div>
+    
+    <!-- Masters Section -->
+    <div id="mastersSection" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📋 Masters</h3>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px;">
+          
+          <!-- Groups & Ledgers -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">📁 Groups & Ledgers</h4>
+            <p style="font-size: 13px; color: #64748b;">Manage account groups and ledgers</p>
+            <button class="btn btn-primary" onclick="switchTab('accounts'); loadGroupsAndLedgers()">Open</button>
+          </div>
+          
+          <!-- Voucher Types -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">📝 Voucher Types</h4>
+            <p style="font-size: 13px; color: #64748b;">Configure voucher type templates</p>
+            <button class="btn btn-primary" onclick="showVoucherTypeModal()">Configure</button>
+          </div>
+          
+          <!-- Stock Items -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">📦 Stock Items</h4>
+            <p style="font-size: 13px; color: #64748b;">Manage inventory items</p>
+            <button class="btn btn-primary" onclick="switchTab('stock'); loadStockItems()">Open</button>
+          </div>
+          
+          <!-- Stock Groups -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">🏷️ Stock Groups</h4>
+            <p style="font-size: 13px; color: #64748b;">Categorize stock items</p>
+            <button class="btn btn-primary" onclick="showStockGroupModal()">Configure</button>
+          </div>
+          
+          <!-- Stock Godowns -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">🏭 Stock Godowns</h4>
+            <p style="font-size: 13px; color: #64748b;">Manage warehouse locations</p>
+            <button class="btn btn-primary" onclick="showGodownModal()">Configure</button>
+          </div>
+          
+          <!-- Stock Quantity -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">📊 Stock Quantity</h4>
+            <p style="font-size: 13px; color: #64748b;">Track inventory quantities</p>
+            <button class="btn btn-primary" onclick="switchTab('stock'); loadStockItems()">View</button>
+          </div>
+          
+          <!-- States -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">🗺️ States</h4>
+            <p style="font-size: 13px; color: #64748b;">Manage state master data</p>
+            <button class="btn btn-primary" onclick="showStateModal()">Configure</button>
+          </div>
+          
+          <!-- Countries -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">🌍 Countries</h4>
+            <p style="font-size: 13px; color: #64748b;">Manage country master data</p>
+            <button class="btn btn-primary" onclick="showCountryModal()">Configure</button>
+          </div>
+          
+        </div>
+      </div>
     </div>
     
     <!-- Voucher Entry Section -->
@@ -641,6 +710,7 @@ function switchTab(tab) {
   const tabButton = document.querySelector(`.tabs .tab[onclick="switchTab('${tab}')"]`)
   if (tabButton) tabButton.classList.add('active')
   
+  document.getElementById('mastersSection').style.display = tab === 'masters' ? 'block' : 'none'
   document.getElementById('voucherSection').style.display = tab === 'voucher' ? 'block' : 'none'
   document.getElementById('ledgerSection').style.display = tab === 'ledger' ? 'block' : 'none'
   document.getElementById('daybookSection').style.display = tab === 'daybook' ? 'block' : 'none'
@@ -650,6 +720,7 @@ function switchTab(tab) {
   document.getElementById('trialbalanceSection').style.display = tab === 'trialbalance' ? 'block' : 'none'
   document.getElementById('financialsSection').style.display = tab === 'financials' ? 'block' : 'none'
   
+  if (tab === 'masters') loadMastersData()
   if (tab === 'ledger') loadLedger()
   if (tab === 'daybook') loadDayBook()
   if (tab === 'cashbook') loadCashBook()
@@ -659,6 +730,191 @@ function switchTab(tab) {
   if (tab === 'financials') generateFinancialStatements()
 }
 
+// ==================== MASTERS ====================
+function loadMastersData() {
+  console.log('Loading Masters data...')
+}
+
+// Voucher Type Modal
+function showVoucherTypeModal() {
+  const modal = document.createElement('div')
+  modal.id = 'voucherTypeModal'
+  modal.className = 'modal'
+  modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;'
+  modal.innerHTML = `
+    <div style="background: white; padding: 24px; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">📝 Voucher Types</h3>
+        <button onclick="this.closest('.modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+      </div>
+      <div id="voucherTypeList">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: #f1f5f9;">
+              <th style="padding: 10px; text-align: left;">Type</th>
+              <th style="padding: 10px; text-align: left;">Prefix</th>
+              <th style="padding: 10px; text-align: center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding: 10px;">Sale</td><td style="padding: 10px;">SAL</td><td style="padding: 10px; text-align: center;"><button onclick="alert('Edit functionality')" style="background: #22c55e; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Edit</button></td></tr>
+            <tr><td style="padding: 10px;">Purchase</td><td style="padding: 10px;">PUR</td><td style="padding: 10px; text-align: center;"><button onclick="alert('Edit functionality')" style="background: #22c55e; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Edit</button></td></tr>
+            <tr><td style="padding: 10px;">Journal Voucher (JV)</td><td style="padding: 10px;">JV</td><td style="padding: 10px; text-align: center;"><button onclick="alert('Edit functionality')" style="background: #22c55e; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Edit</button></td></tr>
+            <tr><td style="padding: 10px;">Payment Voucher (PV)</td><td style="padding: 10px;">PV</td><td style="padding: 10px; text-align: center;"><button onclick="alert('Edit functionality')" style="background: #22c55e; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Edit</button></td></tr>
+            <tr><td style="padding: 10px;">Receipt Voucher (RV)</td><td style="padding: 10px;">RV</td><td style="padding: 10px; text-align: center;"><button onclick="alert('Edit functionality')" style="background: #22c55e; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Edit</button></td></tr>
+            <tr><td style="padding: 10px;">Contra Voucher (CV)</td><td style="padding: 10px;">CV</td><td style="padding: 10px; text-align: center;"><button onclick="alert('Edit functionality')" style="background: #22c55e; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Edit</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <button onclick="this.closest('.modal').remove()" class="btn btn-outline" style="margin-top: 16px;">Close</button>
+    </div>
+  `
+  document.body.appendChild(modal)
+}
+
+// Stock Group Modal
+function showStockGroupModal() {
+  const modal = document.createElement('div')
+  modal.id = 'stockGroupModal'
+  modal.className = 'modal'
+  modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;'
+  modal.innerHTML = `
+    <div style="background: white; padding: 24px; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">🏷️ Stock Groups</h3>
+        <button onclick="this.closest('.modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <input type="text" id="newStockGroup" placeholder="New Stock Group Name" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; width: 70%;">
+        <button onclick="alert('Add stock group functionality')" class="btn btn-primary" style="padding: 10px 16px;">Add</button>
+      </div>
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f1f5f9;">
+            <th style="padding: 10px; text-align: left;">Group Name</th>
+            <th style="padding: 10px; text-align: center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding: 10px;">Raw Material</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Finished Goods</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Trading Goods</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Packing Material</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+        </tbody>
+      </table>
+      <button onclick="this.closest('.modal').remove()" class="btn btn-outline" style="margin-top: 16px;">Close</button>
+    </div>
+  `
+  document.body.appendChild(modal)
+}
+
+// Godown Modal
+function showGodownModal() {
+  const modal = document.createElement('div')
+  modal.id = 'godownModal'
+  modal.className = 'modal'
+  modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;'
+  modal.innerHTML = `
+    <div style="background: white; padding: 24px; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">🏭 Stock Godowns</h3>
+        <button onclick="this.closest('.modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <input type="text" id="newGodown" placeholder="New Godown Name" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; width: 70%;">
+        <button onclick="alert('Add godown functionality')" class="btn btn-primary" style="padding: 10px 16px;">Add</button>
+      </div>
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f1f5f9;">
+            <th style="padding: 10px; text-align: left;">Godown Name</th>
+            <th style="padding: 10px; text-align: center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding: 10px;">Main Warehouse</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Godown A</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Godown B</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+        </tbody>
+      </table>
+      <button onclick="this.closest('.modal').remove()" class="btn btn-outline" style="margin-top: 16px;">Close</button>
+    </div>
+  `
+  document.body.appendChild(modal)
+}
+
+// State Modal
+function showStateModal() {
+  const modal = document.createElement('div')
+  modal.id = 'stateModal'
+  modal.className = 'modal'
+  modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;'
+  modal.innerHTML = `
+    <div style="background: white; padding: 24px; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">🗺️ States</h3>
+        <button onclick="this.closest('.modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <input type="text" id="newState" placeholder="New State Name" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; width: 70%;">
+        <button onclick="alert('Add state functionality')" class="btn btn-primary" style="padding: 10px 16px;">Add</button>
+      </div>
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f1f5f9;">
+            <th style="padding: 10px; text-align: left;">State Name</th>
+            <th style="padding: 10px; text-align: center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding: 10px;">Delhi</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Maharashtra</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Karnataka</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Tamil Nadu</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Uttar Pradesh</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+        </tbody>
+      </table>
+      <button onclick="this.closest('.modal').remove()" class="btn btn-outline" style="margin-top: 16px;">Close</button>
+    </div>
+  `
+  document.body.appendChild(modal)
+}
+
+// Country Modal
+function showCountryModal() {
+  const modal = document.createElement('div')
+  modal.id = 'countryModal'
+  modal.className = 'modal'
+  modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;'
+  modal.innerHTML = `
+    <div style="background: white; padding: 24px; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">🌍 Countries</h3>
+        <button onclick="this.closest('.modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <input type="text" id="newCountry" placeholder="New Country Name" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; width: 70%;">
+        <button onclick="alert('Add country functionality')" class="btn btn-primary" style="padding: 10px 16px;">Add</button>
+      </div>
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f1f5f9;">
+            <th style="padding: 10px; text-align: left;">Country Name</th>
+            <th style="padding: 10px; text-align: center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding: 10px;">India</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">USA</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">UK</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">UAE</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+        </tbody>
+      </table>
+      <button onclick="this.closest('.modal').remove()" class="btn btn-outline" style="margin-top: 16px;">Close</button>
+    </div>
+  `
+  document.body.appendChild(modal)
+}
 // ==================== ACCOUNTS ====================
 async function loadAccounts() {
   try {
@@ -1672,5 +1928,150 @@ function hideAddStockItemModal() {
 .stock-report { padding: 16px; background: #f8fafc; border-radius: 8px; margin-top: 16px; }
 .bs-section h4 { color: #1e293b; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
 </style>
+    <!-- AI Assistant Chat Widget -->
+    <div id="aiAssistant" style="position: fixed; bottom: 20px; right: 20px; z-index: 10000;">
+      <!-- Chat Button -->
+      <button id="aiChatBtn" onclick="toggleAIChat()" style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6366f1); border: none; color: white; font-size: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); display: flex; align-items: center; justify-content: center;">
+        <span style="font-size: 28px;">🤖</span>
+      </button>
+      <!-- Chat Window -->
+      <div id="aiChatWindow" style="display: none; position: absolute; bottom: 70px; right: 0; width: 380px; height: 500px; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; flex-direction: column;">
+        <div style="background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 24px;">🤖</span>
+            <div>
+              <div style="font-weight: 600;">TaxGlue Assistant</div>
+              <div style="font-size: 11px; opacity: 0.8;">AI Powered Helper</div>
+            </div>
+          </div>
+          <button onclick="toggleAIChat()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">&times;</button>
+        </div>
+        <div id="aiChatMessages" style="flex: 1; padding: 16px; overflow-y: auto; background: #f8fafc;">
+          <div style="background: white; padding: 12px 16px; border-radius: 12px 12px 12px 0; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+            <div style="font-weight: 600; color: #8b5cf6; margin-bottom: 4px;">Assistant</div>
+            <div>Hello! I'm your TaxGlue AI Assistant. I can help you with:</div>
+            <ul style="margin: 8px 0; padding-left: 20px; font-size: 13px; color: #475569;">
+              <li>Creating vouchers and entries</li>
+              <li>Managing clients and data</li>
+              <li>Generating reports</li>
+              <li>Navigating the application</li>
+            </ul>
+            <div style="font-size: 13px; color: #64748b;">Type your request or click the microphone to speak!</div>
+          </div>
+        </div>
+        <div style="padding: 12px; border-top: 1px solid #e2e8f0; background: white;">
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button onclick="startVoiceInput()" id="voiceBtn" style="width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px;">🎤</button>
+            <input type="text" id="aiInput" placeholder="Ask me anything..." style="flex: 1; padding: 12px; border: 1px solid #e2e8f0; border-radius: 24px; outline: none; font-size: 14px;" onkeypress="if(event.key==='Enter')sendAIChat()">
+            <button onclick="sendAIChat()" style="width: 40px; height: 40px; border-radius: 50%; background: #8b5cf6; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+    // AI Chat Functions
+    function toggleAIChat() {
+      const window = document.getElementById('aiChatWindow');
+      window.style.display = window.style.display === 'none' ? 'flex' : 'none';
+    }
+    
+    function sendAIChat() {
+      const input = document.getElementById('aiInput');
+      const message = input.value.trim();
+      if (!message) return;
+      
+      const messagesDiv = document.getElementById('aiChatMessages');
+      
+      // Add user message
+      const userMsg = document.createElement('div');
+      userMsg.style.cssText = 'background: #8b5cf6; color: white; padding: 12px 16px; border-radius: 12px 12px 0 12px; margin-bottom: 12px; margin-left: 40px;';
+      userMsg.innerHTML = '<div style="font-weight: 600; margin-bottom: 4px;">You</div>' + message;
+      messagesDiv.appendChild(userMsg);
+      
+      input.value = '';
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      
+      // Process command and respond
+      setTimeout(() => {
+        const response = processAICommand(message);
+        const botMsg = document.createElement('div');
+        botMsg.style.cssText = 'background: white; padding: 12px 16px; border-radius: 12px 12px 12px 0; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);';
+        botMsg.innerHTML = '<div style="font-weight: 600; color: #8b5cf6; margin-bottom: 4px;">Assistant</div>' + response;
+        messagesDiv.appendChild(botMsg);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }, 500);
+    }
+    
+    function processAICommand(command) {
+      const cmd = command.toLowerCase();
+      
+      if (cmd.includes('voucher') || cmd.includes('entry') || cmd.includes('create')) {
+        return 'I can help you create a voucher! Let me open the voucher entry form. <br><br><button onclick="switchTab(\'voucher\'); document.getElementById(\'aiChatWindow\').style.display=\'none\'" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Open Voucher Entry</button>';
+      }
+      if (cmd.includes('client') || cmd.includes('customer')) {
+        return 'I can show you the clients page. <br><br><button onclick="window.location.href=\'/app/clients.html\'" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Go to Clients</button>';
+      }
+      if (cmd.includes('ledger') || cmd.includes('account')) {
+        return 'Opening the Accounts/Ledger section... <br><br><button onclick="switchTab(\'accounts\'); loadGroupsAndLedgers();" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Open Accounts</button>';
+      }
+      if (cmd.includes('report') || cmd.includes('trial balance') || cmd.includes('financial')) {
+        return 'I can open the reports section for you. <br><br><button onclick="switchTab(\'trialbalance\'); generateTrialBalance();" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Open Trial Balance</button>';
+      }
+      if (cmd.includes('stock') || cmd.includes('inventory')) {
+        return 'Opening the Stock section... <br><br><button onclick="switchTab(\'stock\'); loadStockItems();" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Open Stock</button>';
+      }
+      if (cmd.includes('master')) {
+        return 'Opening the Masters section... <br><br><button onclick="switchTab(\'masters\');" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Open Masters</button>';
+      }
+      if (cmd.includes('hello') || cmd.includes('hi') || cmd.includes('hey')) {
+        return 'Hello! How can I help you today? I can assist you with creating vouchers, managing clients, viewing reports, and more. Just tell me what you need!';
+      }
+      if (cmd.includes('help')) {
+        return 'Here are things I can help you with:<br><ul style="margin: 8px 0; padding-left: 20px;"><li>Create vouchers and entries</li><li>View and manage clients</li><li>Access ledger and accounts</li><li>Generate reports (Trial Balance, Financials)</li><li>Manage stock/inventory</li><li>Navigate to any section</li></ul>Just type what you need!';
+      }
+      
+      return 'I understand you need help with: "' + command + '". Currently I can help with voucher entry, clients, accounts, reports, and stock. Type "help" to see all available commands.';
+    }
+    
+    function startVoiceInput() {
+      const voiceBtn = document.getElementById('voiceBtn');
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert('Voice recognition is not supported in your browser. Please type your request.');
+        return;
+      }
+      
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      
+      voiceBtn.innerHTML = '🔴';
+      voiceBtn.style.background = '#fee2e2';
+      
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('aiInput').value = transcript;
+        sendAIChat();
+        voiceBtn.innerHTML = '🎤';
+        voiceBtn.style.background = '#f1f5f9';
+      };
+      
+      recognition.onerror = function(event) {
+        voiceBtn.innerHTML = '🎤';
+        voiceBtn.style.background = '#f1f5f9';
+        alert('Voice recognition error: ' + event.error);
+      };
+      
+      recognition.onend = function() {
+        voiceBtn.innerHTML = '🎤';
+        voiceBtn.style.background = '#f1f5f9';
+      };
+      
+      recognition.start();
+    }
+    </script>
 </body>
 </html>
