@@ -799,7 +799,13 @@ async function loadGroupsAndLedgers() {
     
     renderGroupsTree(groups || [], ledgers || [])
   } catch (e) {
-    console.error('Error loading groups:', e)
+    console.warn('account_groups table may not exist yet, using defaults')
+    // Load just ledgers (accounts) as fallback
+    const { data: ledgers } = await supabase.from('accounts')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+    renderGroupsTree([], ledgers || [])
   }
 }
 
@@ -916,7 +922,8 @@ async function loadStockItems() {
     
     renderStockItems(data || [])
   } catch (e) {
-    console.error('Error loading stock:', e)
+    console.warn('stock_items table may not exist yet')
+    renderStockItems([])
   }
 }
 
