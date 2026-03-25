@@ -138,7 +138,7 @@ th { background: #f8fafc; font-weight: 600; }
     </div>
     
     <!-- Masters Section -->
-    <div id="mastersSection" style="display: none;">
+    <div id="mastersSection" style="display: block;">
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">📋 Masters</h3>
@@ -621,8 +621,6 @@ function initApp() {
   loadClients()
   setDefaultDates()
   loadDemoClients()
-  // Show Masters section by default
-  setTimeout(() => switchTab('masters'), 200)
 }
 
 document.addEventListener('DOMContentLoaded', initSupabase)
