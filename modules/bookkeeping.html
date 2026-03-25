@@ -383,10 +383,25 @@ th { background: #f8fafc; font-weight: 600; }
 </div>
 
 <script>
-// Supabase Configuration
+// Supabase Configuration - wait for CDN to load
 const supabaseUrl = "https://jgjeuybgideeqcjxvlmn.supabase.co"
 const supabaseKey = "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+let supabase = null
+
+// Wait for supabase library to be available
+function initSupabase() {
+  if (typeof supabase !== 'undefined' && supabase && supabase.createClient) {
+    window.supabase = supabase = supabase.createClient(supabaseUrl, supabaseKey)
+    console.log('Supabase initialized')
+    initApp() // Start app after supabase ready
+  } else {
+    setTimeout(initSupabase, 50)
+  }
+}
+
+// Initialize app after DOM ready
+document.addEventListener('DOMContentLoaded', initSupabase)
+initSupabase()
 
 let clients = []
 let vouchers = []
