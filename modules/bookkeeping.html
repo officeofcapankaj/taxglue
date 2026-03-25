@@ -7,9 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <style>
-/* Tab sections - all hidden by default, JS controls display */
-#voucherSection, #ledgerSection, #daybookSection, #cashbookSection, #accountsSection, #stockSection, #trialbalanceSection, #financialsSection { display: none; }
-#mastersSection { display: block; }
+/* Tab sections - all hidden, only active tab shows */
+#mastersSection, #voucherSection, #ledgerSection, #daybookSection, #cashbookSection, #accountsSection, #stockSection, #trialbalanceSection, #financialsSection { visibility: hidden; position: absolute; width: 100%; }
+#mastersSection.active, #voucherSection.active, #ledgerSection.active, #daybookSection.active, #cashbookSection.active, #accountsSection.active, #stockSection.active, #trialbalanceSection.active, #financialsSection.active { visibility: visible; position: relative; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
 .container { display: flex; min-height: 100vh; }
@@ -129,8 +129,8 @@ th { background: #f8fafc; font-weight: 600; }
     <div class="success-message" id="successMessage">Saved successfully!</div>
     
     <div class="tabs">
-      <button class="tab active" id="mastersTab" onclick="document.getElementById('mastersSection').style.display='block'; document.getElementById('voucherSection').style.display='none'; this.classList.add('active'); document.getElementById('voucherTab').classList.remove('active');">📋 Masters</button>
-      <button class="tab" id="voucherTab" onclick="alert('Voucher clicked!'); var s=document.getElementById('voucherSection'); s.style.display='block'; s.style.setProperty('display','block','important'); document.getElementById('mastersSection').style.display='none'; this.classList.add('active'); document.getElementById('mastersTab').classList.remove('active');">📝 Voucher Entry</button>
+      <button class="tab active" id="mastersTab" onclick="switchTab('masters')">📋 Masters</button>
+      <button class="tab" id="voucherTab" onclick="switchTab('voucher')">📝 Voucher Entry</button>
       <button class="tab" id="ledgerTab" onclick="switchTab('ledger')">📒 Ledger</button>
       <button class="tab" id="daybookTab" onclick="switchTab('daybook')">📖 Day Book</button>
       <button class="tab" id="cashbookTab" onclick="switchTab('cashbook')">💰 Cash Book</button>
@@ -725,17 +725,15 @@ function switchTab(tab) {
     console.error('Tab button not found:', tab + 'Tab')
   }
   
-  // Show/hide sections using direct display manipulation
+  // Toggle section active class (CSS uses visibility: hidden/visible with position: absolute/relative)
   const sections = ['masters', 'voucher', 'ledger', 'daybook', 'cashbook', 'accounts', 'stock', 'trialbalance', 'financials']
   sections.forEach(section => {
     const el = document.getElementById(section + 'Section')
     if (el) {
       if (section === tab) {
-        el.style.display = 'block'
-        console.log('Showing:', section + 'Section')
+        el.classList.add('active')
       } else {
-        el.style.display = 'none'
-        console.log('Hiding:', section + 'Section')
+        el.classList.remove('active')
       }
     }
   })
