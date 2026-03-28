@@ -7,6 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <style>
+/* EMERGENCY: Always show main content - override any JS hiding */
+.container { display: flex !important; }
+.sidebar { display: block !important; }
+.main { display: block !important; margin-left: 260px; }
+.content { display: block !important; padding: 24px; }
+#mastersSection, #voucherSection, #ledgerSection, #daybookSection, #cashbookSection, #stockSection, #trialbalanceSection, #financialsSection, #bankReconciliationSection, #ocrEntrySection, #eInvoiceSection, #workflowsSection, #reportsAdvancedSection, #settingsSection { display: block !important; visibility: visible !important; opacity: 1 !important; }
+
 /* Tab sections - use display: none/block with class toggling */
 #mastersSection, #voucherSection, #ledgerSection, #daybookSection, #cashbookSection, #accountsSection, #stockSection, #trialbalanceSection, #financialsSection { display: none; }
 #mastersSection.active, #voucherSection.active, #ledgerSection.active, #daybookSection.active, #cashbookSection.active, #accountsSection.active, #stockSection.active, #trialbalanceSection.active, #financialsSection.active { display: block; }
