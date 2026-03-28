@@ -5,16 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Book-Keeping | TaxGlue</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script>
-console.log('Page loading - checking elements');
-console.log('Container:', document.querySelector('.container'));
-console.log('Sidebar:', document.querySelector('.sidebar'));
-console.log('Main:', document.querySelector('.main'));
-// Log all major elements
-document.querySelectorAll('div, nav, main, header').forEach(el => {
-  if (el.className) console.log('Element:', el.className, 'display:', getComputedStyle(el).display);
-});
-</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <style>
 /* EMERGENCY: Always show main content - override any JS hiding */
@@ -2986,8 +2976,8 @@ function hideAddStockItemModal() {
     <script>
     // AI Chat Functions
     function toggleAIChat() {
-      const window = document.getElementById('aiChatWindow');
-      window.style.display = window.style.display === 'none' ? 'flex' : 'none';
+      const chatWindow = document.getElementById('aiChatWindow');
+      chatWindow.style.display = chatWindow.style.display === 'none' ? 'flex' : 'none';
     }
     
     function sendAIChat() {
