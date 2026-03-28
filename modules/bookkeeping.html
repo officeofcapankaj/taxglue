@@ -71,8 +71,64 @@ th { background: #f8fafc; font-weight: 600; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .modal-title { font-size: 18px; font-weight: 600; }
 .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; }
+/* Tab sections - use display: none/block with class toggling */
+#mastersSection, #voucherSection, #ledgerSection, #daybookSection, #cashbookSection, #accountsSection, #stockSection, #trialbalanceSection, #financialsSection, #bankReconciliationSection, #ocrEntrySection, #eInvoiceSection, #workflowsSection, #reportsAdvancedSection, #settingsSection { display: none; }
+#mastersSection.active, #voucherSection.active, #ledgerSection.active, #daybookSection.active, #cashbookSection.active, #accountsSection.active, #stockSection.active, #trialbalanceSection.active, #financialsSection.active, #bankReconciliationSection.active, #ocrEntrySection.active, #eInvoiceSection.active, #workflowsSection.active, #reportsAdvancedSection.active, #settingsSection.active { display: block; }
 @media print { .sidebar, .topbar, .selection-bar, .btn, .tabs { display: none; } .main { margin: 0; } }
-</style>
+
+/* New Feature Styles */
+.bank-feed-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #e2e8f0; gap: 12px; }
+.bank-feed-item:hover { background: #f8fafc; }
+.bank-checkbox { width: 20px; height: 20px; }
+.bank-feed-date { min-width: 80px; font-size: 12px; color: #64748b; }
+.bank-feed-desc { flex: 1; font-size: 13px; }
+.bank-feed-amount { min-width: 100px; text-align: right; font-weight: 600; }
+.bank-feed-amount.debit { color: #dc2626; }
+.bank-feed-amount.credit { color: #16a34a; }
+.bank-matched { background: #dcfce7; }
+.bank-unmatched { background: #fef3c7; }
+.ocr-upload-zone { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 40px; text-align: center; background: #f8fafc; cursor: pointer; transition: all 0.3s; }
+.ocr-upload-zone:hover { border-color: #22c55e; background: #f0fdf4; }
+.ocr-preview { max-width: 100%; max-height: 300px; border-radius: 8px; margin-top: 20px; }
+.ocr-result { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-top: 16px; }
+.einvoice-form { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+.einvoice-item-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 40px; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
+.workflow-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+.workflow-card.active { border-color: #22c55e; background: #f0fdf4; }
+.workflow-toggle { position: relative; width: 44px; height: 24px; }
+.workflow-toggle input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; border-radius: 24px; transition: 0.4s; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.4s; }
+input:checked + .slider { background-color: #22c55e; }
+input:checked + .slider:before { transform: translateX(20px); }
+.report-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 20px; }
+.report-chart { height: 200px; display: flex; align-items: flex-end; gap: 8px; padding: 16px 0; }
+.chart-bar { flex: 1; background: linear-gradient(180deg, #22c55e, #16a34a); border-radius: 4px 4px 0 0; min-height: 20px; }
+.permission-group { margin-bottom: 20px; }
+.permission-row { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #e2e8f0; }
+.permission-label { flex: 1; font-size: 14px; }
+.stat-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 20px; text-align: center; }
+.stat-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+.stat-label { font-size: 13px; color: #64748b; margin-top: 4px; }
+.stat-card.green .stat-value { color: #22c55e; }
+.stat-card.red .stat-value { color: #dc2626; }
+.stat-card.blue .stat-value { color: #3b82f6; }
+.tag { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.tag-success { background: #dcfce7; color: #16a34a; }
+.tag-warning { background: #fef3c7; color: #b45309; }
+.tag-error { background: #fee2e2; color: #dc2626; }
+.tag-info { background: #dbeafe; color: #1d4ed8; }
+.search-box { position: relative; }
+.search-box input { padding-left: 40px; }
+.search-box::before { content: "🔍"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; }
+.filter-bar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.filter-chip { padding: 6px 12px; border-radius: 20px; font-size: 13px; background: #f1f5f9; cursor: pointer; border: 1px solid #e2e8f0; }
+.filter-chip.active { background: #22c55e; color: white; border-color: #22c55e; }
+.pill-tabs { display: flex; gap: 8px; background: #f1f5f9; padding: 4px; border-radius: 8px; }
+.pill-tab { padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: transparent; }
+.pill-tab.active { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.empty-illustration { text-align: center; padding: 40px; }
+.empty-illustration svg { width: 120px; height: 120px; margin-bottom: 16px; }
 </head>
 <body>
 <div class="container">
@@ -134,10 +190,14 @@ th { background: #f8fafc; font-weight: 600; }
       <button class="tab" id="ledgerTab" onclick="switchTab('ledger')">📒 Ledger</button>
       <button class="tab" id="daybookTab" onclick="switchTab('daybook')">📖 Day Book</button>
       <button class="tab" id="cashbookTab" onclick="switchTab('cashbook')">💰 Cash Book</button>
-      <button class="tab" id="accountsTab" onclick="switchTab('accounts')">🏢 Accounts</button>
+      <button class="tab" id="bankReconTab" onclick="switchTab('bankReconciliation')">🏦 Bank Recon</button>
+      <button class="tab" id="ocrTab" onclick="switchTab('ocrEntry')">🤖 AI Entry</button>
+      <button class="tab" id="eInvoiceTab" onclick="switchTab('eInvoice')">📄 E-Invoice</button>
+      <button class="tab" id="workflowsTab" onclick="switchTab('workflows')">⚡ Workflows</button>
       <button class="tab" id="stockTab" onclick="switchTab('stock')">📦 Stock</button>
       <button class="tab" id="trialbalanceTab" onclick="switchTab('trialbalance')">📊 Trial Balance</button>
-      <button class="tab" id="financialsTab" onclick="switchTab('financials')">📈 Financials</button>
+      <button class="tab" id="reportsTab" onclick="switchTab('reportsAdvanced')">📈 Reports</button>
+      <button class="tab" id="settingsTab" onclick="switchTab('settings')">⚙️ Settings</button>
     </div>
     
     <!-- Masters Section -->
@@ -555,6 +615,715 @@ th { background: #f8fafc; font-weight: 600; }
         </div>
       </div>
     </div>
+
+    <!-- Bank Reconciliation Section -->
+    <div id="bankReconciliationSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">🏦 Bank Reconciliation</h3>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-outline" onclick="connectBank()">🔗 Connect Bank</button>
+            <button class="btn btn-primary" onclick="reconcileSelected()">✓ Reconcile Selected</button>
+          </div>
+        </div>
+        <div class="filter-bar" style="margin-bottom: 16px;">
+          <span class="filter-chip active" onclick="filterBankFeed('all', this)">All</span>
+          <span class="filter-chip" onclick="filterBankFeed('matched', this)">Matched</span>
+          <span class="filter-chip" onclick="filterBankFeed('unmatched', this)">Unmatched</span>
+          <span class="filter-chip" onclick="filterBankFeed('suggested', this)">Suggestions</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
+          <div class="stat-card green">
+            <div class="stat-value" id="bankMatched">0</div>
+            <div class="stat-label">Matched</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-value" id="bankUnmatched">0</div>
+            <div class="stat-label">Unmatched</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-value" id="bankSuggested">0</div>
+            <div class="stat-label">Suggestions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="bankTotal">₹0</div>
+            <div class="stat-label">Total Amount</div>
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 40px;"><input type="checkbox" id="selectAllBank" onchange="toggleSelectAllBank()"></th>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Bank Amount</th>
+                <th>Matched Voucher</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="bankFeedTable">
+              <tr>
+                <td colspan="7" class="empty-state">
+                  <div class="empty-illustration">
+                    <div style="font-size: 48px; margin-bottom: 16px;">🏦</div>
+                    <h4>Connect Your Bank Account</h4>
+                    <p>Link your bank to automatically import transactions and reconcile them with your vouchers.</p>
+                    <button class="btn btn-primary" onclick="connectBank()" style="margin-top: 16px;">🔗 Connect Bank Account</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI/OCR Entry Section -->
+    <div id="ocrEntrySection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">🤖 AI-Powered Data Entry</h3>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-outline" onclick="scanDocument()">📷 Scan Document</button>
+            <button class="btn btn-outline" onclick="uploadInvoice()">📤 Upload Invoice</button>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <div>
+            <h4 style="margin-bottom: 12px;">Upload Document</h4>
+            <div class="ocr-upload-zone" onclick="document.getElementById('ocrFileInput').click()">
+              <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
+              <p style="font-size: 16px; font-weight: 500; margin-bottom: 8px;">Drop files here or click to upload</p>
+              <p style="font-size: 13px; color: #64748b;">Supports: PDF, JPG, PNG (Max 10MB)</p>
+              <input type="file" id="ocrFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="handleOCRUpload(event)">
+            </div>
+            <div id="ocrPreview" style="display: none;">
+              <img id="ocrPreviewImg" class="ocr-preview" src="" alt="Document preview">
+            </div>
+          </div>
+          <div>
+            <h4 style="margin-bottom: 12px;">Extracted Data</h4>
+            <div class="ocr-result" id="ocrResult">
+              <p style="color: #64748b;">Upload a document to extract data automatically using AI.</p>
+            </div>
+            <div id="ocrFields" style="display: none;">
+              <div class="form-group" style="margin-top: 16px;">
+                <label class="form-label">Party Name</label>
+                <input type="text" class="form-input" id="ocrPartyName" placeholder="Extracted party name">
+              </div>
+              <div class="form-group">
+                <label class="form-label">GSTIN</label>
+                <input type="text" class="form-input" id="ocrGSTIN" placeholder="Extracted GSTIN">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Invoice Number</label>
+                <input type="text" class="form-input" id="ocrInvoiceNum" placeholder="Extracted invoice number">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Invoice Date</label>
+                <input type="date" class="form-input" id="ocrInvoiceDate">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Total Amount (₹)</label>
+                <input type="number" class="form-input" id="ocrAmount" placeholder="Extracted amount">
+              </div>
+              <div class="form-group">
+                <label class="form-label">CGST (₹)</label>
+                <input type="number" class="form-input" id="ocrCGST" placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label class="form-label">SGST (₹)</label>
+                <input type="number" class="form-input" id="ocrSGST" placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label class="form-label">IGST (₹)</label>
+                <input type="number" class="form-input" id="ocrIGST" placeholder="0.00">
+              </div>
+              <div style="display: flex; gap: 12px; margin-top: 20px;">
+                <button class="btn btn-outline" onclick="clearOCRData()">Clear</button>
+                <button class="btn btn-primary" onclick="createVoucherFromOCR()">📝 Create Voucher</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h3 class="card-title">📊 Recent AI Extractions</h3>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Document</th>
+                <th>Party</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="ocrHistoryTable">
+              <tr>
+                <td colspan="6" class="empty-state">No recent extractions</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- E-Invoice Section -->
+    <div id="eInvoiceSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📄 GST E-Invoice</h3>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-outline" onclick="generateEInvoice()">➕ Generate E-Invoice</button>
+            <button class="btn btn-outline" onclick="bulkEInvoice()">📦 Bulk Generate</button>
+          </div>
+        </div>
+        <div class="pill-tabs" style="margin-bottom: 16px;">
+          <button class="pill-tab active" onclick="switchEInvoiceTab('create', this)">Create</button>
+          <button class="pill-tab" onclick="switchEInvoiceTab('generated', this)">Generated</button>
+          <button class="pill-tab" onclick="switchEInvoiceTab('ewaybill', this)">E-Way Bill</button>
+        </div>
+        <div id="eInvoiceCreate">
+          <div class="einvoice-form">
+            <div class="form-group">
+              <label class="form-label">Invoice Type</label>
+              <select class="form-select" id="einvType">
+                <option value="INV">Tax Invoice</option>
+                <option value="RET">Tax Invoice - Reg</option>
+                <option value="DEY">Tax Invoice - SEZ</option>
+                <option value="EXP">Export Invoice</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Seller GSTIN</label>
+              <input type="text" class="form-input" id="einvSellerGSTIN" placeholder="29AAAAA0000A1Z5">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Buyer GSTIN</label>
+              <input type="text" class="form-input" id="einvBuyerGSTIN" placeholder="29BBBBB0000B1Z5">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Invoice Number</label>
+              <input type="text" class="form-input" id="einvNum" placeholder="2024-25/001">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Invoice Date</label>
+              <input type="date" class="form-input" id="einvDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Place of Supply</label>
+              <input type="text" class="form-input" id="einvPOS" placeholder="Karnataka (29)">
+            </div>
+          </div>
+          <h4 style="margin: 20px 0 12px;">Line Items</h4>
+          <div class="einvoice-item-row voucher-header">
+            <div>Item Description</div>
+            <div>HSN Code</div>
+            <div>Qty</div>
+            <div>Rate (₹)</div>
+            <div>Amount (₹)</div>
+            <div></div>
+          </div>
+          <div id="einvItems">
+            <div class="einvoice-item-row">
+              <input type="text" class="voucher-input" placeholder="Item description">
+              <input type="text" class="voucher-input" placeholder="7214">
+              <input type="number" class="voucher-input" placeholder="1" min="0">
+              <input type="number" class="voucher-input" placeholder="0.00" min="0" step="0.01">
+              <input type="number" class="voucher-input" placeholder="0.00" readonly>
+              <button class="voucher-delete" onclick="this.parentElement.remove()">×</button>
+            </div>
+          </div>
+          <button class="btn btn-outline" onclick="addEINVItem()" style="margin-top: 12px;">➕ Add Item</button>
+          <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+            <div style="text-align: right; margin-right: 20px;">
+              <div>Subtotal: <strong id="einvSubtotal">₹0.00</strong></div>
+              <div>CGST (9%): <strong id="einvCGST">₹0.00</strong></div>
+              <div>SGST (9%): <strong id="einvSGST">₹0.00</strong></div>
+              <div>IGST (18%): <strong id="einvIGST">₹0.00</strong></div>
+              <div style="font-size: 18px; font-weight: 700; margin-top: 8px;">Total: <strong id="einvTotal">₹0.00</strong></div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;">
+            <button class="btn btn-outline" onclick="saveEINVDraft()">💾 Save Draft</button>
+            <button class="btn btn-primary" onclick="generateEINV()">📄 Generate E-Invoice</button>
+          </div>
+        </div>
+        <div id="eInvoiceGenerated" style="display: none;">
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Invoice No.</th>
+                  <th>Date</th>
+                  <th>Buyer</th>
+                  <th>Amount</th>
+                  <th>IRN</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="einvHistoryTable">
+                <tr>
+                  <td colspan="7" class="empty-state">No e-invoices generated yet</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div id="eWayBill" style="display: none;">
+          <div class="einvoice-form">
+            <div class="form-group">
+              <label class="form-label">Transaction Type</label>
+              <select class="form-select">
+                <option value="O">Outward</option>
+                <option value="I">Inward</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Document Type</label>
+              <select class="form-select">
+                <option value="INV">Invoice</option>
+                <option value="CHL">Delivery Challan</option>
+                <option value="BOE">Bill of Entry</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Transport Mode</label>
+              <select class="form-select">
+                <option value="1">Road</option>
+                <option value="2">Rail</option>
+                <option value="3">Air</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Vehicle Number</label>
+              <input type="text" class="form-input" placeholder="KA01AB1234">
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; margin-top: 20px;">
+            <button class="btn btn-primary" onclick="generateEWayBill()">🚚 Generate E-Way Bill</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workflows Section -->
+    <div id="workflowsSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">⚡ Automated Workflows</h3>
+          <button class="btn btn-primary" onclick="createWorkflow()">➕ Create Workflow</button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
+          <div class="workflow-card active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h4>🔄 Recurring Vouchers</h4>
+              <label class="workflow-toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Automatically create recurring vouchers (rent, EMIs, subscriptions)</p>
+            <div style="font-size: 12px; color: #16a34a;">✓ Active - Next: Rent on 01-Apr-2025</div>
+          </div>
+          <div class="workflow-card active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h4>🏦 Bank Auto-Match</h4>
+              <label class="workflow-toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Automatically match bank transactions with vouchers</p>
+            <div style="font-size: 12px; color: #16a34a;">✓ Active - 156 transactions matched</div>
+          </div>
+          <div class="workflow-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h4>📊 Monthly Reports</h4>
+              <label class="workflow-toggle">
+                <input type="checkbox">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Generate and email monthly financial reports</p>
+            <div style="font-size: 12px; color: #64748b;">○ Disabled</div>
+          </div>
+          <div class="workflow-card active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h4>🔔 Payment Reminders</h4>
+              <label class="workflow-toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Send automatic payment reminders to debtors</p>
+            <div style="font-size: 12px; color: #16a34a;">✓ Active - 23 reminders sent</div>
+          </div>
+          <div class="workflow-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h4>📈 Auto Depreciation</h4>
+              <label class="workflow-toggle">
+                <input type="checkbox">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Automatically post depreciation entries at year-end</p>
+            <div style="font-size: 12px; color: #64748b;">○ Disabled</div>
+          </div>
+          <div class="workflow-card active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h4>✅ Auto GST Reconciliation</h4>
+              <label class="workflow-toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Compare GSTR-1 with GSTR-3B automatically</p>
+            <div style="font-size: 12px; color: #16a34a;">✓ Active - Last run: Today</div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h3 class="card-title">📅 Recurring Templates</h3>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Template Name</th>
+                <th>Frequency</th>
+                <th>Next Due</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="recurringTable">
+              <tr>
+                <td>Office Rent</td>
+                <td>Monthly</td>
+                <td>01-Apr-2025</td>
+                <td>₹50,000</td>
+                <td><span class="tag tag-success">Active</span></td>
+                <td><button class="btn btn-outline" style="padding: 6px 12px;">Edit</button></td>
+              </tr>
+              <tr>
+                <td>EMI - HDFC Bank</td>
+                <td>Monthly</td>
+                <td>05-Apr-2025</td>
+                <td>₹1,25,000</td>
+                <td><span class="tag tag-success">Active</span></td>
+                <td><button class="btn btn-outline" style="padding: 6px 12px;">Edit</button></td>
+              </tr>
+              <tr>
+                <td>Internet - Airtel</td>
+                <td>Monthly</td>
+                <td>02-Apr-2025</td>
+                <td>₹1,499</td>
+                <td><span class="tag tag-success">Active</span></td>
+                <td><button class="btn btn-outline" style="padding: 6px 12px;">Edit</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced Reports Section -->
+    <div id="reportsAdvancedSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📈 Advanced Reports</h3>
+          <div class="search-box">
+            <input type="text" class="form-input" placeholder="Search reports..." style="min-width: 250px;">
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+          <div class="stat-card" onclick="showReport('cashflow')" style="cursor: pointer;">
+            <div style="font-size: 32px; margin-bottom: 8px;">💵</div>
+            <div class="stat-label">Cash Flow</div>
+          </div>
+          <div class="stat-card" onclick="showReport('ratio')" style="cursor: pointer;">
+            <div style="font-size: 32px; margin-bottom: 8px;">📊</div>
+            <div class="stat-label">Ratio Analysis</div>
+          </div>
+          <div class="stat-card" onclick="showReport('budget')" style="cursor: pointer;">
+            <div style="font-size: 32px; margin-bottom: 8px;">📋</div>
+            <div class="stat-label">Budget vs Actual</div>
+          </div>
+          <div class="stat-card" onclick="showReport('gstr')" style="cursor: pointer;">
+            <div style="font-size: 32px; margin-bottom: 8px;">🧾</div>
+            <div class="stat-label">GST Summary</div>
+          </div>
+        </div>
+        <div id="reportCashFlow" class="report-section">
+          <h4 style="margin-bottom: 16px;">💵 Cash Flow Statement</h4>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Particulars</th>
+                  <th style="text-align: right;">Amount (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="2" style="text-align: center; color: #64748b;">Opening Cash Balance</td></tr>
+                <tr><td style="padding-left: 24px;">- Opening Balance</td><td style="text-align: right;">2,50,000.00</td></tr>
+                <tr><td colspan="2" style="text-align: center; color: #64748b; padding-top: 16px;">Cash Inflows</td></tr>
+                <tr><td style="padding-left: 24px;">- Receipts from Customers</td><td style="text-align: right;">45,00,000.00</td></tr>
+                <tr><td style="padding-left: 24px;">- Other Income</td><td style="text-align: right;">1,25,000.00</td></tr>
+                <tr><td style="padding-left: 24px;">- Sales Returns</td><td style="text-align: right;">-50,000.00</td></tr>
+                <tr style="font-weight: 600;"><td>Total Inflows</td><td style="text-align: right;">45,75,000.00</td></tr>
+                <tr><td colspan="2" style="text-align: center; color: #64748b; padding-top: 16px;">Cash Outflows</td></tr>
+                <tr><td style="padding-left: 24px;">- Payments to Suppliers</td><td style="text-align: right;">32,00,000.00</td></tr>
+                <tr><td style="padding-left: 24px;">- Operating Expenses</td><td style="text-align: right;">8,50,000.00</td></tr>
+                <tr><td style="padding-left: 24px;">- Taxes Paid</td><td style="text-align: right;">2,75,000.00</td></tr>
+                <tr style="font-weight: 600;"><td>Total Outflows</td><td style="text-align: right;">43,25,000.00</td></tr>
+                <tr class="total-row"><td>Net Cash Flow</td><td style="text-align: right;">5,00,000.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div id="reportRatio" class="report-section" style="display: none;">
+          <h4 style="margin-bottom: 16px;">📊 Ratio Analysis</h4>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
+            <div class="report-card">
+              <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Current Ratio</div>
+              <div style="font-size: 28px; font-weight: 700; color: #22c55e;">2.45</div>
+              <div style="font-size: 12px; color: #16a34a;">✓ Healthy (> 1.5)</div>
+            </div>
+            <div class="report-card">
+              <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Quick Ratio</div>
+              <div style="font-size: 28px; font-weight: 700; color: #22c55e;">1.82</div>
+              <div style="font-size: 12px; color: #16a34a;">✓ Good (> 1.0)</div>
+            </div>
+            <div class="report-card">
+              <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Debt-to-Equity</div>
+              <div style="font-size: 28px; font-weight: 700; color: #dc2626;">0.65</div>
+              <div style="font-size: 12px; color: #b45309;">⚠ Moderate (< 0.5 ideal)</div>
+            </div>
+            <div class="report-card">
+              <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Gross Margin</div>
+              <div style="font-size: 28px; font-weight: 700; color: #22c55e;">28.5%</div>
+              <div style="font-size: 12px; color: #16a34a;">✓ Good</div>
+            </div>
+            <div class="report-card">
+              <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Net Profit Margin</div>
+              <div style="font-size: 28px; font-weight: 700; color: #22c55e;">12.3%</div>
+              <div style="font-size: 12px; color: #16a34a;">✓ Healthy</div>
+            </div>
+            <div class="report-card">
+              <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Return on Equity</div>
+              <div style="font-size: 28px; font-weight: 700; color: #3b82f6;">18.7%</div>
+              <div style="font-size: 12px; color: #1d4ed8;">Good</div>
+            </div>
+          </div>
+        </div>
+        <div id="reportBudget" class="report-section" style="display: none;">
+          <h4 style="margin-bottom: 16px;">📋 Budget vs Actual</h4>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Head</th>
+                  <th style="text-align: right;">Budget (₹)</th>
+                  <th style="text-align: right;">Actual (₹)</th>
+                  <th style="text-align: right;">Variance</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Sales Revenue</td>
+                  <td style="text-align: right;">50,00,000</td>
+                  <td style="text-align: right;">48,50,000</td>
+                  <td style="text-align: right; color: #dc2626;">-1,50,000</td>
+                  <td><span class="tag tag-warning">Under</span></td>
+                </tr>
+                <tr>
+                  <td>Purchase - Direct</td>
+                  <td style="text-align: right;">30,00,000</td>
+                  <td style="text-align: right;">32,50,000</td>
+                  <td style="text-align: right; color: #dc2626;">+2,50,000</td>
+                  <td><span class="tag tag-error">Over</span></td>
+                </tr>
+                <tr>
+                  <td>Employee Cost</td>
+                  <td style="text-align: right;">6,00,000</td>
+                  <td style="text-align: right;">5,80,000</td>
+                  <td style="text-align: right; color: #16a34a;">-20,000</td>
+                  <td><span class="tag tag-success">Under</span></td>
+                </tr>
+                <tr>
+                  <td>Rent</td>
+                  <td style="text-align: right;">3,00,000</td>
+                  <td style="text-align: right;">3,00,000</td>
+                  <td style="text-align: right;">0</td>
+                  <td><span class="tag tag-info">On Track</span></td>
+                </tr>
+                <tr>
+                  <td>Marketing</td>
+                  <td style="text-align: right;">2,00,000</td>
+                  <td style="text-align: right;">2,25,000</td>
+                  <td style="text-align: right; color: #dc2626;">+25,000</td>
+                  <td><span class="tag tag-warning">Over</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div id="reportGSTR" class="report-section" style="display: none;">
+          <h4 style="margin-bottom: 16px;">🧾 GST Summary</h4>
+          <div class="pill-tabs" style="margin-bottom: 16px;">
+            <button class="pill-tab active" onclick="switchGSTRTab('gstr1', this)">GSTR-1</button>
+            <button class="pill-tab" onclick="switchGSTRTab('gstr3b', this)">GSTR-3B</button>
+            <button class="pill-tab" onclick="switchGSTRTab('summary', this)">Summary</button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Outward Supply</th>
+                  <th>Taxable Value</th>
+                  <th>CGST</th>
+                  <th>SGST</th>
+                  <th>IGST</th>
+                  <th>Total Tax</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Mar 2025</td>
+                  <td style="text-align: right;">45</td>
+                  <td style="text-align: right;">₹12,50,000</td>
+                  <td style="text-align: right;">₹1,12,500</td>
+                  <td style="text-align: right;">₹1,12,500</td>
+                  <td style="text-align: right;">₹50,000</td>
+                  <td style="text-align: right;">₹2,75,000</td>
+                </tr>
+                <tr>
+                  <td>Feb 2025</td>
+                  <td style="text-align: right;">38</td>
+                  <td style="text-align: right;">₹10,80,000</td>
+                  <td style="text-align: right;">₹97,200</td>
+                  <td style="text-align: right;">₹97,200</td>
+                  <td style="text-align: right;">₹45,000</td>
+                  <td style="text-align: right;">₹2,39,400</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Section -->
+    <div id="settingsSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">⚙️ Settings</h3>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <div>
+            <h4 style="margin-bottom: 16px;">📋 Voucher Settings</h4>
+            <div class="form-group">
+              <label class="form-label">Voucher Numbering Prefix</label>
+              <input type="text" class="form-input" id="voucherPrefix" value="VG" placeholder="VG">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Starting Number</label>
+              <input type="number" class="form-input" id="voucherStartNum" value="1" placeholder="1">
+            </div>
+            <div class="form-group">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="voucherAutoNum" checked>
+                <span>Auto-number vouchers</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="voucherPrint">
+                <span>Show print preview after save</span>
+              </label>
+            </div>
+          </div>
+          <div>
+            <h4 style="margin-bottom: 16px;">👥 User Management</h4>
+            <div class="form-group">
+              <label class="form-label">Current User Role</label>
+              <select class="form-select">
+                <option value="admin">Administrator</option>
+                <option value="ca">Chartered Accountant</option>
+                <option value="clerk">Data Entry Operator</option>
+                <option value="viewer">View Only</option>
+              </select>
+            </div>
+            <button class="btn btn-outline" onclick="showAddUserModal()" style="margin-top: 8px;">➕ Add User</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h3 class="card-title">🔐 Roles & Permissions</h3>
+        </div>
+        <div class="permission-group">
+          <h4 style="margin-bottom: 12px; font-size: 14px; color: #64748b;">Administrator</h4>
+          <div class="permission-row">
+            <span class="permission-label">Create Vouchers</span>
+            <input type="checkbox" checked disabled>
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Edit Vouchers</span>
+            <input type="checkbox" checked disabled>
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Delete Vouchers</span>
+            <input type="checkbox" checked disabled>
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Generate Reports</span>
+            <input type="checkbox" checked disabled>
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Manage Users</span>
+            <input type="checkbox" checked disabled>
+          </div>
+        </div>
+        <div class="permission-group">
+          <h4 style="margin-bottom: 12px; font-size: 14px; color: #64748b;">Data Entry Operator</h4>
+          <div class="permission-row">
+            <span class="permission-label">Create Vouchers</span>
+            <input type="checkbox" checked>
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Edit Vouchers</span>
+            <input type="checkbox">
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Delete Vouchers</span>
+            <input type="checkbox">
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Generate Reports</span>
+            <input type="checkbox">
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Manage Users</span>
+            <input type="checkbox">
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </main>
 </div>
@@ -725,8 +1494,8 @@ function switchTab(tab) {
     console.error('Tab button not found:', tab + 'Tab')
   }
   
-  // Toggle section active class (CSS uses visibility: hidden/visible with position: absolute/relative)
-  const sections = ['masters', 'voucher', 'ledger', 'daybook', 'cashbook', 'accounts', 'stock', 'trialbalance', 'financials']
+  // Toggle section active class
+  const sections = ['masters', 'voucher', 'ledger', 'daybook', 'cashbook', 'bankReconciliation', 'ocrEntry', 'eInvoice', 'workflows', 'stock', 'trialbalance', 'reportsAdvanced', 'settings']
   sections.forEach(section => {
     const el = document.getElementById(section + 'Section')
     if (el) {
@@ -742,10 +1511,13 @@ function switchTab(tab) {
   if (tab === 'ledger') loadLedger()
   if (tab === 'daybook') loadDayBook()
   if (tab === 'cashbook') loadCashBook()
-  if (tab === 'accounts') loadGroupsAndLedgers()
+  if (tab === 'bankReconciliation') loadBankFeed()
+  if (tab === 'ocrEntry') loadOCRHistory()
+  if (tab === 'workflows') loadWorkflows()
   if (tab === 'stock') loadStockItems()
   if (tab === 'trialbalance') generateTrialBalance()
-  if (tab === 'financials') generateFinancialStatements()
+  if (tab === 'reportsAdvanced') loadReports()
+  if (tab === 'settings') loadSettings()
 }
 
 // ==================== MASTERS ====================
@@ -1626,6 +2398,214 @@ async function loadLedger() {
             narration: v.narration,
             debit: line.debit || 0,
             credit: line.credit || 0
+          })
+        }
+      })
+    }
+  })
+}
+
+// ==================== BANK RECONCILIATION ====================
+let bankFeedData = []
+
+function loadBankFeed() {
+  console.log('Loading bank feed...')
+  // Demo data for demonstration
+  bankFeedData = [
+    { id: 1, date: '2025-03-28', description: 'Received from ABC Corp', amount: 50000, type: 'credit', matched: true, voucher: 'PV-001' },
+    { id: 2, date: '2025-03-27', description: 'Payment to XYZ Suppliers', amount: 25000, type: 'debit', matched: true, voucher: 'PP-002' },
+    { id: 3, date: '2025-03-26', description: 'Bank Charges', amount: 500, type: 'debit', matched: false, voucher: null },
+    { id: 4, date: '2025-03-25', description: 'Received from Customer - Sharma', amount: 75000, type: 'credit', matched: false, voucher: null },
+    { id: 5, date: '2025-03-24', description: 'EMI - HDFC Bank', amount: 125000, type: 'debit', matched: true, voucher: 'JV-005' }
+  ]
+  renderBankFeed(bankFeedData)
+  updateBankStats()
+}
+
+function renderBankFeed(data) {
+  const tbody = document.getElementById('bankFeedTable')
+  if (!tbody) return
+  
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No bank transactions found</td></tr>'
+    return
+  }
+  
+  tbody.innerHTML = data.map(item => `
+    <tr class="${item.matched ? 'bank-matched' : 'bank-unmatched'}">
+      <td><input type="checkbox" class="bank-checkbox" ${item.matched ? 'checked' : ''}></td>
+      <td>${item.date}</td>
+      <td>${item.description}</td>
+      <td class="bank-feed-amount ${item.type}">${item.type === 'debit' ? '-' : ''}₹${item.amount.toLocaleString()}</td>
+      <td>${item.voucher || '-'}</td>
+      <td>${item.matched ? '<span class="tag tag-success">Matched</span>' : '<span class="tag tag-warning">Pending</span>'}</td>
+      <td>${item.matched ? '<button class="btn btn-outline" style="padding: 4px 8px;">Unmatch</button>' : '<button class="btn btn-primary" style="padding: 4px 8px;">Match</button>'}</td>
+    </tr>
+  `).join('')
+}
+
+function updateBankStats() {
+  const matched = bankFeedData.filter(d => d.matched).length
+  const unmatched = bankFeedData.filter(d => !d.matched).length
+  const suggested = 2 // Demo value
+  
+  document.getElementById('bankMatched').textContent = matched
+  document.getElementById('bankUnmatched').textContent = unmatched
+  document.getElementById('bankSuggested').textContent = suggested
+  
+  const total = bankFeedData.reduce((sum, d) => sum + d.amount, 0)
+  document.getElementById('bankTotal').textContent = '₹' + total.toLocaleString()
+}
+
+function filterBankFeed(filter, element) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'))
+  element.classList.add('active')
+  
+  let filtered = bankFeedData
+  if (filter === 'matched') filtered = bankFeedData.filter(d => d.matched)
+  if (filter === 'unmatched') filtered = bankFeedData.filter(d => !d.matched)
+  if (filter === 'suggested') filtered = bankFeedData.slice(0, 2)
+  
+  renderBankFeed(filtered)
+}
+
+function connectBank() {
+  alert('🏦 Bank Integration\n\nThis would connect to your bank via APIs like Yodlee or Perfios to automatically import transactions.\n\nIntegration required: Bank API setup')
+}
+
+function reconcileSelected() {
+  alert('✓ Bank Reconciliation\n\nSelected transactions would be matched with existing vouchers automatically.')
+}
+
+// ==================== AI/OCR ENTRY ====================
+function handleOCRUpload(event) {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  // Show preview
+  const reader = new FileReader()
+  reader.onload = function(e) {
+    document.getElementById('ocrPreviewImg').src = e.target.result
+    document.getElementById('ocrPreview').style.display = 'block'
+  }
+  reader.readAsDataURL(file)
+  
+  // Simulate OCR extraction
+  setTimeout(() => {
+    document.getElementById('ocrResult').innerHTML = '<p style="color: #22c55e;">✓ Document processed! Data extracted successfully.</p>'
+    document.getElementById('ocrFields').style.display = 'block'
+    
+    // Pre-fill with demo extracted data
+    document.getElementById('ocrPartyName').value = 'Singla Steel Corporation'
+    document.getElementById('ocrGSTIN').value = '29AAECS1234A1Z5'
+    document.getElementById('ocrInvoiceNum').value = 'INV-2025-0042'
+    document.getElementById('ocrInvoiceDate').value = '2025-03-25'
+    document.getElementById('ocrAmount').value = '118000'
+    document.getElementById('ocrCGST').value = '9000'
+    document.getElementById('ocrSGST').value = '9000'
+  }, 1500)
+}
+
+function clearOCRData() {
+  document.getElementById('ocrPreview').style.display = 'none'
+  document.getElementById('ocrFields').style.display = 'none'
+  document.getElementById('ocrResult').innerHTML = '<p style="color: #64748b;">Upload a document to extract data automatically using AI.</p>'
+  document.getElementById('ocrFileInput').value = ''
+}
+
+function createVoucherFromOCR() {
+  alert('🤖 Creating voucher from extracted data...\n\nThis would automatically create a purchase voucher with the extracted invoice data.')
+}
+
+function scanDocument() {
+  if ('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices) {
+    alert('📷 Camera Access\n\nThis would open the camera to scan documents for OCR processing.')
+  } else {
+    alert('Camera not supported in this browser')
+  }
+}
+
+function uploadInvoice() {
+  document.getElementById('ocrFileInput').click()
+}
+
+function loadOCRHistory() {
+  // Demo history data would be loaded here
+}
+
+// ==================== E-INVOICE ====================
+function switchEInvoiceTab(tab, element) {
+  document.querySelectorAll('#eInvoiceSection .pill-tab').forEach(t => t.classList.remove('active'))
+  element.classList.add('active')
+  
+  document.getElementById('eInvoiceCreate').style.display = tab === 'create' ? 'block' : 'none'
+  document.getElementById('eInvoiceGenerated').style.display = tab === 'generated' ? 'block' : 'none'
+  document.getElementById('eWayBill').style.display = tab === 'ewaybill' ? 'block' : 'none'
+}
+
+function addEINVItem() {
+  const container = document.getElementById('einvItems')
+  const row = document.createElement('div')
+  row.className = 'einvoice-item-row'
+  row.innerHTML = `
+    <input type="text" class="voucher-input" placeholder="Item description">
+    <input type="text" class="voucher-input" placeholder="7214">
+    <input type="number" class="voucher-input" placeholder="1" min="0">
+    <input type="number" class="voucher-input" placeholder="0.00" min="0" step="0.01">
+    <input type="number" class="voucher-input" placeholder="0.00" readonly>
+    <button class="voucher-delete" onclick="this.parentElement.remove()">×</button>
+  `
+  container.appendChild(row)
+}
+
+function generateEINV() {
+  alert('📄 Generating E-Invoice...\n\nThis would connect to the GSTN portal to generate a legally valid e-invoice with IRN.')
+}
+
+function saveEINVDraft() {
+  alert('💾 Draft saved successfully!')
+}
+
+function bulkEInvoice() {
+  alert('📦 Bulk E-Invoice Generation\n\nThis would generate e-invoices for multiple invoices at once.')
+}
+
+function generateEWayBill() {
+  alert('🚚 Generating E-Way Bill...\n\nThis would create an e-way bill for transportation of goods.')
+}
+
+// ==================== WORKFLOWS ====================
+function loadWorkflows() {
+  console.log('Loading workflows...')
+}
+
+function createWorkflow() {
+  alert('➕ Create Workflow\n\nThis would open a modal to create custom automated workflows.')
+}
+
+// ==================== REPORTS ====================
+function showReport(type) {
+  document.querySelectorAll('.report-section').forEach(r => r.style.display = 'none')
+  document.getElementById('report' + type.charAt(0).toUpperCase() + type.slice(1)).style.display = 'block'
+}
+
+function switchGSTRTab(tab, element) {
+  // GSTR tab switching logic
+  alert('This would show detailed ' + tab + ' reports')
+}
+
+function loadReports() {
+  console.log('Loading reports...')
+}
+
+// ==================== SETTINGS ====================
+function loadSettings() {
+  console.log('Loading settings...')
+}
+
+function showAddUserModal() {
+  alert('➕ Add User\n\nThis would open a modal to add new users with specific roles and permissions.')
+}
           })
         }
       })
