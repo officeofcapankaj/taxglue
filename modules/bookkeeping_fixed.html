@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxGlue Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+/* Layout */
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%);
+  color: white;
+  padding: 0;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.sidebar-nav {
+  padding: 20px 12px;
+}
+
+.nav-section {
+  margin-bottom: 24px;
+}
+
+.nav-section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.4);
+  padding: 0 12px;
+  margin-bottom: 8px;
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.sidebar a:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.sidebar a.active {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.8;
+}
+
+/* Main Content */
+.main {
+  flex: 1;
+  margin-left: 260px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Topbar */
+.topbar {
+  background: white;
+  padding: 16px 32px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.breadcrumb {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.user-info {
+  text-align: right;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.user-email {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.logout-btn {
+  display: inline-block;
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.logout-btn:hover {
+  background: #fecaca;
+  text-decoration: none;
+}
+
+/* Content Area */
+.content {
+  padding: 32px;
+  flex: 1;
+}
+
+/* Welcome Section */
+.welcome-section {
+  background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+  border-radius: 16px;
+  padding: 32px;
+  color: white;
+  margin-bottom: 32px;
+}
+
+.welcome-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.welcome-subtitle {
+  font-size: 15px;
+  opacity: 0.8;
+  margin-bottom: 24px;
+}
+
+.welcome-stats {
+  display: flex;
+  gap: 32px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.action-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+}
+
+.action-card:hover {
+  border-color: #22c55e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.action-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.action-icon.green { background: #dcfce7; }
+.action-icon.blue { background: #dbeafe; }
+.action-icon.purple { background: #f3e8ff; }
+.action-icon.orange { background: #ffedd5; }
+
+.action-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.action-desc {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* Grid Layout */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+/* Cards */
+.card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.card-link {
+  font-size: 13px;
+  color: #22c55e;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.card-link:hover {
+  text-decoration: underline;
+}
+
+.card-body {
+  padding: 24px;
+}
+
+/* Recent Clients */
+.client-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.client-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.client-item:hover {
+  background: #f8fafc;
+}
+
+.client-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.client-avatar.blue { background: #dbeafe; color: #2563eb; }
+.client-avatar.green { background: #dcfce7; color: #16a34a; }
+.client-avatar.purple { background: #f3e8ff; color: #9333ea; }
+
+.client-info {
+  flex: 1;
+}
+
+.client-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.client-company {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.client-status {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.client-status.active {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+/* Activity Feed */
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.activity-item {
+  display: flex;
+  gap: 12px;
+}
+
+.activity-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.activity-dot.green { background: #22c55e; }
+.activity-dot.blue { background: #3b82f6; }
+.activity-dot.orange { background: #f97316; }
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-text {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.activity-time {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #94a3b8;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .module-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+  
+  .main {
+    margin-left: 0;
+  }
+  
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+  
+  .welcome-stats {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .module-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .master-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Module Section */
+.module-section {
+  margin-bottom: 40px;
+}
+
+.section-header {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 4px;
+  align-items: stretch;
+}
+
+.module-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+.module-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.module-card:hover {
+  border-color: #22c55e;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(34, 197, 94, 0.15);
+}
+
+.module-card:hover::before {
+  opacity: 1;
+}
+
+.module-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 18px;
+}
+
+.module-icon.blue { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); }
+.module-icon.green { background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); }
+.module-icon.orange { background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%); }
+.module-icon.purple { background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); }
+.module-icon.red { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); }
+.module-icon.teal { background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%); }
+.module-icon.pink { background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); }
+.module-icon.indigo { background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); }
+.module-icon.cyan { background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%); }
+.module-icon.amber { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
+
+.module-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #1e293b;
+}
+
+.module-desc {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.module-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  margin-top: auto;
+}
+
+.feature-tag {
+  font-size: 11px;
+  padding: 5px 10px;
+  background: #f8fafc;
+  border-radius: 6px;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  font-weight: 500;
+}
+
+.module-link {
+  font-size: 14px;
+  color: #22c55e;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0;
+}
+
+.module-link:hover {
+  text-decoration: underline;
+}
+
+/* Master Section */
+.master-section {
+  margin-bottom: 40px;
+}
+
+.master-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.master-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.master-card:hover {
+  border-color: #22c55e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.master-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.master-icon.blue { background: #dbeafe; }
+.master-icon.green { background: #dcfce7; }
+
+.master-info {
+  flex: 1;
+}
+
+.master-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.master-info p {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.master-arrow {
+  font-size: 20px;
+  color: #22c55e;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon">📊</div>
+      TaxGlue
+    </div>
+  </div>
+  
+  <!-- Global Client Selector -->
+  <div style="padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+    <label style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); display: block; margin-bottom: 8px;">
+      <span style="margin-right: 6px;">👤</span>Active Client
+    </label>
+    <div style="position: relative;">
+      <select id="globalClientSelect" 
+        onchange="handleGlobalClientChange(this)" 
+        onmousedown="this.style.borderColor='rgba(34,197,94,0.8)';"
+        onblur="this.style.borderColor='rgba(255,255,255,0.15)';"
+        style="width: 100%; padding: 12px 36px 12px 14px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.15); 
+               background: rgba(255,255,255,0.08); color: white; font-size: 14px; cursor: pointer;
+               appearance: none; -webkit-appearance: none; 
+               background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22rgba(255,255,255,0.7)%22 d=%22M6 8L1 3h10z%22/></svg>'); 
+               background-repeat: no-repeat; background-position: right 12px center;
+               transition: border-color 0.2s, background 0.2s;">
+        <option value="" style="color: #64748b; background: #1e293b;">-- Select Client --</option>
+        <option value="demo-1" style="color: white; background: #1e3a5f;">Singla Steel Corporation</option>
+        <option value="demo-2" style="color: white; background: #1e3a5f;">Rana Industries</option>
+        <option value="demo-3" style="color: white; background: #1e3a5f;">Sharma Traders</option>
+        <option value="demo-4" style="color: white; background: #1e3a5f;">Gupta Construction</option>
+        <option value="demo-5" style="color: white; background: #1e3a5f;">Aggarwal Textiles</option>
+        <option value="demo-6" style="color: white; background: #1e3a5f;">Jain Logistics</option>
+        <option value="demo-7" style="color: white; background: #1e3a5f;">Patel Electronics</option>
+        <option value="demo-8" style="color: white; background: #1e3a5f;">Reddy & Co</option>
+        <option value="demo-9" style="color: white; background: #1e3a5f;">Kumar Medical Stores</option>
+        <option value="demo-10" style="color: white; background: #1e3a5f;">Chowdhury Consultants</option>
+      </select>
+    </div>
+    <div id="selectedClientInfo" style="margin-top: 10px; padding: 8px 12px; background: rgba(34, 197, 94, 0.2); border-radius: 6px; font-size: 13px; color: #4ade80; display: none; border: 1px solid rgba(34, 197, 94, 0.3);">
+      <span style="font-weight: 600;">✓</span> <span id="selectedClientName"></span>
+    </div>
+  </div>
+  
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <a href="/app/dashboard.html" class="active">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="/app/clients.html">
+        <span class="nav-icon">👥</span> Clients
+      </a>
+      <a href="/app/ca-master.html">
+        <span class="nav-icon">🎓</span> CA Master
+      </a>
+    </div>
+    
+    <div class="nav-section">
+      <div class="nav-section-title">Accounting</div>
+      <a href="/modules/bookkeeping.html">
+        <span class="nav-icon">📒</span> Book-Keeping
+      </a>
+      <a href="/modules/trial-balance.html">
+        <span class="nav-icon">📊</span> Trial Balance
+      </a>
+      <a href="/modules/financial-statements.html">
+        <span class="nav-icon">⚖️</span> Financial Statements
+      </a>
+    </div>
+    
+    <div class="nav-section">
+      <div class="nav-section-title">Tax & Compliance</div>
+      <a href="/app/gst.html">
+        <span class="nav-icon">🧾</span> GST Returns
+      </a>
+      <a href="/app/tds.html">
+        <span class="nav-icon">💰</span> TDS Management
+      </a>
+      <a href="#">
+        <span class="nav-icon">📋</span> Tax Calendar
+      </a>
+    </div>
+    
+    <div class="nav-section">
+      <div class="nav-section-title">Tools</div>
+      <a href="#">
+        <span class="nav-icon">📁</span> Documents
+      </a>
+      <a href="#">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main">
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1 class="page-title">Dashboard</h1>
+      <span class="breadcrumb">Home / Dashboard</span>
+    </div>
+    <div class="topbar-right">
+      <div class="user-menu">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">User</div>
+          <div class="user-email" id="userEmail">user@email.com</div>
+        </div>
+      </div>
+      <a href="/app/login.html" class="logout-btn" id="logoutBtn" onclick="localStorage.clear(); return true;">Logout</a>
+    </div>
+  </header>
+  
+  <!-- Content -->
+  <div class="content">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+      <h2 class="welcome-title">Welcome back! 👋</h2>
+      <p class="welcome-subtitle">Here's what's happening with your practice today.</p>
+      <div class="welcome-stats">
+        <div class="stat-item">
+          <div class="stat-value">12</div>
+          <div class="stat-label">Active Clients</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">3</div>
+          <div class="stat-label">Pending Returns</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">₹45L</div>
+          <div class="stat-label">Total Turnover</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">98%</div>
+          <div class="stat-label">Compliance Rate</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Software Modules -->
+    <div class="module-section">
+      <div class="section-header">
+        <h2 class="section-title">Our Software Solutions</h2>
+        <p class="section-subtitle">All-in-one practice management platform</p>
+      </div>
+      
+      <div class="module-grid">
+        <!-- Balance Sheet Builder -->
+        <div class="module-card">
+          <div class="module-icon blue">
+            <span>⚖️</span>
+          </div>
+          <h3 class="module-title">Balance Sheet Builder</h3>
+          <p class="module-desc">Complete financial statement solution</p>
+          <div class="module-features">
+            <span class="feature-tag">Trial Balance</span>
+            <span class="feature-tag">Balance Sheet</span>
+            <span class="feature-tag">Profit & Loss</span>
+            <span class="feature-tag">Cash Flow</span>
+            <span class="feature-tag">Notes to Accounts</span>
+          </div>
+          <a href="/modules/trial-balance.html" class="module-link">Open →</a>
+        </div>
+        
+        <!-- Book-Keeping -->
+        <div class="module-card">
+          <div class="module-icon green">
+            <span>📒</span>
+          </div>
+          <h3 class="module-title">Book-Keeping</h3>
+          <p class="module-desc">Digital record keeping made easy</p>
+          <div class="module-features">
+            <span class="feature-tag">Voucher Entry</span>
+            <span class="feature-tag">Ledger</span>
+            <span class="feature-tag">Day Book</span>
+            <span class="feature-tag">Cash Book</span>
+          </div>
+          <a href="/modules/bookkeeping.html" class="module-link">Open Module →</a>
+        
+        <!-- GST -->
+        <div class="module-card">
+          <div class="module-icon orange">
+            <span>🧾</span>
+          </div>
+          <h3 class="module-title">GST</h3>
+          <p class="module-desc">GST returns & reconciliation</p>
+          <div class="module-features">
+            <span class="feature-tag">GSTR-1</span>
+            <span class="feature-tag">GSTR-3B</span>
+            <span class="feature-tag">Reconciliation</span>
+            <span class="feature-tag">E-way Bill</span>
+          </div>
+          <a href="/app/gst.html" class="module-link">Open Module →</a>
+        </div>
+        
+        <!-- TDS -->
+        <div class="module-card">
+          <div class="module-icon purple">
+            <span>💰</span>
+          </div>
+          <h3 class="module-title">TDS</h3>
+          <p class="module-desc">Tax deduction & collection</p>
+          <div class="module-features">
+            <span class="feature-tag">Form 16</span>
+            <span class="feature-tag">Form 26Q</span>
+            <span class="feature-tag">TDS Returns</span>
+            <span class="feature-tag">Certificate</span>
+          </div>
+          <a href="/app/tds.html" class="module-link">Open Module →</a>
+        </div>
+        
+        <!-- Income Tax -->
+        <div class="module-card">
+          <div class="module-icon red">
+            <span>📊</span>
+          </div>
+          <h3 class="module-title">Income Tax</h3>
+          <p class="module-desc">IT returns & planning</p>
+          <div class="module-features">
+            <span class="feature-tag">ITR Filing</span>
+            <span class="feature-tag">Tax Planning</span>
+            <span class="feature-tag">TDS Computation</span>
+            <span class="feature-tag">Form 16A</span>
+          </div>
+          <a href="/app/incometax.html" class="module-link">Open Module →</a>
+        </div>
+        
+        <!-- Payroll -->
+        <div class="module-card">
+          <div class="module-icon teal">
+            <span>👥</span>
+          </div>
+          <h3 class="module-title">Payroll Management</h3>
+          <p class="module-desc">Employee salary & compliance</p>
+          <div class="module-features">
+            <span class="feature-tag">Salary Processing</span>
+            <span class="feature-tag">PF</span>
+            <span class="feature-tag">ESI</span>
+            <span class="feature-tag">Payslips</span>
+          </div>
+          <a href="/modules/payroll.html" class="module-link">Open Module →</a>
+        </div>
+        
+        <!-- Regular Updates -->
+        <div class="module-card">
+          <div class="module-icon pink">
+            <span>🔔</span>
+          </div>
+          <h3 class="module-title">Regular Updates</h3>
+          <p class="module-desc">Stay informed with latest changes</p>
+          <div class="module-features">
+            <span class="feature-tag">Tax Updates</span>
+            <span class="feature-tag">Notifications</span>
+            <span class="feature-tag">Deadlines</span>
+            <span class="feature-tag">Alerts</span>
+          </div>
+          <a href="/modules/updates.html" class="module-link">Open Module →</a>
+        </div>
+        
+        <!-- Audit -->
+        <div class="module-card">
+          <div class="module-icon indigo">
+            <span>📋</span>
+          </div>
+          <h3 class="module-title">Audit</h3>
+          <p class="module-desc">Statutory & internal audit tools</p>
+          <div class="module-features">
+            <span class="feature-tag">Audit Program</span>
+            <span class="feature-tag">Working Papers</span>
+            <span class="feature-tag">Checklists</span>
+            <span class="feature-tag">Reports</span>
+          </div>
+          <a href="/modules/audit.html" class="module-link">Open Module →</a>
+        </div>
+        
+        <!-- MCA Compliance -->
+        <div class="module-card">
+          <div class="module-icon cyan">
+            <span>🏢</span>
+          </div>
+          <h3 class="module-title">MCA Compliance</h3>
+          <p class="module-desc">Ministry of Corporate Affairs</p>
+          <div class="module-features">
+            <span class="feature-tag">ROC Returns</span>
+            <span class="feature-tag">MCA Forms</span>
+            <span class="feature-tag">Company Law</span>
+            <span class="feature-tag">Filings</span>
+          </div>
+          <a href="/modules/mca.html" class="module-link">Open Module →</a>
+        </div>
+        
+        <!-- Task Management -->
+        <div class="module-card">
+          <div class="module-icon amber">
+            <span>✅</span>
+          </div>
+          <h3 class="module-title">Task Management</h3>
+          <p class="module-desc">Track & manage your work</p>
+          <div class="module-features">
+            <span class="feature-tag">To-Do List</span>
+            <span class="feature-tag">Deadlines</span>
+            <span class="feature-tag">Reminders</span>
+            <span class="feature-tag">Team Work</span>
+          </div>
+          <a href="/modules/tasks.html" class="module-link">Open Module →</a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Client & CA Master -->
+    <div class="master-section">
+      <div class="section-header">
+        <h2 class="section-title">Master Data</h2>
+        <p class="section-subtitle">Common masters for all software modules</p>
+      </div>
+      
+      <div class="master-grid">
+        <a href="/app/clients.html" class="master-card">
+          <div class="master-icon blue">
+            <span>👥</span>
+          </div>
+          <div class="master-info">
+            <h3>Client Master</h3>
+            <p>Manage all your client profiles and details</p>
+          </div>
+          <span class="master-arrow">→</span>
+        </a>
+        
+        <a href="/app/ca-master.html" class="master-card">
+          <div class="master-icon green">
+            <span>🎓</span>
+          </div>
+          <div class="master-info">
+            <h3>CA Master</h3>
+            <p>Maintain CA/Partner profiles and credentials</p>
+          </div>
+          <span class="master-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+const supabase = supabase.createClient(
+  "https://jgjeuybgideeqcjxvlmn.supabase.co",
+  "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
+)
+
+async function checkUser() {
+  // Check for demo mode first
+  const demoToken = localStorage.getItem('supabase.auth.token')
+  if (demoToken) {
+    try {
+      const tokenData = JSON.parse(demoToken)
+      if (tokenData.user) {
+        const email = tokenData.user.email || localStorage.getItem('userEmail') || 'demo@taxglue.com'
+        const name = tokenData.user.user_metadata?.name || localStorage.getItem('userName') || 'Demo User'
+        document.getElementById("userEmail").innerText = email
+        document.getElementById("userName").innerText = name
+        document.getElementById("userAvatar").innerText = name.charAt(0).toUpperCase()
+        
+        // Initialize global client selector in demo mode too
+        initGlobalClientSelector()
+        return // Allow access in demo mode
+      }
+    } catch (e) {
+      console.log('Demo mode parse error:', e)
+    }
+  }
+  
+  // Normal Supabase auth check
+  const { data } = await supabase.auth.getUser()
+  
+  if (!data.user) {
+    window.location.href = "login.html"
+  } else {
+    const email = data.user.email
+    document.getElementById("userEmail").innerText = email
+    document.getElementById("userName").innerText = email.split('@')[0]
+    document.getElementById("userAvatar").innerText = email.charAt(0).toUpperCase()
+    
+    // Initialize global client selector after auth check
+    initGlobalClientSelector()
+  }
+}
+
+// Make logout a global function
+window.logout = function() {
+  console.log('Logout function called')
+  localStorage.clear()
+  console.log('localStorage cleared')
+  window.location.replace("/app/login.html")
+}
+
+// ============================================
+// Global Client Selector Functions
+// ============================================
+
+// Initialize global client selector on page load
+async function initGlobalClientSelector() {
+  const select = document.getElementById('globalClientSelect');
+  if (!select) return;
+  
+  try {
+    // First try to load from localStorage (for demo mode)
+    const storedClients = localStorage.getItem('clients');
+    let clients = [];
+    
+    if (storedClients) {
+      try {
+        clients = JSON.parse(storedClients);
+      } catch (e) {
+        console.log('Error parsing stored clients:', e);
+      }
+    }
+    
+    // If no local clients, try Supabase
+    if (clients.length === 0) {
+      try {
+        // Load Supabase if not already loaded
+        if (typeof supabase === 'undefined') {
+          const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm");
+          window.supabase = createClient(
+            "https://jgjeuybgideeqcjxvlmn.supabase.co",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnSmV1eWJnaWRlZXFjanh2bG1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDY3OTc4NDMsImV4cCI6MjAyMjM3Mzg0M30.N2uZQjDBprDZr7SbkZ鄂B0aZVmqSvhM1-nMvYQJ7wU"
+          );
+        }
+        
+        // Fetch clients from Supabase
+        const { data: supabaseClients, error } = await supabase
+          .from('clients')
+          .select('id, name, constitution')
+          .order('name');
+        
+        if (!error && supabaseClients) {
+          clients = supabaseClients;
+        }
+      } catch (supabaseError) {
+        console.log('Supabase not available, using demo clients:', supabaseError.message);
+      }
+    }
+    
+    // Populate selector with available clients
+    select.innerHTML = '<option value="">-- Select Client --</option>';
+    
+    if (clients && clients.length > 0) {
+      clients.forEach(client => {
+        const opt = document.createElement('option');
+        opt.value = client.id;
+        opt.textContent = `${client.name || client.client_name || 'Unnamed'} (${client.constitution || 'N/A'})`;
+        opt.dataset.name = client.name || client.client_name || '';
+        select.appendChild(opt);
+      });
+    } else {
+      // Fallback to full demo clients if none available from localStorage or Supabase
+      const demoClients = [
+        { id: 'demo-1', name: 'Singla Steel Corporation', constitution: 'Proprietorship' },
+        { id: 'demo-2', name: 'Rana Industries', constitution: 'Partnership Firm' },
+        { id: 'demo-3', name: 'Sharma Traders', constitution: 'Sole Proprietorship' },
+        { id: 'demo-4', name: 'Gupta Construction', constitution: 'Private Limited Company' },
+        { id: 'demo-5', name: 'Aggarwal Textiles', constitution: 'LLP' },
+        { id: 'demo-6', name: 'Jain Logistics', constitution: 'Proprietorship' },
+        { id: 'demo-7', name: 'Patel Electronics', constitution: 'Private Limited Company' },
+        { id: 'demo-8', name: 'Reddy & Co', constitution: 'Partnership Firm' },
+        { id: 'demo-9', name: 'Kumar Medical Stores', constitution: 'Sole Proprietorship' },
+        { id: 'demo-10', name: 'Chowdhury Consultants', constitution: 'LLP' }
+      ];
+      demoClients.forEach(client => {
+        const opt = document.createElement('option');
+        opt.value = client.id;
+        opt.textContent = `${client.name} (${client.constitution})`;
+        opt.dataset.name = client.name;
+        select.appendChild(opt);
+      });
+      // Also save to localStorage for future use
+      localStorage.setItem('clients', JSON.stringify(demoClients));
+    }
+    
+    // Restore previously selected client
+    const savedClientId = localStorage.getItem('taxglue_selected_client');
+    if (savedClientId) {
+      select.value = savedClientId;
+      // Show saved client info
+      const savedClientName = localStorage.getItem('taxglue_selected_client_name');
+      const infoDiv = document.getElementById('selectedClientInfo');
+      const nameSpan = document.getElementById('selectedClientName');
+      if (infoDiv && nameSpan && savedClientName) {
+        nameSpan.textContent = savedClientName;
+        infoDiv.style.display = 'block';
+      }
+    }
+    
+    console.log('Client selector initialized, saved client:', savedClientId);
+    
+  } catch (e) {
+    console.error('Error loading clients:', e);
+  }
+}
+
+// Handle global client selection change
+function handleGlobalClientChange(selectElement) {
+  const clientId = selectElement.value;
+  const clientName = selectElement.options[selectElement.selectedIndex]?.text || '';
+  
+  console.log('Client change handler triggered:', clientId, clientName);
+  
+  if (clientId) {
+    localStorage.setItem('taxglue_selected_client', clientId);
+    localStorage.setItem('taxglue_selected_client_name', clientName);
+    
+    // Show visual feedback
+    const infoDiv = document.getElementById('selectedClientInfo');
+    const nameSpan = document.getElementById('selectedClientName');
+    if (infoDiv && nameSpan) {
+      nameSpan.textContent = clientName;
+      infoDiv.style.display = 'block';
+      console.log('Showing client:', clientName);
+    }
+  } else {
+    localStorage.removeItem('taxglue_selected_client');
+    localStorage.removeItem('taxglue_selected_client_name');
+    const infoDiv = document.getElementById('selectedClientInfo');
+    if (infoDiv) infoDiv.style.display = 'none';
+  }
+  
+  // Notify other components
+  window.dispatchEvent(new CustomEvent('clientChanged', { 
+    detail: { clientId, clientName } 
+  }));
+}
+
+// Restore selected client on page load
+function restoreSelectedClient() {
+  const select = document.getElementById('globalClientSelect');
+  const savedClientId = localStorage.getItem('taxglue_selected_client');
+  const savedClientName = localStorage.getItem('taxglue_selected_client_name');
+  
+  console.log('Restoring client:', savedClientId, savedClientName);
+  
+  if (savedClientId && select) {
+    select.value = savedClientId;
+    
+    // Show the saved client
+    const infoDiv = document.getElementById('selectedClientInfo');
+    const nameSpan = document.getElementById('selectedClientName');
+    if (infoDiv && nameSpan && savedClientName) {
+      nameSpan.textContent = savedClientName;
+      infoDiv.style.display = 'block';
+    }
+  }
+}
+
+// Update the selected client display
+function updateSelectedClientDisplay(clientId) {
+  const infoDiv = document.getElementById('selectedClientInfo');
+  const nameSpan = document.getElementById('selectedClientName');
+  const select = document.getElementById('globalClientSelect');
+  
+  if (clientId && select) {
+    const selectedOption = select.options[select.selectedIndex];
+    const clientName = selectedOption?.dataset?.name || selectedOption?.textContent || '';
+    
+    if (infoDiv && nameSpan) {
+      nameSpan.textContent = 'Working on: ' + clientName;
+      infoDiv.style.display = 'block';
+    }
+  }
+}
+
+// Hide selected client display
+function hideSelectedClientDisplay() {
+  const infoDiv = document.getElementById('selectedClientInfo');
+  if (infoDiv) {
+    infoDiv.style.display = 'none';
+  }
+}
+
+// Get currently selected client ID
+function getSelectedClientId() {
+  return localStorage.getItem('taxglue_selected_client') || '';
+}
+
+// Get currently selected client name
+function getSelectedClientName() {
+  return localStorage.getItem('taxglue_selected_client_name') || '';
+}
+
+// Get selected financial year
+function getSelectedFY() {
+  return localStorage.getItem('taxglue_selected_fy') || '2024-25';
+}
+
+// Set selected financial year
+function setSelectedFY(fy) {
+  localStorage.setItem('taxglue_selected_fy', fy);
+}
+
+// Require client selection - returns true if client is selected
+function requireClientSelection() {
+  const clientId = getSelectedClientId();
+  if (!clientId) {
+    alert('Please select a client first using the dropdown in the sidebar.');
+    const select = document.getElementById('globalClientSelect');
+    if (select) select.focus();
+    return false;
+  }
+  return true;
+}
+
+// Make functions globally available
+window.handleGlobalClientChange = handleGlobalClientChange;
+window.getSelectedClientId = getSelectedClientId;
+window.getSelectedClientName = getSelectedClientName;
+window.getSelectedFY = getSelectedFY;
+window.setSelectedFY = setSelectedFY;
+window.requireClientSelection = requireClientSelection;
+
+// Auto logout after 2 minutes of inactivity
+let idleTime = 0;
+const idleTimeout = 2 * 60 * 1000; // 2 minutes in milliseconds
+
+// Reset idle time on user activity
+document.addEventListener('mousemove', resetIdleTimer);
+document.addEventListener('keypress', resetIdleTimer);
+document.addEventListener('click', resetIdleTimer);
+document.addEventListener('scroll', resetIdleTimer);
+
+function resetIdleTimer() {
+  idleTime = 0;
+}
+
+// Check idle time every second
+setInterval(function() {
+  idleTime += 1000;
+  if (idleTime >= idleTimeout) {
+    console.log('User idle for 2 minutes, logging out...');
+    logout();
+  }
+}, 1000);
+
+checkUser()
+</script>
+</body>
+</html>
