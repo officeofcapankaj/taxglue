@@ -6,6 +6,24 @@
 <title>Book-Keeping | TaxGlue</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<style id="emergencyStyles">
+/* EMERGENCY: Force show main content */
+.container { display: flex !important; }
+.sidebar { display: block !important; }
+.main { display: block !important; margin-left: 260px; }
+.content { display: block !important; }
+.selection-bar { display: flex !important; }
+#mastersSection, #voucherSection, #ledgerSection, #daybookSection, #cashbookSection { display: block !important; }
+</style>
+<script>
+// Force show main content after page loads
+setTimeout(function() {
+  var elements = document.querySelectorAll(".container, .sidebar, .main, .content");
+  elements.forEach(function(el) { el.style.display = ""; el.style.visibility = "visible"; });
+  var sections = document.querySelectorAll("[id$='Section']");
+  sections.forEach(function(el) { el.style.display = "block"; el.style.visibility = "visible"; });
+}, 500);
+</script>
 <style>
 /* EMERGENCY: Always show main content - override any JS hiding */
 .container { display: flex !important; visibility: visible !important; opacity: 1 !important; }
