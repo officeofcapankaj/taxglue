@@ -13,6 +13,12 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
 .container { display: flex; min-height: 100vh; }
+
+/* Debug - temporarily show everything */
+#mastersSection, #voucherSection, #ledgerSection, #daybookSection, #cashbookSection, #stockSection, #trialbalanceSection, #financialsSection, #bankReconciliationSection, #ocrEntrySection, #eInvoiceSection, #workflowsSection, #reportsAdvancedSection, #settingsSection { display: block !important; }
+.sidebar, .main, .content { display: block !important; }
+.main { margin-left: 260px !important; }
+
 .sidebar { width: 260px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); color: white; padding: 0; position: fixed; height: 100vh; overflow-y: auto; }
 .sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
 .logo { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
