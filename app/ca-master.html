@@ -53,6 +53,7 @@ tr:hover { background: #f8fafc; }
 .success-message { background: #dcfce7; color: #16a34a; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px; display: none; }
 .success-message.show { display: block; }
 @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } .form-grid, .form-grid-2 { grid-template-columns: 1fr; } }
+.form-card.hidden { display: none; }
 </style>
 </head>
 <body>
@@ -89,7 +90,6 @@ tr:hover { background: #f8fafc; }
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #e2e8f0;">
         <h2 class="form-title" style="margin:0;padding:0;border:none;">CA / Partner List</h2>
         <button type="button" class="btn btn-primary" id="addCaBtn">+ Add CA</button>
-        <button type="button" class="btn btn-secondary" onclick="document.getElementById('caFormCard').style.display='block'">Debug: Show Form</button>
       </div>
       <div style="margin-bottom: 20px;">
         <input type="text" id="caSearch" class="form-input" placeholder="🔍 Search CA by name, membership no., firm name, PAN, GSTIN or mobile..." onkeyup="searchCA()" style="max-width: 400px;">
@@ -104,7 +104,7 @@ tr:hover { background: #f8fafc; }
       </div>
     </div>
     
-    <div class="form-card" id="caFormCard" style="display: none;">
+    <div class="form-card" id="caFormCard">
       <h2 class="form-title" id="caFormTitle">Add New CA / Partner</h2>
       <form id="caForm">
         <!-- Personal Details -->
@@ -254,7 +254,7 @@ function showForm() {
   console.log('showForm called');
   const formCard = document.getElementById('caFormCard')
   if (formCard) {
-    formCard.style.setProperty('display', 'block', 'important');
+    formCard.classList.remove('hidden')
     editingCAId = null
     
     // Reset form title and button
@@ -434,7 +434,7 @@ function editCA(id) {
   if (!ca) return
   editingCAId = id
   const formCard = document.getElementById('caFormCard')
-  if (formCard) formCard.style.setProperty('display', 'block', 'important')
+  if (formCard) formCard.classList.remove('hidden')
   document.getElementById('caFormTitle').textContent = 'Edit CA / Partner'
   document.getElementById('saveBtn').textContent = '💾 Update CA Details'
   document.getElementById('deleteBtn').style.display = 'inline-flex'
@@ -475,7 +475,7 @@ async function deleteCA() {
   localStorage.setItem('caList', JSON.stringify(caList))
   renderCA()
   // Hide form after delete
-  document.getElementById('caFormCard').style.display = 'none'
+  document.getElementById('caFormCard').classList.add('hidden')
   resetForm()
 }
 
@@ -532,7 +532,7 @@ document.getElementById('caForm').addEventListener('submit', async function(e) {
   setTimeout(() => document.getElementById('successMessage').classList.remove('show'), 3000)
   renderCA()
   // Hide form after save
-  document.getElementById('caFormCard').style.display = 'none'
+  document.getElementById('caFormCard').classList.add('hidden')
   resetForm()
 })
 
@@ -573,7 +573,7 @@ function searchCA() {
 }
 
 // Initially hide form
-document.getElementById('caFormCard').style.display = 'none'
+document.getElementById('caFormCard').classList.add('hidden')
 renderCA()
 loadCAFromSupabase()
 
