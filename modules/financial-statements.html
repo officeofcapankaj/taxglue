@@ -496,12 +496,39 @@ function convertTBtoBS(tbData) {
   
   tbData.forEach(item => {
     // Handle different property names (backward compatibility)
-    const mainHead = item.mainHead || item.main || item.category || ''
-    const sub1 = item.sub1 || item.subHead || item.account_type || ''
+    const mainHead = item.mainHead || item.main || item.category || item.nature || ''
+    const sub1 = item.sub1 || item.subHead || item.account_type || item.account_name || ''
     const debit = parseFloat(item.debit || item.Debit || 0)
     const credit = parseFloat(item.credit || item.Credit || 0)
     
     console.log('Processing item:', { mainHead, sub1, debit, credit })
+    
+    // Handle simple account_name format
+    const accountName = item.account_name || item.name || item.account || ''
+    if (!sub1 && accountName) {
+      // Categorize based on account name keywords
+      const name = accountName.toLowerCase()
+      if (name.includes('capital') || name.includes('reserve') || name.includes('surplus')) {
+        // Owner's funds
+        if (credit > 0) bs['Share Capital'] = (bs['Share Capital'] || 0) + credit
+        else bs['Reserves and Surplus'] = (bs['Reserves and Surplus'] || 0) + credit
+      } else if (name.includes('loan') || name.includes('borrow')) {
+        if (credit > 0) bs['Long-Term Borrowings'] = (bs['Long-Term Borrowings'] || 0) + credit
+      } else if (name.includes('creditor') || name.includes('payable')) {
+        if (credit > 0) bs['Trade Payables'] = (bs['Trade Payables'] || 0) + credit
+      } else if (name.includes('debtor') || name.includes('receivable')) {
+        if (debit > 0) bs['Trade Receivables'] = (bs['Trade Receivables'] || 0) + debit
+      } else if (name.includes('inventory') || name.includes('stock')) {
+        if (debit > 0) bs['Inventories'] = (bs['Inventories'] || 0) + debit
+      } else if (name.includes('bank') || name.includes('cash')) {
+        if (debit > 0) bs['Cash and Cash Equivalents'] = (bs['Cash and Cash Equivalents'] || 0) + debit
+      } else if (name.includes('equipment') || name.includes('furniture') || name.includes('vehicle')) {
+        if (debit > 0) bs['Property, Plant and Equipment'] = (bs['Property, Plant and Equipment'] || 0) + debit
+      } else if (credit > 0) {
+        bs['Reserves and Surplus'] = (bs['Reserves and Surplus'] || 0) + credit
+      }
+      return
+    }
     
     if (mainHead === 'Liabilities' || mainHead === 'Income') {
       // Credit - add to liabilities or income
@@ -707,9 +734,9 @@ function exportSingle(format) {
     clientName = 'TaxGlue_Export'
   }
   
-  // Initialize empty financial data structure if not available
+  // Initialize with sample data if empty
   if (!financialData || !Array.isArray(financialData) || financialData.length === 0) {
-    financialData = []
+    financialData = getSampleData()
   }
   
   if (format === 'excel') {
