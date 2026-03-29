@@ -784,7 +784,17 @@ function exportSingle(format) {
     const wb = XLSX.utils.book_new()
     const ws = XLSX.utils.aoa_to_sheet(reportData)
     XLSX.utils.book_append_sheet(wb, ws, 'Report')
-    XLSX.writeFile(wb, clientName.replace(/\\s+/g, '_') + '_' + reportType.replace(/\\s+/g, '_') + '_' + fy + '.xlsx')
+    // Create download with Blob using array buffer
+    const wbout = XLSX.write(wb, {bookType: 'xlsx', type: 'array'})
+    const blob = new Blob([wbout], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = (clientName || 'TaxGlue').replace(/\\s+/g, '_') + '_' + (reportType || 'Report').replace(/\\s+/g, '_') + '_' + (fy || '2024-25') + '.xlsx'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
   } else if (format === 'pdf') {
     window.print()
   } else if (format === 'word') {
