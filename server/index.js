@@ -14,6 +14,7 @@ const accountRoutes = require('./routes/accounts');
 const voucherRoutes = require('./routes/vouchers');
 const clientRoutes = require('./routes/clients');
 const reportRoutes = require('./routes/reports');
+const organizationRoutes = require('./routes/organizations');
 
 // Import database initialization
 const { initDatabase } = require('./database/db');
@@ -35,6 +36,7 @@ app.use('/api/accounts', accountRoutes);
 app.use('/api/vouchers', voucherRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/organizations', organizationRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

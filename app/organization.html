@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organization Settings | TaxGlue</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; color: #1e293b; }
+    .container { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); color: white; padding: 0; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-header { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .logo { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .sidebar-nav { padding: 20px 12px; }
+    .nav-section { margin-bottom: 24px; }
+    .nav-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; }
+    .sidebar a { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+    .sidebar a:hover { background: rgba(255,255,255,0.1); color: white; }
+    .sidebar a.active { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .main { flex: 1; margin-left: 260px; }
+    .topbar { background: white; padding: 16px 32px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .page-title { font-size: 20px; font-weight: 600; }
+    .btn-back { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn-back:hover { background: #e2e8f0; }
+    .content { padding: 32px; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .page-header h1 { font-size: 24px; font-weight: 700; }
+    .btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn-primary { background: #22c55e; color: white; }
+    .btn-primary:hover { background: #16a34a; }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-danger:hover { background: #fecaca; }
+    .card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 24px; margin-bottom: 24px; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .card-title { font-size: 18px; font-weight: 600; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; }
+    .form-input:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
+    .form-select { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; }
+    .form-select:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f8fafc; padding: 14px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+    tr:hover { background: #f8fafc; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; }
+    .badge-owner { background: #fef3c7; color: #d97706; }
+    .badge-accountant { background: #dbeafe; color: #2563eb; }
+    .badge-auditor { background: #dcfce7; color: #16a34a; }
+    .badge-consultant { background: #f3e8ff; color: #9333ea; }
+    .badge-member { background: #f1f5f9; color: #475569; }
+    .badge-pending { background: #fef3c7; color: #d97706; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; width: 90%; max-width: 500px; padding: 24px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h2 { font-size: 18px; font-weight: 600; }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; }
+    .empty-state { text-align: center; padding: 48px; color: #64748b; }
+    .loading { text-align: center; padding: 48px; color: #64748b; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="sidebar">
+      <div class="sidebar-header"><div class="logo"><div class="logo-icon">📒</div>TaxGlue</div></div>
+      <div class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">Main</div>
+          <a href="/app/dashboard.html">🏠 Dashboard</a>
+          <a href="/app/clients.html">👥 Clients</a>
+        </div>
+        <div class="nav-section"><div class="nav-section-title">Settings</div>
+          <a href="/app/organization.html" class="active">🏢 Organization</a>
+        </div>
+      </div>
+    </nav>
+    
+    <main class="main">
+      <header class="topbar">
+        <h1 class="page-title">🏢 Organization Settings</h1>
+        <a href="/app/dashboard.html" class="btn-back">← Back to Dashboard</a>
+      </header>
+      
+      <div class="content">
+        <!-- Organization Details Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Organization Details</h2>
+            <button class="btn btn-secondary" onclick="editOrganization()">✏️ Edit</button>
+          </div>
+          <div id="orgDetails">
+            <div class="loading">Loading organization details...</div>
+          </div>
+        </div>
+        
+        <!-- Team Members Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Team Members</h2>
+            <button class="btn btn-primary" onclick="openInviteModal()">+ Invite Member</button>
+          </div>
+          <div id="membersList">
+            <div class="loading">Loading team members...</div>
+          </div>
+        </div>
+        
+        <!-- Pending Invitations Card -->
+        <div class="card" id="pendingInvitationsCard" style="display: none;">
+          <div class="card-header">
+            <h2 class="card-title">Pending Invitations</h2>
+          </div>
+          <div id="pendingInvitations">
+            <div class="loading">Loading pending invitations...</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- Invite Member Modal -->
+  <div id="inviteModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Invite Team Member</h2>
+        <button class="modal-close" onclick="closeInviteModal()">&times;</button>
+      </div>
+      <form onsubmit="sendInvitation(event)">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="inviteEmail" required placeholder="Enter email address">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role</label>
+          <select class="form-select" id="inviteRole" required>
+            <option value="Accountant">Accountant</option>
+            <option value="Auditor">Auditor</option>
+            <option value="Consultant">Consultant</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeInviteModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Send Invitation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    let currentOrganization = null;
+    let currentUser = null;
+    
+    // Load organization data on page load
+    async function init() {
+      await loadOrganization();
+      await loadMembers();
+      await loadPendingInvitations();
+    }
+    
+    // Load organization details
+    async function loadOrganization() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/organizations/my-organization', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          currentOrganization = await response.json();
+          renderOrganization();
+        } else {
+          document.getElementById('orgDetails').innerHTML = '<div class="empty-state">No organization found. Create one to get started.</div>';
+        }
+      } catch (err) {
+        console.error('Error loading organization:', err);
+        document.getElementById('orgDetails').innerHTML = '<div class="empty-state">Error loading organization details.</div>';
+      }
+    }
+    
+    // Render organization details
+    function renderOrganization() {
+      if (!currentOrganization) return;
+      
+      const detailsHtml = `
+        <table>
+          <tr>
+            <td style="width: 200px; color: #64748b;">Organization Name</td>
+            <td><strong>${currentOrganization.name}</strong></td>
+          </tr>
+          <tr>
+            <td style="color: #64748b;">Plan</td>
+            <td><span class="badge badge-member">${currentOrganization.subscription_plan || 'Free'}</span></td>
+          </tr>
+          <tr>
+            <td style="color: #64748b;">Status</td>
+            <td><span class="badge badge-member">${currentOrganization.status || 'Active'}</span></td>
+          </tr>
+          <tr>
+            <td style="color: #64748b;">Created</td>
+            <td>${new Date(currentOrganization.created_at).toLocaleDateString()}</td>
+          </tr>
+        </table>
+      `;
+      
+      document.getElementById('orgDetails').innerHTML = detailsHtml;
+    }
+    
+    // Load team members
+    async function loadMembers() {
+      if (!currentOrganization) {
+        document.getElementById('membersList').innerHTML = '<div class="empty-state">No organization found.</div>';
+        return;
+      }
+      
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/organizations/${currentOrganization.id}/members`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          const members = await response.json();
+          renderMembers(members);
+        } else {
+          document.getElementById('membersList').innerHTML = '<div class="empty-state">Error loading members.</div>';
+        }
+      } catch (err) {
+        console.error('Error loading members:', err);
+        document.getElementById('membersList').innerHTML = '<div class="empty-state">Error loading members.</div>';
+      }
+    }
+    
+    // Render members list
+    function renderMembers(members) {
+      if (!members || members.length === 0) {
+        document.getElementById('membersList').innerHTML = '<div class="empty-state">No team members yet. Invite someone to collaborate!</div>';
+        return;
+      }
+      
+      const membersHtml = `
+        <table>
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${members.map(m => `
+              <tr>
+                <td>
+                  <strong>${m.user?.name || 'Unknown'}</strong><br>
+                  <span style="color: #64748b; font-size: 12px;">${m.user?.email || ''}</span>
+                </td>
+                <td><span class="badge badge-${m.role.toLowerCase()}">${m.role}</span></td>
+                <td><span class="badge badge-${m.status === 'active' ? 'member' : 'pending'}">${m.status}</span></td>
+                <td>${m.joined_at ? new Date(m.joined_at).toLocaleDateString() : '-'}</td>
+                <td>
+                  ${m.role !== 'Owner' ? `<button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="removeMember('${m.id}')">Remove</button>` : '-'}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+      
+      document.getElementById('membersList').innerHTML = membersHtml;
+    }
+    
+    // Load pending invitations
+    async function loadPendingInvitations() {
+      if (!currentOrganization) return;
+      
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/organizations/${currentOrganization.id}/invitations`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          const invitations = await response.json();
+          if (invitations && invitations.length > 0) {
+            document.getElementById('pendingInvitationsCard').style.display = 'block';
+            renderPendingInvitations(invitations);
+          }
+        }
+      } catch (err) {
+        console.error('Error loading invitations:', err);
+      }
+    }
+    
+    // Render pending invitations
+    function renderPendingInvitations(invitations) {
+      const html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Sent</th>
+              <th>Expires</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${invitations.map(i => `
+              <tr>
+                <td>${i.email}</td>
+                <td><span class="badge badge-member">${i.role}</span></td>
+                <td>${new Date(i.created_at).toLocaleDateString()}</td>
+                <td>${new Date(i.expires_at).toLocaleDateString()}</td>
+                <td>
+                  <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="cancelInvitation('${i.id}')">Cancel</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+      
+      document.getElementById('pendingInvitations').innerHTML = html;
+    }
+    
+    // Open invite modal
+    function openInviteModal() {
+      document.getElementById('inviteModal').classList.add('active');
+    }
+    
+    // Close invite modal
+    function closeInviteModal() {
+      document.getElementById('inviteModal').classList.remove('active');
+    }
+    
+    // Send invitation
+    async function sendInvitation(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('inviteEmail').value;
+      const role = document.getElementById('inviteRole').value;
+      
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/organizations/${currentOrganization.id}/invite`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ email, role })
+        });
+        
+        if (response.ok) {
+          alert('Invitation sent successfully!');
+          closeInviteModal();
+          loadPendingInvitations();
+        } else {
+          const data = await response.json();
+          alert('Error: ' + data.error);
+        }
+      } catch (err) {
+        console.error('Error sending invitation:', err);
+        alert('Error sending invitation');
+      }
+    }
+    
+    // Remove member
+    async function removeMember(memberId) {
+      if (!confirm('Are you sure you want to remove this team member?')) return;
+      
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/organizations/${currentOrganization.id}/members/${memberId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          alert('Member removed successfully!');
+          loadMembers();
+        } else {
+          const data = await response.json();
+          alert('Error: ' + data.error);
+        }
+      } catch (err) {
+        console.error('Error removing member:', err);
+        alert('Error removing member');
+      }
+    }
+    
+    // Cancel invitation
+    async function cancelInvitation(invitationId) {
+      if (!confirm('Are you sure you want to cancel this invitation?')) return;
+      
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/organizations/${currentOrganization.id}/invitations/${invitationId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          alert('Invitation cancelled!');
+          loadPendingInvitations();
+        } else {
+          const data = await response.json();
+          alert('Error: ' + data.error);
+        }
+      } catch (err) {
+        console.error('Error cancelling invitation:', err);
+        alert('Error cancelling invitation');
+      }
+    }
+    
+    // Edit organization
+    function editOrganization() {
+      const newName = prompt('Enter new organization name:', currentOrganization?.name);
+      if (!newName) return;
+      
+      // TODO: Call API to update organization
+      alert('Organization update would be implemented here.');
+    }
+    
+    // Initialize on load
+    init();
+  </script>
+</body>
+</html>

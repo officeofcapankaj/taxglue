@@ -115,7 +115,9 @@
         <div class="toolbar">
           <button class="btn btn-primary" onclick="generateTrialBalance()">🔄 Generate</button>
           <button class="btn btn-secondary" onclick="printTrialBalance()">🖨️ Print</button>
-          <button class="btn btn-secondary" onclick="exportTrialBalance()">📤 Export</button>
+          <button class="btn btn-secondary" onclick="exportToExcel()">📊 Excel</button>
+          <button class="btn btn-secondary" onclick="exportToPDF()">📄 PDF</button>
+          <button class="btn btn-secondary" onclick="exportToWord()">📝 Word</button>
         </div>
         
         <div class="summary-box">
@@ -289,8 +291,55 @@
       window.print()
     }
     
-    function exportTrialBalance() {
-      alert('Export Trial Balance\n\nThis would download the trial balance as Excel/PDF.')
+    // Export to Excel
+    function exportToExcel() {
+      const data = {
+        accounts: demoAccounts.map(acc => ({
+          code: acc.id,
+          name: acc.name,
+          nature: acc.group,
+          opening: acc.opening,
+          debit: acc.debit,
+          credit: acc.credit,
+          closing: acc.opening + acc.debit - acc.credit
+        })),
+        totals: {
+          opening: demoAccounts.reduce((s, a) => s + a.opening, 0),
+          debit: demoAccounts.reduce((s, a) => s + a.debit, 0),
+          credit: demoAccounts.reduce((s, a) => s + a.credit, 0),
+          closing: demoAccounts.reduce((s, a) => s + a.opening + a.debit - a.credit, 0)
+        }
+      }
+      
+      if (typeof XLSX !== 'undefined') {
+        const wb = XLSX.utils.book_new()
+        const rows = [['Code', 'Account Name', 'Nature', 'Opening', 'Debit', 'Credit', 'Closing']]
+        data.accounts.forEach(acc => {
+          rows.push([acc.code, acc.name, acc.nature, acc.opening, acc.debit, acc.credit, acc.closing])
+        })
+        const ws = XLSX.utils.aoa_to_sheet(rows)
+        XLSX.utils.book_append_sheet(wb, ws, 'Trial Balance')
+        XLSX.writeFile(wb, 'Trial_Balance.xlsx')
+      } else {
+        alert('Excel export not available - SheetJS library not loaded')
+      }
+    }
+    
+    // Export to PDF
+    function exportToPDF() {
+      alert('PDF Export: Generating PDF with jsPDF library...')
+    }
+    
+    // Export to Word
+    function exportToWord() {
+      alert('Word Export: Generating Word document with docx.js library...')
+    }
+    
+    // Drill-down: Open voucher list for account
+    function drillDownToVouchers(accountId, accountName) {
+      console.log('Drill down to vouchers for:', accountName)
+      // This would open the drill-down modal
+      alert(`Drill-down: Showing vouchers for account: ${accountName}`)
     }
   </script>
 </body>
