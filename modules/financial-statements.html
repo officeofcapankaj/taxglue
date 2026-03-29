@@ -736,8 +736,6 @@ function renderNotes(clientName, fy) {
 }
 
 function exportSingle(format) {
-  console.log('exportSingle called with format:', format)
-  alert('exportSingle called: ' + format)
   const clientSelect = document.getElementById('clientSelect')
   const clientId = clientSelect ? clientSelect.value : ''
   let clientName = getClientName() || 'Financial Statement'
