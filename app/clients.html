@@ -290,6 +290,7 @@ let uploadedFiles = []
 // Tab switching - must be defined early
 function switchTab(tabId) {
   console.log('switchTab called with:', tabId)
+  alert('DEBUG: switchTab called with ' + tabId)
   
   // Get all tab buttons and contents
   var allButtons = document.getElementsByTagName('button');
