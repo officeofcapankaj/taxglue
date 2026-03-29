@@ -340,12 +340,12 @@ input[type="number"] {
     
     <div class="tabs">
       <button class="tab active" id="voucherTab" onclick="switchTab('voucher')">📝 Voucher Entry</button>
-      <button class="tab" id="ledgerTab" onclick="window.location.href='/modules/bookkeeping/ledger.html'">📒 Ledger</button>
-      <button class="tab" id="daybookTab" onclick="window.location.href='/modules/bookkeeping/daybook.html'">📖 Day Book</button>
-      <button class="tab" id="cashbookTab" onclick="window.location.href='/modules/bookkeeping/cashbook.html'">💰 Cash Book</button>
-      <button class="tab" id="bankReconTab" onclick="window.location.href='/modules/bookkeeping/bank-recon.html'">🏦 Bank Recon</button>
-      <button class="tab" id="stockTab" onclick="window.location.href='/modules/bookkeeping/stock.html'">📦 Stock</button>
-      <button class="tab" id="trialbalanceTab" onclick="window.location.href='/modules/bookkeeping/trial-balance.html'">📊 Trial Balance</button>
+      <button class="tab" id="ledgerTab" onclick="switchTab('ledger')">📒 Ledger</button>
+      <button class="tab" id="daybookTab" onclick="switchTab('daybook')">📖 Day Book</button>
+      <button class="tab" id="cashbookTab" onclick="switchTab('cashbook')">💰 Cash Book</button>
+      <button class="tab" id="bankReconTab" onclick="switchTab('bankReconciliation')">🏦 Bank Recon</button>
+      <button class="tab" id="stockTab" onclick="switchTab('stock')">📦 Stock</button>
+      <button class="tab" id="trialbalanceTab" onclick="switchTab('trialbalance')">📊 Trial Balance</button>
     </div>
     
     <!-- Masters Section -->
@@ -1654,8 +1654,10 @@ async function loadClientData() {
 
 // Switch tabs
 function switchTab(tab) {
+  console.log('switchTab called:', tab)
+  
   // Get all tab buttons
-  const allTabs = document.querySelectorAll('.tabs .tab')
+  const allTabs = document.querySelectorAll('.tab.active')
   
   // Remove active class from all tabs
   allTabs.forEach(t => {
@@ -1670,20 +1672,27 @@ function switchTab(tab) {
     console.error('Tab button not found:', tab + 'Tab')
   }
   
-  // Toggle section active class
-  const sections = ['voucher']
-  sections.forEach(section => {
-    const el = document.getElementById(section + 'Section')
-    if (el) {
-      if (section === tab) {
-        el.classList.add('active')
-      } else {
-        el.classList.remove('active')
-      }
-    }
+  // Hide all sections first
+  document.querySelectorAll('[id$="Section"]').forEach(el => {
+    el.style.display = 'none'
+    el.classList.remove('active')
   })
   
-  if (tab === 'masters') loadMastersData()
+  // Show the selected section
+  const sectionEl = document.getElementById(tab + 'Section')
+  if (sectionEl) {
+    sectionEl.style.display = 'block'
+    sectionEl.classList.add('active')
+    console.log('Showing section:', tab + 'Section')
+  } else {
+    console.error('Section not found:', tab + 'Section')
+    // Fallback: show masters section
+    const mastersSection = document.getElementById('mastersSection')
+    if (mastersSection) {
+      mastersSection.style.display = 'block'
+      mastersSection.classList.add('active')
+    }
+  }
   if (tab === 'ledger') loadLedger()
   if (tab === 'daybook') loadDayBook()
   if (tab === 'cashbook') loadCashBook()
@@ -3099,6 +3108,20 @@ function hideAddStockItemModal() {
 .ledger-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
 .stock-report { padding: 16px; background: #f8fafc; border-radius: 8px; margin-top: 16px; }
 .bs-section h4 { color: #1e293b; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+
+<!-- Modal -->
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; }
+.modal.active { display: flex; }
+.modal-content { background: white; border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; box-shadow: 0 25px 50px rgba(0,0,0,0.25); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title { font-size: 20px; font-weight: 600; color: #1e293b; }
+.modal-close { background: none; border: none; font-size: 28px; cursor: pointer; color: #64748b; }
+
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; }
+.modal.active { display: flex; }
+
+#mastersSection, #voucherSection, #ledgerSection, #daybookSection, #cashbookSection, #stockSection, #trialbalanceSection, #accountsSection { display: none; }
+#mastersSection.active, #voucherSection.active, #ledgerSection.active, #daybookSection.active, #cashbookSection.active, #stockSection.active, #trialbalanceSection.active, #accountsSection.active { display: block; }
 </style>
     <!-- AI Assistant Chat Widget -->
     <div id="aiAssistant" style="position: fixed; bottom: 20px; right: 20px; z-index: 10000;">
