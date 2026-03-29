@@ -1,0 +1,55 @@
+name: Apply RLS Fix
+
+on:
+  workflow_dispatch:
+    inputs:
+      service_key:
+        description: 'Supabase Service Role Key'
+        required: true
+        type: string
+
+jobs:
+  apply-rls:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply RLS policies
+        run: |
+          # Install Supabase CLI
+          npm install -g supabase
+            
+          # Set environment variables
+          echo "SUPABASE_SERVICE_ROLE_KEY=${{ inputs.service_key }}" >> $GITHUB_ENV
+          echo "SUPABASE_PROJECT_REF=jgjeuybgideeqcjxvlmn" >> $GITHUB_ENV
+          
+          # Apply RLS fix via SQL
+          supabase db execute --project-ref jgjeuybgideeqcjxvlmn << 'SQL'
+            -- Fix RLS for clients
+            ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
+            DROP POLICY IF EXISTS "Users can read own clients" ON clients;
+            DROP POLICY IF EXISTS "Users can insert own clients" ON clients;
+            CREATE POLICY "anon_read_clients" ON clients FOR SELECT TO anon USING (true);
+            CREATE POLICY "anon_insert_clients" ON clients FOR INSERT TO anon WITH CHECK (true);
+            CREATE POLICY "anon_update_clients" ON clients FOR UPDATE TO anon USING (true);
+            CREATE POLICY "anon_delete_clients" ON clients FOR DELETE TO anon;
+
+            -- Fix RLS for ca_master
+            ALTER TABLE ca_master ENABLE ROW LEVEL SECURITY;
+            DROP POLICY IF EXISTS "Users can read own ca_master" ON ca_master;
+            DROP POLICY IF EXISTS "Users can insert own ca_master" ON ca_master;
+            CREATE POLICY "anon_read_ca_master" ON ca_master FOR SELECT TO anon USING (true);
+            CREATE POLICY "anon_insert_ca_master" ON ca_master FOR INSERT TO anon WITH CHECK (true);
+            CREATE POLICY "anon_update_ca_master" ON ca_master FOR UPDATE TO anon USING (true);
+            CREATE POLICY "anon_delete_ca_master" ON ca_master FOR DELETE TO anon;
+
+            -- Fix RLS for tds_deductors
+            ALTER TABLE tds_deductors ENABLE ROW LEVEL SECURITY;
+            CREATE POLICY "anon_read_tds_deductors" ON tds_deductors FOR SELECT TO anon USING (true);
+            CREATE POLICY "anon_insert_tds_deductors" ON tds_deductors FOR INSERT TO anon WITH CHECK (true);
+
+            -- Fix RLS for gst_invoices
+            ALTER TABLE gst_invoices ENABLE ROW LEVEL SECURITY;
+            CREATE POLICY "anon_read_gst_invoices" ON gst_invoices FOR SELECT TO anon USING (true);
+            CREATE POLICY "anon_insert_gst_invoices" ON gst_invoices FOR INSERT TO anon WITH CHECK (true);
+          SQL
+          
+          echo "RLS policies applied successfully!"
