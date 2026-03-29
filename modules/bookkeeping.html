@@ -196,6 +196,37 @@ body {
   border-color: #cbd5e1;
 }
 
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  background: #e2e8f0;
+}
+
+.tab.active {
+  background: #22c55e;
+  color: white;
+}
+
 /* Table */
 .table-container {
   background: white;
