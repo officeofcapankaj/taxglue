@@ -432,4 +432,72 @@ export const incomeTaxAPI = {
   }
 }
 
+// Bookkeeping API
+export const bookkeepingAPI = {
+  async getVouchers(clientId, fy, fromDate, toDate) {
+    let query = supabase.from('vouchers').select('*').order('date', { ascending: false })
+    if (clientId) query = query.eq('client_id', clientId)
+    if (fy) query = query.eq('fy', fy)
+    if (fromDate) query = query.gte('date', fromDate)
+    if (toDate) query = query.lte('date', toDate)
+    const { data, error } = await query
+    if (error) throw error
+    return data
+  },
+
+  async createVoucher(voucher) {
+    const { data, error } = await supabase.from('vouchers').insert(voucher).select()
+    if (error) throw error
+    return data[0]
+  },
+
+  async updateVoucher(id, voucher) {
+    const { data, error } = await supabase.from('vouchers').update(voucher).eq('id', id).select()
+    if (error) throw error
+    return data[0]
+  },
+
+  async deleteVoucher(id) {
+    const { error } = await supabase.from('vouchers').delete().eq('id', id)
+    if (error) throw error
+    return true
+  },
+
+  async getAccounts(clientId) {
+    let query = supabase.from('accounts').select('*').order('name')
+    if (clientId) query = query.eq('client_id', clientId)
+    const { data, error } = await query
+    if (error) throw error
+    return data
+  },
+
+  async getLedger(clientId, accountId, fromDate, toDate) {
+    const vouchers = await this.getVouchers(clientId, null, fromDate, toDate)
+    return (vouchers || []).filter(v => 
+      v.debit_account_id === accountId || v.credit_account_id === accountId
+    )
+  },
+
+  async getTrialBalance(clientId, fy, asOnDate) {
+    const vouchers = await this.getVouchers(clientId, fy, null, asOnDate)
+    const accounts = await this.getAccounts(clientId)
+    
+    const balances = {}
+    ;(vouchers || []).forEach(v => {
+      if (v.debit_account_id) {
+        balances[v.debit_account_id] = (balances[v.debit_account_id] || 0) + (v.amount || 0)
+      }
+      if (v.credit_account_id) {
+        balances[v.credit_account_id] = (balances[v.credit_account_id] || 0) - (v.amount || 0)
+      }
+    })
+    
+    return (accounts || []).map(a => ({
+      account_name: a.name,
+      debit: (balances[a.id] || 0) > 0 ? balances[a.id] : 0,
+      credit: (balances[a.id] || 0) < 0 ? -balances[a.id] : 0
+    }))
+  }
+}
+
 export default supabase

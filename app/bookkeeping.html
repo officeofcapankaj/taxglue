@@ -1630,68 +1630,35 @@ input[type="number"] {
   </div>
 </div>
 
-<script>
-// API Configuration - use backend REST API
-const API_BASE = '/api'
-
-// Simple API client for backend
-const api = {
-  async request(endpoint, options = {}) {
-    const url = `${API_BASE}${endpoint}`
-    const token = localStorage.getItem('auth_token') || ''
-    
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
-        ...options.headers
-      },
-      ...options
-    }
-    
-    const response = await fetch(url, config)
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Request failed' }))
-      throw new Error(error.error || 'Request failed')
-    }
-    return response.json()
-  },
-  
-  get(endpoint) {
-    return this.request(endpoint, { method: 'GET' })
-  },
-  
-  post(endpoint, data) {
-    return this.request(endpoint, { method: 'POST', body: JSON.stringify(data) })
-  },
-  
-  put(endpoint, data) {
-    return this.request(endpoint, { method: 'PUT', body: JSON.stringify(data) })
-  },
-  
-  delete(endpoint) {
-    return this.request(endpoint, { method: 'DELETE' })
-  }
-}
+<script type="module">
+import { bookkeepingAPI, clientsAPI } from '/js/supabase-api.js';
 
 // Demo mode - simulate logged in user
 let demoUser = { id: 'demo-user', email: 'demo@taxglue.com', name: 'Demo User' }
-
-// Initialize app
-function initApp() {
-  console.log('App initializing...')
-  loadClients()
-  setDefaultDates()
-  loadDemoClients()
-}
-
-document.addEventListener('DOMContentLoaded', initApp)
 
 let clients = []
 let vouchers = []
 let accounts = []
 let currentClientId = ''
 let currentFY = ''
+
+// Initialize app
+async function initApp() {
+  console.log('App initializing...')
+  await loadClients()
+  setDefaultDates()
+  loadDemoClients()
+}
+
+document.addEventListener('DOMContentLoaded', initApp)
+
+async function loadClients() {
+  try {
+    clients = await clientsAPI.getAll()
+  } catch (e) {
+    console.log('Error loading clients:', e)
+  }
+}
 
 // Set default dates
 function setDefaultDates() {
@@ -2636,8 +2603,12 @@ async function saveVoucher() {
   }
   
   try {
-    // Use backend API instead of Supabase
-    await api.post('/vouchers', voucherData)
+    // Use Supabase API
+    await bookkeepingAPI.createVoucher({
+      ...voucherData,
+      client_id: currentClientId,
+      fy: currentFY
+    })
     hideVoucherForm()
     loadVouchers()
     showSuccess('Voucher saved successfully!')
@@ -2651,9 +2622,8 @@ async function loadVouchers() {
   if (!currentClientId) return
   
   try {
-    // Use backend API instead of Supabase
-    const data = await api.get(`/vouchers/${currentClientId}?fy=${currentFY}`)
-    vouchers = data || []
+    // Use Supabase API
+    vouchers = await bookkeepingAPI.getVouchers(currentClientId, currentFY)
     renderVoucherTable()
   } catch (e) {
     console.log('Error loading vouchers:', e)
