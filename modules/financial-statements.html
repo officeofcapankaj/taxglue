@@ -162,12 +162,47 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
 let clients = []
 let currentReport = 'bs'
 
-// ICAI Schedule III - Balance Sheet Structure
+// ICAI Schedule III - Balance Sheet Structure (Configured as per uploaded template)
 const BS_STRUCTURE = {
   assets: {
     nonCurrentAssets: [
-      { code: 'I', name: 'EQUITY AND LIABILITIES', colspan: true, isHeader: true },
-      { code: '1', name: 'Shareholders’ Funds', isSection: true },
+      { code: 'I', name: 'OWNERS FUNDS AND LIABILITIES', colspan: true, isHeader: true },
+      { code: '1', name: 'Proprietors Fund', isSection: true },
+      { code: 'a', name: 'Capital Account', indent: 1 },
+      { code: 'b', name: 'Reserves and Surplus', indent: 1 },
+      { code: '2', name: 'Non-Current Liabilities', isSection: true },
+      { code: 'a', name: 'Long-Term Borrowings', indent: 1 },
+      { code: 'b', name: 'Deferred Tax Liabilities (Net)', indent: 1 },
+      { code: 'c', name: 'Other Long-Term Liabilities', indent: 1 },
+      { code: 'd', name: 'Long-Term Provisions', indent: 1 },
+      { code: '3', name: 'Current Liabilities', isSection: true },
+      { code: 'a', name: 'Short-Term Borrowings', indent: 1 },
+      { code: 'b', name: 'Trade Payables', indent: 1 },
+      { code: 'c', name: 'Other Current Liabilities', indent: 1 },
+      { code: 'd', name: 'Short-Term Provisions', indent: 1 },
+      { code: '', name: 'TOTAL', isTotal: true }
+    ],
+    currentAssets: [
+      { code: 'II', name: 'ASSETS', colspan: true, isHeader: true },
+      { code: '1', name: 'Non-Current Assets', isSection: true },
+      { code: 'a', name: 'Property, Plant & Equipment and Intangible Assets', indent: 1 },
+      { code: 'b', name: 'Intangible Assets', indent: 1 },
+      { code: 'c', name: 'Capital Work-in-Progress', indent: 1 },
+      { code: 'd', name: 'Non-Current Investments', indent: 1 },
+      { code: 'e', name: 'Deferred Tax Assets (Net)', indent: 1 },
+      { code: 'f', name: 'Long-Term Loans and Advances', indent: 1 },
+      { code: 'g', name: 'Other Non-Current Assets', indent: 1 },
+      { code: '2', name: 'Current Assets', isSection: true },
+      { code: 'a', name: 'Current Investments', indent: 1 },
+      { code: 'b', name: 'Inventories', indent: 1 },
+      { code: 'c', name: 'Trade Receivables', indent: 1 },
+      { code: 'd', name: 'Cash and Cash Equivalents', indent: 1 },
+      { code: 'e', name: 'Short-Term Loans and Advances', indent: 1 },
+      { code: 'f', name: 'Other Current Assets', indent: 1 },
+      { code: '', name: 'TOTAL', isTotal: true }
+    ]
+  }
+},
       { code: 'a', name: 'Share Capital', indent: 1 },
       { code: 'b', name: 'Reserves and Surplus', indent: 1 },
       { code: 'c', name: 'Money Received against Share Warrants', indent: 1 },
@@ -365,8 +400,13 @@ function getFY() {
 
 function renderReport() {
   const container = document.getElementById('reportContainer')
-  const clientName = getClientName()
-  const fy = getFY()
+  const clientName = getClientName() || 'Select a Client'
+  const fy = getFY() || '2024-25'
+  
+  // Initialize empty financial data if not available
+  if (!financialData || !Array.isArray(financialData)) {
+    financialData = []
+  }
   
   if (currentReport === 'bs') {
     container.innerHTML = renderBalanceSheet(clientName, fy)
@@ -643,9 +683,20 @@ function renderNotes(clientName, fy) {
 }
 
 function exportSingle(format) {
-  const clientName = getClientName() || 'Report'
-  const fy = getFY()
+  const clientName = getClientName() || 'Client'
+  const fy = getFY() || '2024-25'
   const reportType = currentReport === 'bs' ? 'Balance Sheet' : currentReport === 'pl' ? 'Profit and Loss' : currentReport === 'cf' ? 'Cash Flow' : 'Notes to Accounts'
+  
+  // If no client selected, use default empty data
+  if (!clientName || clientName === 'Client') {
+    alert('Please select a client first to export the report.')
+    return
+  }
+  
+  // Initialize empty financial data structure if not available
+  if (!financialData || !Array.isArray(financialData) || financialData.length === 0) {
+    financialData = []
+  }
   
   if (format === 'excel') {
     // Get the current report data
@@ -1037,3 +1088,10 @@ function saveFinancialData(clientId, fy, data) {
 </script>
 </body>
 </html>
+// Export functions to global scope for onclick handlers
+window.switchReportType = switchReportType;
+window.switchReport = switchReport;
+window.loadClientData = loadClientData;
+window.exportSingle = exportSingle;
+window.exportAllReports = exportAllReports;
+window.renderReport = renderReport;
