@@ -260,4 +260,94 @@ export const authAPI = {
   }
 }
 
+// GST API
+export const gstAPI = {
+  async getInvoices(clientId, fy, quarter) {
+    let query = supabase.from('gst_invoices').select('*').order('invoice_date', { ascending: false })
+    if (clientId) query = query.eq('client_id', clientId)
+    if (fy) query = query.eq('fy', fy)
+    if (quarter) query = query.eq('quarter', quarter)
+    const { data, error } = await query
+    if (error) throw error
+    return data
+  },
+
+  async createInvoice(invoice) {
+    const { data, error } = await supabase.from('gst_invoices').insert(invoice).select()
+    if (error) throw error
+    return data[0]
+  },
+
+  async updateInvoice(id, invoice) {
+    const { data, error } = await supabase.from('gst_invoices').update(invoice).eq('id', id).select()
+    if (error) throw error
+    return data[0]
+  },
+
+  async deleteInvoice(id) {
+    const { error } = await supabase.from('gst_invoices').delete().eq('id', id)
+    if (error) throw error
+    return true
+  },
+
+  async getReturns(clientId, fy) {
+    let query = supabase.from('gst_returns').select('*').order('period', { ascending: false })
+    if (clientId) query = query.eq('client_id', clientId)
+    if (fy) query = query.eq('fy', fy)
+    const { data, error } = await query
+    if (error) throw error
+    return data
+  },
+
+  async createReturn(gstReturn) {
+    const { data, error } = await supabase.from('gst_returns').insert(gstReturn).select()
+    if (error) throw error
+    return data[0]
+  },
+
+  async updateReturn(id, gstReturn) {
+    const { data, error } = await supabase.from('gst_returns').update(gstReturn).eq('id', id).select()
+    if (error) throw error
+    return data[0]
+  },
+
+  async getEwaybills(clientId, fy) {
+    let query = supabase.from('gst_ewaybills').select('*').order('date', { ascending: false })
+    if (clientId) query = query.eq('client_id', clientId)
+    if (fy) query = query.eq('fy', fy)
+    const { data, error } = await query
+    if (error) throw error
+    return data
+  },
+
+  async getRates() {
+    const { data, error } = await supabase.from('gst_rates').select('*').order('rate')
+    if (error) throw error
+    return data
+  },
+
+  async getSummary(clientId, fy, quarter) {
+    let invoicesQuery = supabase.from('gst_invoices').select('invoice_value,cgst,sgst,igst,cess')
+    if (clientId) invoicesQuery = invoicesQuery.eq('client_id', clientId)
+    if (fy) invoicesQuery = invoicesQuery.eq('fy', fy)
+    if (quarter) invoicesQuery = invoicesQuery.eq('quarter', quarter)
+    
+    const { data: invoices } = await invoicesQuery
+    
+    const totalSales = (invoices || []).reduce((sum, i) => sum + (i.invoice_value || 0), 0)
+    const totalCGST = (invoices || []).reduce((sum, i) => sum + (i.cgst || 0), 0)
+    const totalSGST = (invoices || []).reduce((sum, i) => sum + (i.sgst || 0), 0)
+    const totalIGST = (invoices || []).reduce((sum, i) => sum + (i.igst || 0), 0)
+    
+    return {
+      total_sales: totalSales,
+      total_cgst: totalCGST,
+      total_sgst: totalSGST,
+      total_igst: totalIGST,
+      total_tax: totalCGST + totalSGST + totalIGST,
+      invoice_count: (invoices || []).length
+    }
+  }
+}
+
 export default supabase
