@@ -500,4 +500,41 @@ export const bookkeepingAPI = {
   }
 }
 
+// Organization API
+export const organizationAPI = {
+  async getOrganization() {
+    const { data, error } = await supabase.from('organizations').select('*').limit(1)
+    if (error) throw error
+    return data[0]
+  },
+
+  async updateOrganization(id, org) {
+    const { data, error } = await supabase.from('organizations').update(org).eq('id', id).select()
+    if (error) throw error
+    return data[0]
+  },
+
+  async getMembers(orgId) {
+    const { data, error } = await supabase.from('organization_members').select('*, users(*)').eq('organization_id', orgId)
+    if (error) throw error
+    return data
+  },
+
+  async inviteMember(orgId, email, role) {
+    const { data, error } = await supabase.from('organization_invitations').insert({
+      organization_id: orgId,
+      email,
+      role
+    }).select()
+    if (error) throw error
+    return data[0]
+  },
+
+  async removeMember(memberId) {
+    const { error } = await supabase.from('organization_members').delete().eq('id', memberId)
+    if (error) throw error
+    return true
+  }
+}
+
 export default supabase

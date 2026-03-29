@@ -150,72 +150,98 @@
     </div>
   </div>
   
-  <script>
-    let currentOrganization = null;
-    let currentUser = null;
-    
-    // Load organization data on page load
-    async function init() {
-      await loadOrganization();
-      await loadMembers();
-      await loadPendingInvitations();
+<script type="module">
+import { organizationAPI } from '/js/supabase-api.js';
+
+let currentOrganization = null;
+let currentUser = null;
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', init);
+
+async function init() {
+  await loadOrganization();
+  await loadMembers();
+  await loadPendingInvitations();
+}
+
+// Load organization details
+async function loadOrganization() {
+  try {
+    currentOrganization = await organizationAPI.getOrganization();
+    if (currentOrganization) {
+      renderOrganization();
+    } else {
+      document.getElementById('orgDetails').innerHTML = '<div class="empty-state">No organization found. Create one to get started.</div>';
     }
-    
-    // Load organization details
-    async function loadOrganization() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('/api/organizations/my-organization', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (response.ok) {
-          currentOrganization = await response.json();
-          renderOrganization();
-        } else {
-          document.getElementById('orgDetails').innerHTML = '<div class="empty-state">No organization found. Create one to get started.</div>';
-        }
-      } catch (err) {
-        console.error('Error loading organization:', err);
-        document.getElementById('orgDetails').innerHTML = '<div class="empty-state">Error loading organization details.</div>';
-      }
-    }
-    
-    // Render organization details
-    function renderOrganization() {
-      if (!currentOrganization) return;
-      
-      const detailsHtml = `
-        <table>
-          <tr>
-            <td style="width: 200px; color: #64748b;">Organization Name</td>
-            <td><strong>${currentOrganization.name}</strong></td>
-          </tr>
-          <tr>
-            <td style="color: #64748b;">Plan</td>
-            <td><span class="badge badge-member">${currentOrganization.subscription_plan || 'Free'}</span></td>
-          </tr>
-          <tr>
-            <td style="color: #64748b;">Status</td>
-            <td><span class="badge badge-member">${currentOrganization.status || 'Active'}</span></td>
-          </tr>
-          <tr>
-            <td style="color: #64748b;">Created</td>
-            <td>${new Date(currentOrganization.created_at).toLocaleDateString()}</td>
-          </tr>
-        </table>
-      `;
-      
-      document.getElementById('orgDetails').innerHTML = detailsHtml;
-    }
-    
-    // Load team members
-    async function loadMembers() {
-      if (!currentOrganization) {
-        document.getElementById('membersList').innerHTML = '<div class="empty-state">No organization found.</div>';
-        return;
-      }
-      
+  } catch (err) {
+    console.error('Error loading organization:', err);
+    document.getElementById('orgDetails').innerHTML = '<div class="empty-state">Error loading organization details.</div>';
+  }
+}
+
+// Render organization details
+function renderOrganization() {
+  if (!currentOrganization) return;
+  
+  const detailsHtml = `
+    <table>
+      <tr>
+        <td style="width: 200px; color: #64748b;">Organization Name</td>
+        <td><strong>${currentOrganization.name}</strong></td>
+      </tr>
+      <tr>
+        <td style="color: #64748b;">Plan</td>
+        <td><span class="badge badge-member">${currentOrganization.subscription_plan || 'Free'}</span></td>
+      </tr>
+      <tr>
+        <td style="color: #64748b;">Status</td>
+        <td><span class="badge badge-member">${currentOrganization.status || 'Active'}</span></td>
+      </tr>
+      <tr>
+        <td style="color: #64748b;">Created</td>
+        <td>${new Date(currentOrganization.created_at).toLocaleDateString()}</td>
+      </tr>
+    </table>
+  `;
+  
+  document.getElementById('orgDetails').innerHTML = detailsHtml;
+}
+// Load team members
+async function loadMembers() {
+  if (!currentOrganization) {
+    return;
+  }
+  
+  try {
+    const members = await organizationAPI.getMembers(currentOrganization.id);
+    renderMembers(members);
+  } catch (err) {
+    console.error('Error loading members:', err);
+  }
+}
+
+// Render members list
+function renderMembers(members) {
+  if (!members || members.length === 0) {
+    document.getElementById('membersList').innerHTML = '<div class="empty-state">No team members yet.</div>';
+    return;
+  }
+  
+  const membersHtml = members.map(member => `
+    <div class="member-card">
+      <div class="member-info">
+        <strong>${member.users?.name || member.email}</strong>
+        <span>${member.role || 'Member'}</span>
+      </div>
+      <button class="btn-icon" onclick="removeMember('${member.id}')">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+  `).join('');
+  
+  document.getElementById('membersList').innerHTML = membersHtml;
+}
       try {
         const token = localStorage.getItem('token');
         const response = await fetch(`/api/organizations/${currentOrganization.id}/members`, {
