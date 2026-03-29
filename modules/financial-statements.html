@@ -138,6 +138,10 @@ body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
       <button class="tab" onclick="switchReportType('notes')">Notes to Accounts</button>
     </div>
     
+    <div id="importSuccessMsg" style="display:none; background: #dcfce7; color: #16a34a; padding: 16px 24px; border-radius: 8px; margin-bottom: 20px; font-weight: 500;">
+      ✓ Trial Balance imported successfully! Reports are now prepared based on your data.
+    </div>
+    
     <div id="reportContainer"></div>
   </div>
 </main>
@@ -284,8 +288,18 @@ document.addEventListener('DOMContentLoaded', function() {
 })
 
 function loadClientData() {
-  const clientId = document.getElementById('clientSelect').value
-  const fy = document.getElementById('fySelect').value
+  // Check URL parameters first (from trial balance import)
+  const urlParams = new URLSearchParams(window.location.search)
+  let clientId = urlParams.get('client') || document.getElementById('clientSelect').value
+  let fy = urlParams.get('fy') || document.getElementById('fySelect').value
+  
+  // Update dropdowns if URL params present
+  if (urlParams.get('client')) {
+    document.getElementById('clientSelect').value = urlParams.get('client')
+  }
+  if (urlParams.get('fy')) {
+    document.getElementById('fySelect').value = urlParams.get('fy')
+  }
   
   // If no client selected, show sample report
   if (!clientId) {
@@ -295,9 +309,21 @@ function loadClientData() {
   
   const clientName = getClientName()
   
-  // Load financial data from Supabase
+  // Load financial data from Supabase or localStorage
   loadFinancialData(clientId, fy).then(() => {
     renderReport()
+    
+    // Show success message if data came from import
+    if (localStorage.getItem('justImported_' + clientId + '_' + fy)) {
+      localStorage.removeItem('justImported_' + clientId + '_' + fy)
+      setTimeout(() => {
+        const msg = document.getElementById('importSuccessMsg')
+        if (msg) {
+          msg.style.display = 'block'
+          setTimeout(() => { msg.style.display = 'none' }, 5000)
+        }
+      }, 500)
+    }
   })
 }
 

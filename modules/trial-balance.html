@@ -663,6 +663,7 @@ function importFromExcel(event) {
       
       let rowCount = 0
       let skippedRows = 0
+      let rowsData = [] // Store row data for financial statements
       
       // Expected columns: Account Name, Main Head, Sub Head 1, Sub Head 2, Debit, Credit
       // Try to find column positions from header row
@@ -736,6 +737,16 @@ function importFromExcel(event) {
         tbody.appendChild(tr)
         rowCount++
         
+        // Store row data for financial statements
+        rowsData.push({
+          accountName: accountName,
+          mainHead: autoMainHead,
+          sub1: '',
+          sub2: '',
+          debit: debit > 0 ? debit : 0,
+          credit: credit > 0 ? credit : 0
+        })
+        
         // Auto-select main head if detected
         setTimeout(() => {
           const mainHeadSelect = tr.querySelector('.mainHead')
@@ -748,9 +759,30 @@ function importFromExcel(event) {
       
       calculateTotals()
       
-      // Show result
+      // Save to localStorage for Financial Statements
+      const clientId = document.getElementById('clientSelect').value
+      const fy = document.getElementById('fySelect').value
+      if (clientId && fy) {
+        // Convert to format expected by financial statements
+        const tbData = rowsData.map(r => ({
+          accountName: r.accountName,
+          mainHead: r.mainHead,
+          sub1: r.sub1,
+          sub2: r.sub2,
+          debit: r.debit,
+          credit: r.credit
+        }))
+        localStorage.setItem(`trialBalance_${clientId}_${fy}`, JSON.stringify(tbData))
+        // Set flag to show import success message on financial statements
+        localStorage.setItem('justImported_' + clientId + '_' + fy, 'true')
+      }
+      
+      // Show result with option to proceed
       if (rowCount > 0) {
-        alert(`✓ Successfully imported ${rowCount} rows from Excel!\n(Skipped ${skippedRows} empty/header rows)\n\nPlease review and assign Main Head classifications.`)
+        const proceed = confirm(`✓ Successfully imported ${rowCount} rows from Excel!\n(Skipped ${skippedRows} empty/header rows)\n\nClick OK to go to Financial Statements, or Cancel to stay here.`)
+        if (proceed) {
+          window.location.href = `/modules/financial-statements.html?client=${clientId}&fy=${fy}`
+        }
       } else {
         alert('No valid data rows found in the Excel file.\n\nExpected format:\n- Account Name | Debit | Credit\n- Or any format with these columns')
       }
