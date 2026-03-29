@@ -611,6 +611,37 @@ def login():
         return jsonify({"token": user['id'], "user": {"id": user['id'], "email": user['email'], "name": user['name'], "role": user['role']}})
     return jsonify({"error": "Invalid credentials"}), 401
 
+@app.route('/api/auth/register', methods=['POST'])
+def register():
+    """Register a new user (offline mode)"""
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+    name = data.get('full_name') or data.get('name', 'User')
+    
+    if not email or not password:
+        return jsonify({"error": "Email and password required"}), 400
+    
+    users = load_json(USERS_FILE)
+    
+    # Check if user already exists
+    if any(u['email'] == email for u in users):
+        return jsonify({"error": "User already exists"}), 400
+    
+    # Create new user
+    user = {
+        "id": str(uuid.uuid4()),
+        "email": email,
+        "password": password,  # In production, hash this!
+        "name": name,
+        "role": "admin",
+        "created_at": datetime.now().isoformat()
+    }
+    users.append(user)
+    save_json(USERS_FILE, users)
+    
+    return jsonify({"token": user['id'], "user": {"id": user['id'], "email": user['email'], "name": user['name'], "role": user['role']}})
+
 @app.route('/api/auth/me', methods=['GET'])
 def get_me():
     token = request.headers.get('Authorization', '').replace('Bearer ', '')
