@@ -2204,24 +2204,24 @@ function renderGroupsTree(groups, ledgers) {
   
   const allGroups = groups.length ? groups : defaultGroups
   
-  container.innerHTML = allGroups.map(g => `
-    <div class="group-item">
-      <div class="group-header" onclick="toggleGroup('${g.id}')">
-        <span class="group-toggle">▶</span>
-        <strong>📁 ${g.name}</strong>
-        <span class="group-nature">${g.nature || ''}</span>
-      </div>
-      <div class="group-ledgers" id="group-${g.id}">
-        ${(ledgersByGroup[g.id] || []).map(l => `
-          <div class="ledger-row">
-            <span>📓 ${l.name}</span>
-            <span class="amount">${formatCurrency(l.opening_balance || 0)}</span>
-          </div>
-        `).join('')}
-        <button class="btn btn-outline" style="margin: 8px 0; font-size: 12px;" onclick="showAddLedgerModal('${g.id}')">+ Add Ledger</button>
-      </div>
-    </div>
-  `).join('')
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
 }
 
 function toggleGroup(groupId) {
@@ -2314,7 +2314,8 @@ function renderStockItems(items) {
       <td class="amount">${formatCurrency(item.rate || 0)}</td>
       <td class="amount">${formatCurrency((item.opening_qty || 0) * (item.rate || 0))}</td>
       <td>
-        <button class="btn btn-outline" style="padding: 4px 8px; font-size: 11px;" onclick="deleteStockItem('${item.id}')">Delete</button>
+        <button class="btn btn-outline" style="padding: 4px 8px; font-size: 11px; margin-right: 4px;" onclick="editStockItem('${item.id}', '${item.name}', '${item.code}', '${item.category}', '${item.unit}', ${item.opening_qty || 0}, ${item.rate || 0})">Edit</button>
+        <button class="btn btn-outline" style="padding: 4px 8px; font-size: 11px; color: #ef4444; border-color: #ef4444;" onclick="deleteStockItem('${item.id}', '${item.name}')">Delete</button>
       </td>
     </tr>
   `).join('')
@@ -3152,6 +3153,8 @@ function hideAddStockItemModal() {
         <option value="Expense">Expense</option>
       </select>
     </div>
+    <input type="hidden" id="newGroupId">
+    <input type="hidden" id="editGroupId">
     <div style="display: flex; gap: 12px;">
       <button class="btn btn-outline" onclick="hideAddGroupModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveGroup()">Save Group</button>
@@ -3167,6 +3170,7 @@ function hideAddStockItemModal() {
       <button class="modal-close" onclick="hideAddLedgerModal()">&times;</button>
     </div>
     <input type="hidden" id="ledgerGroupId">
+    <input type="hidden" id="newLedgerId">
     <div class="form-group" style="margin-bottom: 16px;">
       <label class="form-label">Ledger Name</label>
       <input type="text" class="form-input" id="newLedgerName" placeholder="Enter ledger name">
@@ -3407,6 +3411,81 @@ function hideAddStockItemModal() {
       };
       
       recognition.start();
+    }
+    
+    // ========== EDIT/DELETE/DRILL-DOWN FUNCTIONS ==========
+    
+    // Edit a group - open modal with existing values
+    function editGroup(id, name, nature) {
+      document.getElementById('newGroupName').value = name
+      document.getElementById('newGroupNature').value = nature
+      document.getElementById('newGroupId').value = id
+      
+      // Update modal title to show we're editing
+      const modal = document.getElementById('addGroupModal')
+      modal.querySelector('.modal-title').textContent = 'Edit Group: ' + name
+      modal.classList.add('active')
+    }
+    
+    // Edit a ledger - open modal with existing values
+    function editLedger(id, name, openingBalance) {
+      document.getElementById('newLedgerName').value = name
+      document.getElementById('ledgerOpeningBalance').value = openingBalance
+      document.getElementById('newLedgerId').value = id
+      document.getElementById('addLedgerModal').classList.add('active')
+    }
+    
+    // Delete a ledger with confirmation
+    async function deleteLedger(id, name) {
+      if (!confirm('Are you sure you want to delete ledger "' + name + '"? This action cannot be undone.')) {
+        return
+      }
+      try {
+        await supabase.from('accounts').delete().eq('id', id)
+        showSuccess('Ledger deleted!')
+        loadGroupsAndLedgers()
+      } catch (e) {
+        console.error('Error deleting ledger:', e)
+        alert('Error deleting ledger')
+      }
+    }
+    
+    // Drill-down: view transactions for a ledger
+    function viewLedgerDrilldown(id, name) {
+      // Switch to ledger tab and filter by this account
+      switchTab('ledger')
+      document.getElementById('ledgerSelect').value = id
+      // Trigger the ledger load with this account selected
+      const event = new Event('change')
+      document.getElementById('ledgerSelect').dispatchEvent(event)
+      showSuccess('Showing transactions for: ' + name)
+    }
+    
+    // Edit stock item
+    function editStockItem(id, name, code, category, unit, qty, rate) {
+      document.getElementById('stockItemName').value = name
+      document.getElementById('stockItemCode').value = code
+      document.getElementById('stockItemCategory').value = category
+      document.getElementById('stockItemUnit').value = unit
+      document.getElementById('stockItemQty').value = qty
+      document.getElementById('stockItemRate').value = rate
+      document.getElementById('newItemId').value = id
+      document.getElementById('addStockItemModal').classList.add('active')
+    }
+    
+    // Delete stock item
+    async function deleteStockItem(id, name) {
+      if (!confirm('Are you sure you want to delete item "' + name + '"? This action cannot be undone.')) {
+        return
+      }
+      try {
+        await supabase.from('stock_items').delete().eq('id', id)
+        showSuccess('Stock item deleted!')
+        loadStockItems()
+      } catch (e) {
+        console.error('Error deleting stock item:', e)
+        alert('Error deleting stock item')
+      }
     }
     </script>
 
