@@ -347,9 +347,11 @@ input[type="number"] {
       <button class="btn btn-primary" id="addRow">➕ Add Row</button>
       <button class="btn btn-secondary" id="saveTB">💾 Save Trial</button>
       <button class="btn btn-outline" id="autoCalcTB" onclick="autoCalculateFromLedger()">🔄 Auto-Calculate</button>
+      <button class="btn btn-outline" id="importExcel" onclick="document.getElementById('importFileInput').click()">📥 Import Excel</button>
       <button class="btn btn-outline" onclick="window.print()">🖨️ Print</button>
       <button class="btn btn-outline" onclick="location.href='/modules/financial-statements.html'">📊 Financial Stmnts</button>
     </div>
+    <input type="file" id="importFileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="importFromExcel(event)">
     
     <div class="table-container">
       <table id="tbTable">
@@ -388,6 +390,7 @@ input[type="number"] {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 // Supabase config
 const supabaseUrl = "https://jgjeuybgideeqcjxvlmn.supabase.co"
@@ -629,6 +632,139 @@ async function autoCalculateFromLedger() {
     console.error('Error auto-calculating:', e)
     alert('Error calculating from ledger: ' + e.message)
   }
+}
+
+// Import from Excel
+function importFromExcel(event) {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  const reader = new FileReader()
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result)
+      const workbook = XLSX.read(data, { type: 'array' })
+      
+      // Get first sheet
+      const sheetName = workbook.SheetNames[0]
+      const sheet = workbook.Sheets[sheetName]
+      
+      // Convert to JSON
+      const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 })
+      
+      if (jsonData.length < 2) {
+        alert('Excel file appears to be empty or has no data rows')
+        return
+      }
+      
+      // Clear existing rows
+      const tbody = document.getElementById('tableBody')
+      tbody.innerHTML = ''
+      
+      let rowCount = 0
+      let skippedRows = 0
+      
+      // Expected columns: Account Name, Main Head, Sub Head 1, Sub Head 2, Debit, Credit
+      // Try to find column positions from header row
+      const headers = jsonData[0] || []
+      
+      // Find column indices (case-insensitive)
+      let accIdx = -1, debitIdx = -1, creditIdx = -1, mainHeadIdx = -1
+      
+      headers.forEach((h, i) => {
+        const headerLower = (h || '').toString().toLowerCase()
+        if (headerLower.includes('account') || headerLower.includes('name')) accIdx = i
+        if (headerLower.includes('debit')) debitIdx = i
+        if (headerLower.includes('credit')) creditIdx = i
+        if (headerLower.includes('main') || headerLower.includes('head')) mainHeadIdx = i
+      })
+      
+      // Default to first columns if not found
+      if (accIdx === -1) accIdx = 0
+      if (debitIdx === -1 && headers.length > 3) debitIdx = 4
+      if (creditIdx === -1 && headers.length > 4) creditIdx = 5
+      
+      // Process data rows (skip header row)
+      for (let i = 1; i < jsonData.length; i++) {
+        const row = jsonData[i]
+        if (!row || row.length === 0) continue
+        
+        const accountName = row[accIdx] ? row[accIdx].toString().trim() : ''
+        const debit = parseFloat(row[debitIdx]) || 0
+        const credit = parseFloat(row[creditIdx]) || 0
+        
+        // Skip empty rows or header-like rows
+        if (!accountName || accountName === '' || 
+            accountName.toLowerCase().includes('account') ||
+            accountName.toLowerCase().includes('total') ||
+            accountName.toLowerCase().includes(' Particulars')) {
+          skippedRows++
+          continue
+        }
+        
+        // Create row
+        const tr = document.createElement('tr')
+        
+        let mainHeadOptions = '<option value="">Select</option>'
+        Object.keys(accountClassifications).forEach(head => {
+          mainHeadOptions += `<option value="${head}">${head}</option>`
+        })
+        
+        // Auto-detect main head based on account name
+        let autoMainHead = ''
+        const nameLower = accountName.toLowerCase()
+        if (nameLower.includes('cash') || nameLower.includes('bank') || nameLower.includes('debtor') || nameLower.includes('asset') || nameLower.includes('fixed')) {
+          autoMainHead = 'Assets'
+        } else if (nameLower.includes('creditor') || nameLower.includes('liability') || nameLower.includes('loan') || nameLower.includes('capital')) {
+          autoMainHead = 'Liabilities'
+        } else if (nameLower.includes('sales') || nameLower.includes('income') || nameLower.includes('revenue')) {
+          autoMainHead = 'Income'
+        } else if (nameLower.includes('purchase') || nameLower.includes('expense') || nameLower.includes('salary') || nameLower.includes('rent')) {
+          autoMainHead = 'Expense'
+        }
+        
+        tr.innerHTML = `
+          <td><input type="text" placeholder="Account name" value="${accountName}"></td>
+          <td><select class="mainHead" onchange="updateSubHeads(this)">${mainHeadOptions}</select></td>
+          <td><select class="sub1" onchange="updateSub2(this)"><option value="">Select</option></select></td>
+          <td><select class="sub2"><option value="">Select</option></select></td>
+          <td><input type="number" class="debit" value="${debit > 0 ? debit.toFixed(2) : ''}" oninput="calculateTotals()"></td>
+          <td><input type="number" class="credit" value="${credit > 0 ? credit.toFixed(2) : ''}" oninput="calculateTotals()"></td>
+          <td><button onclick="deleteRow(this)" style="background:#fee2e2;border:none;padding:8px;border-radius:4px;cursor:pointer;">✕</button></td>
+        `
+        
+        tbody.appendChild(tr)
+        rowCount++
+        
+        // Auto-select main head if detected
+        setTimeout(() => {
+          const mainHeadSelect = tr.querySelector('.mainHead')
+          if (mainHeadSelect && autoMainHead) {
+            mainHeadSelect.value = autoMainHead
+            updateSubHeads(mainHeadSelect)
+          }
+        }, 50)
+      }
+      
+      calculateTotals()
+      
+      // Show result
+      if (rowCount > 0) {
+        alert(`✓ Successfully imported ${rowCount} rows from Excel!\n(Skipped ${skippedRows} empty/header rows)\n\nPlease review and assign Main Head classifications.`)
+      } else {
+        alert('No valid data rows found in the Excel file.\n\nExpected format:\n- Account Name | Debit | Credit\n- Or any format with these columns')
+      }
+      
+      // Reset file input
+      event.target.value = ''
+      
+    } catch (error) {
+      console.error('Error importing Excel:', error)
+      alert('Error reading Excel file: ' + error.message)
+      event.target.value = ''
+    }
+  }
+  reader.readAsArrayBuffer(file)
 }
 
 // Delete row
