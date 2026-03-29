@@ -241,212 +241,30 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
   </div>
 </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="../js/supabase-config.js"></script>
-<script>
-// Demo mode data - defined early so it can be used during initialization
-const DEMO_CLIENTS = [
-  {
-    id: 'demo-1',
-    name: 'Singla Steel Corporation',
-    constitution: 'Proprietorship',
-    phone: '9876543210',
-    email: 'info@singlasteel.com',
-    address: '#16/26 17/27, Industrial Area, Dehlon-Sahnewal Road, Paddi',
-    city: 'Ludhiana',
-    district: 'Ludhiana',
-    state: 'Punjab',
-    country: 'India',
-    pincode: '141015',
-    registrations: {
-      panNumber: 'ABPFS1234C',
-      gstin: '03ABPFS1234C1Z5'
-    }
-  },
-  {
-    id: 'demo-2',
-    name: 'Rana Industries',
-    constitution: 'Partnership Firm',
-    phone: '9876543211',
-    email: 'info@ranaindustries.com',
-    address: '25, Industrial Estate',
-    city: 'Ludhiana',
-    district: 'Ludhiana',
-    state: 'Punjab',
-    country: 'India',
-    pincode: '141003',
-    registrations: {
-      panNumber: 'AABCU1234E',
-      gstin: '03AABCU1234E1Z6'
-    }
-  },
-  {
-    id: 'demo-3',
-    name: 'Sharma Traders',
-    constitution: 'Sole Proprietorship',
-    phone: '9876543212',
-    email: 'contact@sharmatraders.com',
-    address: '42, Market Road',
-    city: 'Amritsar',
-    district: 'Amritsar',
-    state: 'Punjab',
-    country: 'India',
-    pincode: '143001',
-    registrations: {
-      panNumber: 'BBFPS5678D',
-      gstin: '03BBFPS5678C1Z4'
-    }
-  },
-  {
-    id: 'demo-4',
-    name: 'Gupta Construction',
-    constitution: 'Private Limited Company',
-    phone: '9876543213',
-    email: 'info@guptaconstruction.com',
-    address: '18, Civil Lines',
-    city: 'Jalandhar',
-    district: 'Jalandhar',
-    state: 'Punjab',
-    country: 'India',
-    pincode: '144001',
-    registrations: {
-      panNumber: 'AACCG9012H',
-      gstin: '03AACCG9012H1Z8'
-    }
-  },
-  {
-    id: 'demo-5',
-    name: 'Aggarwal Textiles',
-    constitution: 'LLP',
-    phone: '9876543214',
-    email: 'contact@aggarwaltextiles.com',
-    address: '78, Textile Market',
-    city: 'Panipat',
-    district: 'Panipat',
-    state: 'Haryana',
-    country: 'India',
-    pincode: '132103',
-    registrations: {
-      panNumber: 'CCFFI3456K',
-      gstin: '06CCFFI3456K1Z1'
-    }
-  },
-  {
-    id: 'demo-6',
-    name: 'Jain Logistics',
-    constitution: 'Proprietorship',
-    phone: '9876543215',
-    email: 'info@jainlogistics.com',
-    address: '156, Transport Nagar',
-    city: 'Sonipat',
-    district: 'Sonipat',
-    state: 'Haryana',
-    country: 'India',
-    pincode: '131001',
-    registrations: {
-      panNumber: 'DDGGH7890L',
-      gstin: '06DDGGH7890L1Z2'
-    }
-  },
-  {
-    id: 'demo-7',
-    name: 'Patel Electronics',
-    constitution: 'Private Limited Company',
-    phone: '9876543216',
-    email: 'sales@patelelectronics.com',
-    address: '45, MG Road',
-    city: 'Ahmedabad',
-    district: 'Ahmedabad',
-    state: 'Gujarat',
-    country: 'India',
-    pincode: '380001',
-    registrations: {
-      panNumber: 'AADDJ1234M',
-      gstin: '24AADDJ1234M1Z5'
-    }
-  },
-  {
-    id: 'demo-8',
-    name: 'Reddy & Co',
-    constitution: 'Partnership Firm',
-    phone: '9876543217',
-    email: 'info@reddyandco.com',
-    address: '123, Bus Stand Road',
-    city: 'Hyderabad',
-    district: 'Hyderabad',
-    state: 'Telangana',
-    country: 'India',
-    pincode: '500001',
-    registrations: {
-      panNumber: 'AAEEK5678N',
-      gstin: '36AAEEK5678N1Z4'
-    }
-  },
-  {
-    id: 'demo-9',
-    name: 'Kumar Medical Stores',
-    constitution: 'Sole Proprietorship',
-    phone: '9876543218',
-    email: 'kumar@medicalstores.com',
-    address: '89, Station Road',
-    city: 'Patna',
-    district: 'Patna',
-    state: 'Bihar',
-    country: 'India',
-    pincode: '800001',
-    registrations: {
-      panNumber: 'BBFFL9012P',
-      gstin: '10BBFFL9012P1Z3'
-    }
-  },
-  {
-    id: 'demo-10',
-    name: 'Chowdhury Consultants',
-    constitution: 'LLP',
-    phone: '9876543219',
-    email: 'consult@chowdhury.com',
-    address: '56, Park Street',
-    city: 'Kolkata',
-    district: 'Kolkata',
-    state: 'West Bengal',
-    country: 'India',
-    pincode: '700016',
-    registrations: {
-      panNumber: 'CCGGM3456Q',
-      gstin: '19CCGGM3456Q1Z2'
-    }
-  }
-];
+<script type="module">
+import { clientsAPI } from '/js/supabase-api.js';
 
 // Shared clients array - declared at top level
 let clients = [];
 
-// Initialize clients function - load from local API
-function initClients() {
-  // Try to load from local API first (offline mode)
-  fetch('/api/clients')
-    .then(res => res.json())
-    .then(data => {
-      if (data && Array.isArray(data)) {
-        clients = data
-      }
-    })
-    .catch(e => console.log('Error loading clients:', e))
+// Initialize clients function - load from Supabase
+async function initClients() {
+  try {
+    const data = await clientsAPI.getAll()
+    if (data && Array.isArray(data)) {
+      clients = data
+    }
+  } catch (e) {
+    console.log('Error loading clients:', e)
+  }
   
-  // Render after a short delay
-  setTimeout(renderClients, 50)
+  renderClients()
 }
-
-// Try immediately first - but don't render yet since DOM might not be ready
-// initClients()
 
 // Only initialize after DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
   initClients()
 })
-
-// Also try after window loads to ensure all resources are ready
-window.addEventListener('load', initClients)
 
 let contactPersonCount = 1
 let uploadedFiles = []
@@ -498,37 +316,16 @@ async function loadClientsFromSupabase() {
     return
   }
   
-  // Try local API first (offline mode)
+  // Try Supabase via clientsAPI
   try {
-    const res = await fetch('/api/clients')
-    const data = await res.json()
-    if (data && Array.isArray(data) && data.length > 0) {
+    const data = await clientsAPI.getAll()
+    if (data && data.length > 0) {
       clients = data
-      localStorage.setItem('clients', JSON.stringify(clients))
       renderClients()
-      return
     }
   } catch (e) {
-    console.log('Local API failed:', e)
+    console.log('Supabase load failed:', e)
   }
-  
-  // Try Supabase only if client is available
-  if (supabase) {
-    try {
-      const { data, error } = await supabase.from('clients').select('*').order('created_at', { ascending: false })
-      if (error) throw error
-      if (data && data.length > 0) {
-        clients = data
-        localStorage.setItem('clients', JSON.stringify(clients))
-        renderClients()
-      }
-      // Don't fall back to demo clients - show empty
-    } catch (e) {
-      console.log('Supabase load failed:', e)
-      // Show empty - don't use demo clients
-    }
-  }
-  // No fallback to demo clients - use local data only
 }
 
 async function fetchPincodeDetails(prefix) {
