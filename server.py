@@ -1086,7 +1086,55 @@ def serve_static(path):
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True)
 
-# Vercel handler - Vercel Python runtime expects a handler function
+
+# ============================================
+# Vercel Serverless Handler
+# ============================================
+# Vercel Python runtime expects either:
+# 1. A handler(request) function that returns a Response tuple
+# 2. A WSGI app that can be used directly
+
+# For Flask on Vercel, we return the Flask app as a WSGI application
+# Vercel will handle the request/response translation
 def handler(request):
-    """Vercel serverless handler"""
-    return app
+    """
+    Vercel serverless handler function.
+    
+    For Flask apps on Vercel, we can return the app directly as a WSGI app,
+    or process the request and return a tuple (body, status, headers).
+    """
+    # Get method and path from Vercel request object
+    method = request.get('method', 'GET')
+    path = request.get('path', '/')
+    
+    # Extract headers
+    headers = {}
+    for key, value in request.get('headers', {}).items():
+        headers[key.lower()] = value
+    
+    # Get body if available
+    body = request.get('body', '')
+    if body and isinstance(body, bytes):
+        body = body.decode('utf-8')
+    
+    # Import Flask test client for handling the request
+    with app.test_client() as client:
+        # Make the request to Flask
+        response = client.open(
+            path=path,
+            method=method,
+            headers=headers,
+            data=body
+        )
+        
+        # Return in Vercel format: (body, status_code, headers)
+        return (
+            response.get_data(as_text=True),
+            response.status_code,
+            dict(response.headers)
+        )
+
+
+# Alternative: Export app directly as WSGI for Vercel to handle
+# This is simpler and often more reliable
+wsgi_app = app
