@@ -544,6 +544,25 @@ th { background: #f8fafc; font-weight: 600; }
           <label class="form-label">Address</label>
           <input type="text" id="emp-address" class="form-input">
         </div>
+        <div class="form-group">
+          <label class="form-label">Date of Resignation</label>
+          <input type="date" id="emp-resignation" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date of Relieving</label>
+          <input type="date" id="emp-relieving" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Exit Reason</label>
+          <select id="emp-exit-reason" class="form-select">
+            <option value="">-- Select --</option>
+            <option value="Resignation">Resignation</option>
+            <option value="Termination">Termination</option>
+            <option value="Absconding">Absconding</option>
+            <option value="Retirement">Retirement</option>
+            <option value="Contract End">Contract End</option>
+          </select>
+        </div>
       </div>
       <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end;">
         <button type="button" class="btn btn-outline" onclick="closeEmployeeModal()">Cancel</button>
@@ -560,9 +579,17 @@ th { background: #f8fafc; font-weight: 600; }
       <h3 class="modal-title">Salary Structure</h3>
       <button class="modal-close" onclick="closeSalaryModal()">&times;</button>
     </div>
+    <div id="salary-history" style="margin-bottom:20px;padding:12px;background:#f8fafc;border-radius:8px;">
+      <h4 style="margin-bottom:8px;">Previous Salary Revisions</h4>
+      <div id="salary-history-list"></div>
+    </div>
     <form id="salary-form" onsubmit="saveSalaryStructure(event)">
       <input type="hidden" id="salary-employee-id">
       <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Effective From *</label>
+          <input type="date" id="salary-effective-from" class="form-input" required>
+        </div>
         <div class="form-group">
           <label class="form-label">Basic Salary *</label>
           <input type="number" id="salary-basic" class="form-input" required>
@@ -1175,6 +1202,9 @@ function editEmployee(id) {
   document.getElementById('emp-bank-account').value = emp.bank_account_no || '';
   document.getElementById('emp-ifsc').value = emp.bank_ifsc_code || '';
   document.getElementById('emp-address').value = emp.address || '';
+  document.getElementById('emp-resignation').value = emp.date_of_resignation || '';
+  document.getElementById('emp-relieving').value = emp.date_of_relieving || '';
+  document.getElementById('emp-exit-reason').value = emp.exit_reason || '';
   
   document.getElementById('employee-modal').classList.add('active');
 }
@@ -1211,7 +1241,10 @@ function saveEmployee(e) {
     bank_account_no: document.getElementById('emp-bank-account').value,
     bank_ifsc_code: document.getElementById('emp-ifsc').value,
     address: document.getElementById('emp-address').value,
-    is_active: true
+    date_of_resignation: document.getElementById('emp-resignation').value,
+    date_of_relieving: document.getElementById('emp-relieving').value,
+    exit_reason: document.getElementById('emp-exit-reason').value,
+    is_active: !document.getElementById('emp-relieving').value
   };
   
   if (id) employee.id = id;
@@ -1250,6 +1283,7 @@ function openSalaryModal(employeeId) {
   if (!emp) return;
   
   document.getElementById('salary-employee-id').value = employeeId;
+  document.getElementById('salary-effective-from').value = new Date().toISOString().split('T')[0];
   document.getElementById('salary-basic').value = emp.basic_salary || 0;
   document.getElementById('salary-hra').value = emp.hra || 0;
   document.getElementById('salary-conveyance').value = emp.conveyance_allowance || 0;
@@ -1257,7 +1291,28 @@ function openSalaryModal(employeeId) {
   document.getElementById('salary-medical').value = emp.medical_allowance || 0;
   document.getElementById('salary-other').value = emp.other_allowance || 0;
   
+  // Show salary history
+  renderSalaryHistory(employeeId);
+  
   document.getElementById('salary-modal').classList.add('active');
+}
+
+function renderSalaryHistory(employeeId) {
+  const container = document.getElementById('salary-history-list');
+  const structures = salaryStructures[employeeId] || [];
+  
+  if (structures.length === 0) {
+    container.innerHTML = '<p style="color:#64748b;font-size:13px;">No previous salary revisions</p>';
+    return;
+  }
+  
+  let html = '<table style="width:100%;font-size:12px;"><tr><th>Effective From</th><th>Basic</th><th>Gross</th></tr>';
+  structures.forEach(s => {
+    const gross = s.basic + s.hra + s.conveyance + s.special + s.medical + s.other;
+    html += `<tr><td>${s.effective_from || '-'}</td><td>₹${s.basic || 0}</td><td>₹${gross}</td></tr>`;
+  });
+  html += '</table>';
+  container.innerHTML = html;
 }
 
 function closeSalaryModal() {
@@ -1268,7 +1323,10 @@ function saveSalaryStructure(e) {
   e.preventDefault();
   
   const employeeId = document.getElementById('salary-employee-id').value;
+  const effectiveFrom = document.getElementById('salary-effective-from').value;
   const structure = {
+    employee_id: employeeId,
+    effective_from: effectiveFrom,
     basic: parseFloat(document.getElementById('salary-basic').value) || 0,
     hra: parseFloat(document.getElementById('salary-hra').value) || 0,
     conveyance: parseFloat(document.getElementById('salary-conveyance').value) || 0,
@@ -1277,20 +1335,44 @@ function saveSalaryStructure(e) {
     other: parseFloat(document.getElementById('salary-other').value) || 0
   };
   
-  salaryStructures[employeeId] = structure;
+  // Store in array for versioning
+  if (!salaryStructures[employeeId]) {
+    salaryStructures[employeeId] = [];
+  }
+  salaryStructures[employeeId].push(structure);
   
-  // Update employee data
+  // Get latest for current calculations
+  const latest = salaryStructures[employeeId].reduce((a, b) => 
+    new Date(a.effective_from) > new Date(b.effective_from) ? a : b
+  );
+  
+  // Update employee data with latest salary
   const emp = employees.find(e => e.id === employeeId);
   if (emp) {
-    emp.basic_salary = structure.basic;
-    emp.hra = structure.hra;
-    emp.allowances = structure.conveyance + structure.special + structure.medical + structure.other;
+    emp.basic_salary = latest.basic;
+    emp.hra = latest.hra;
+    emp.allowances = latest.conveyance + latest.special + latest.medical + latest.other;
   }
   
   closeSalaryModal();
   renderEmployees();
   updateStats();
-  alert('Salary structure saved successfully!');
+  alert('Salary structure saved with versioning!');
+}
+
+// Get salary for specific month
+function getSalaryForMonth(employeeId, paymentDate) {
+  const structures = salaryStructures[employeeId] || [];
+  if (structures.length === 0) return null;
+  
+  const date = new Date(paymentDate);
+  // Find most recent structure before payment date
+  const valid = structures.filter(s => new Date(s.effective_from) <= date);
+  if (valid.length === 0) return structures[0];
+  
+  return valid.reduce((a, b) => 
+    new Date(a.effective_from) > new Date(b.effective_from) ? a : b
+  );
 }
 
 function processSalary() {
