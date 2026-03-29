@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+<script>
+// Simulate the financial data
+let financialData = [
+    { mainHead: 'Liabilities', sub1: 'Owners Capital', main: 'Liabilities', subHead: 'Owners Capital', debit: 0, credit: 1500000 },
+    { mainHead: 'Liabilities', sub1: 'Reserves Surplus', main: 'Liabilities', subHead: 'Reserves Surplus', debit: 0, credit: 500000 },
+    { mainHead: 'Liabilities', sub1: 'Long Term Borrowings', main: 'Liabilities', subHead: 'Long Term Borrowings', debit: 0, credit: 300000 },
+    { mainHead: 'Liabilities', sub1: 'Trade Payables', main: 'Liabilities', subHead: 'Trade Payables', debit: 0, credit: 250000 },
+    { mainHead: 'Assets', sub1: 'Property Plant Equipment', main: 'Assets', subHead: 'Property Plant Equipment', debit: 850000, credit: 0 },
+    { mainHead: 'Assets', sub1: 'Trade Receivables', main: 'Assets', subHead: 'Trade Receivables', debit: 600000, credit: 0 },
+    { mainHead: 'Assets', sub1: 'Cash Bank Balances', main: 'Assets', subHead: 'Cash Bank Balances', debit: 400000, credit: 0 },
+    { mainHead: 'Income', sub1: 'Sales', main: 'Income', subHead: 'Sales', debit: 0, credit: 2500000 }
+];
+
+// Convert to balance sheet format
+function convertTBtoBS(tbData) {
+    const bs = {};
+    tbData.forEach(item => {
+        const mainHead = item.mainHead || item.main || '';
+        const sub1 = item.sub1 || item.subHead || '';
+        const debit = parseFloat(item.debit || 0);
+        const credit = parseFloat(item.credit || 0);
+        
+        if (mainHead === 'Liabilities' || mainHead === 'Income') {
+            if (sub1 === 'Owners Capital' || sub1 === 'Capital') {
+                bs['Share Capital'] = (bs['Share Capital'] || 0) + credit;
+            } else if (sub1 === 'Reserves Surplus' || sub1 === 'Reserve & Surplus') {
+                bs['Reserves and Surplus'] = (bs['Reserves and Surplus'] || 0) + credit;
+            } else if (sub1 === 'Long Term Borrowings') {
+                bs['Long-Term Borrowings'] = (bs['Long-Term Borrowings'] || 0) + credit;
+            } else if (sub1 === 'Trade Payables') {
+                bs['Trade Payables'] = (bs['Trade Payables'] || 0) + credit;
+            }
+        } else if (mainHead === 'Assets') {
+            if (sub1 === 'Property Plant Equipment' || sub1 === 'Fixed Assets') {
+                bs['Property, Plant and Equipment'] = (bs['Property, Plant and Equipment'] || 0) + debit;
+            } else if (sub1 === 'Trade Receivables' || sub1 === 'Sundry Debtors') {
+                bs['Trade Receivables'] = (bs['Trade Receivables'] || 0) + debit;
+            } else if (sub1 === 'Cash Bank Balances' || sub1 === 'Cash and Bank') {
+                bs['Cash and Cash Equivalents'] = (bs['Cash and Cash Equivalents'] || 0) + debit;
+            }
+        }
+    });
+    return bs;
+}
+
+const bsData = convertTBtoBS(financialData);
+console.log('BS Data:', JSON.stringify(bsData, null, 2));
+
+// Create Excel
+const data = [['BALANCE SHEET - Test', 'FY: 2024-25'], ['Particulars', 'Amount']];
+
+// Add BS data
+Object.keys(bsData).forEach(key => {
+    data.push([key, bsData[key]]);
+});
+
+console.log('Export Data:', JSON.stringify(data, null, 2));
+
+const wb = XLSX.utils.book_new();
+const ws = XLSX.utils.aoa_to_sheet(data);
+XLSX.utils.book_append_sheet(wb, ws, 'Balance Sheet');
+XLSX.writeFile(wb, 'Balance_Sheet_Test.xlsx');
+console.log('File created!');
+</script>
+</body>
+</html>
