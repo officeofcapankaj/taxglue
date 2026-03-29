@@ -430,7 +430,12 @@ const accountClassifications = {
 
 // Add row function
 function addRow() {
+  console.log('addRow called')
   const tbody = document.getElementById('tableBody')
+  if (!tbody) {
+    console.error('tableBody not found!')
+    return
+  }
   const row = document.createElement('tr')
   
   let mainHeadOptions = '<option value="">Select Main Head</option>'
@@ -449,6 +454,7 @@ function addRow() {
   `
   
   tbody.appendChild(row)
+  console.log('Row added, tbody children:', tbody.children.length)
 }
 
 // Update sub-head dropdowns
