@@ -889,11 +889,37 @@ function downloadTrialBalanceTemplate() {
   wsInstructions['!cols'] = [{ wch: 60 }]
   XLSX.utils.book_append_sheet(wb, wsInstructions, 'Instructions')
   
-  // Download the file
-  XLSX.writeFile(wb, 'TaxGlue_Trial_Balance_Template.xlsx')
+  // Generate Excel file and download using alternative method
+  const filename = 'TaxGlue_Trial_Balance_Template.xlsx'
   
-  // Show confirmation
-  alert('✓ Template downloaded!\n\nFile: TaxGlue_Trial_Balance_Template.xlsx\n\n1. Open the file in Excel\n2. Replace sample data with your trial balance\n3. Save and import back using "Import Excel" button')
+  // Try writeFile first (works in most browsers)
+  try {
+    XLSX.writeFile(wb, filename)
+    return
+  } catch (e) {
+    console.log('writeFile fallback needed:', e)
+  }
+  
+  // Fallback: Convert to base64 and download
+  try {
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
+    const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    const url = URL.createObjectURL(blob)
+    
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    link.style.display = 'none'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    
+    alert('✓ Template downloaded successfully!\n\nFile: TaxGlue_Trial_Balance_Template.xlsx\n\n1. Open the file in Excel\n2. Replace sample data with your trial balance\n3. Save and import back using "Import Excel" button')
+  } catch (err) {
+    console.error('Download error:', err)
+    alert('Error generating template. Please try again or use a different browser.')
+  }
 }
 
 // Delete row
