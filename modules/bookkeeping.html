@@ -1729,11 +1729,6 @@ async function loadClientData() {
 // Switch tabs
 function switchTab(tab) {
   console.log('Switching to tab:', tab)
-  alert('switchTab called: ' + tab)  // DEBUG
-  
-  // Debug: Get section element
-  const sectionEl = document.getElementById(tab + 'Section')
-  console.log('Section element:', sectionEl)
   
   // Get all tab buttons
   const allTabs = document.querySelectorAll('.tabs .tab')
