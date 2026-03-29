@@ -277,6 +277,9 @@ function showForm() {
   }
 }
 
+// Make showForm available globally for onclick handlers
+window.showForm = showForm
+
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
   await loadCAList()
