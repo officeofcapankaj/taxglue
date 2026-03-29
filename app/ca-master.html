@@ -53,7 +53,7 @@ tr:hover { background: #f8fafc; }
 .success-message { background: #dcfce7; color: #16a34a; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px; display: none; }
 .success-message.show { display: block; }
 @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } .form-grid, .form-grid-2 { grid-template-columns: 1fr; } }
-.form-card.hidden { display: none; }
+.form-card.hidden { display: none !important; }
 </style>
 </head>
 <body>
@@ -104,7 +104,7 @@ tr:hover { background: #f8fafc; }
       </div>
     </div>
     
-    <div class="form-card hidden" id="caFormCard">
+    <div class="form-card hidden" id="caFormCard" style="display: none !important;">
       <h2 class="form-title" id="caFormTitle">Add New CA / Partner</h2>
       <form id="caForm">
         <!-- Personal Details -->
@@ -255,6 +255,7 @@ function showForm() {
   const formCard = document.getElementById('caFormCard')
   if (formCard) {
     formCard.classList.remove('hidden')
+    formCard.style.display = 'block'
     editingCAId = null
     
     // Reset form title and button
@@ -434,7 +435,10 @@ function editCA(id) {
   if (!ca) return
   editingCAId = id
   const formCard = document.getElementById('caFormCard')
-  if (formCard) formCard.classList.remove('hidden')
+  if (formCard) {
+    formCard.classList.remove('hidden')
+    formCard.style.display = 'block'
+  }
   document.getElementById('caFormTitle').textContent = 'Edit CA / Partner'
   document.getElementById('saveBtn').textContent = '💾 Update CA Details'
   document.getElementById('deleteBtn').style.display = 'inline-flex'
@@ -475,7 +479,7 @@ async function deleteCA() {
   localStorage.setItem('caList', JSON.stringify(caList))
   renderCA()
   // Hide form after delete
-  document.getElementById('caFormCard').classList.add('hidden')
+  document.getElementById('caFormCard').classList.add('hidden'); getElementById('caFormCard').style.display = 'none'
   resetForm()
 }
 
@@ -532,7 +536,7 @@ document.getElementById('caForm').addEventListener('submit', async function(e) {
   setTimeout(() => document.getElementById('successMessage').classList.remove('show'), 3000)
   renderCA()
   // Hide form after save
-  document.getElementById('caFormCard').classList.add('hidden')
+  document.getElementById('caFormCard').classList.add('hidden'); getElementById('caFormCard').style.display = 'none'
   resetForm()
 })
 
@@ -573,7 +577,7 @@ function searchCA() {
 }
 
 // Initially hide form
-document.getElementById('caFormCard').classList.add('hidden')
+document.getElementById('caFormCard').classList.add('hidden'); getElementById('caFormCard').style.display = 'none'
 renderCA()
 loadCAFromSupabase()
 
