@@ -249,6 +249,34 @@ import { caMasterAPI } from '/js/supabase-api.js';
 let caList = []
 let editingCAId = null
 
+function showForm() {
+  const formCard = document.getElementById('caFormCard')
+  if (formCard) {
+    formCard.style.display = 'block'
+    editingCAId = null
+    
+    // Reset form title and button
+    const titleEl = document.getElementById('caFormTitle')
+    if (titleEl) titleEl.textContent = 'Add New CA / Partner'
+    
+    const saveBtn = document.getElementById('saveBtn')
+    if (saveBtn) saveBtn.textContent = 'Save CA Details'
+    
+    const deleteBtn = document.getElementById('deleteBtn')
+    if (deleteBtn) deleteBtn.style.display = 'none'
+    
+    // Reset form
+    const form = document.getElementById('caForm')
+    if (form) form.reset()
+    
+    // Scroll to form
+    formCard.scrollIntoView({ behavior: 'smooth' })
+    console.log('Form should now be visible')
+  } else {
+    console.log('ERROR: caFormCard not found!')
+  }
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
   await loadCAList()
