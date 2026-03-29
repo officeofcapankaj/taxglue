@@ -322,6 +322,10 @@
 
         if (error) throw error;
 
+        // Also save to localStorage for other pages to use
+        localStorage.setItem('profileName', profileData.full_name);
+        localStorage.setItem('userName', profileData.full_name || localStorage.getItem('userName'));
+
         showSuccess();
         loadProfile(); // Reload to show updated data
 

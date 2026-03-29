@@ -1049,8 +1049,11 @@ async function checkUser() {
     try {
       const tokenData = JSON.parse(demoToken)
       if (tokenData.user) {
-        const email = tokenData.user.email || localStorage.getItem('userEmail') || 'demo@taxglue.com'
-        const name = tokenData.user.user_metadata?.name || localStorage.getItem('userName') || 'Demo User'
+        // Use profile data from localStorage if available, otherwise use stored values
+        const storedName = localStorage.getItem('profileName') || localStorage.getItem('userName') || 'Demo User'
+        const email = localStorage.getItem('userEmail') || tokenData.user.email || 'demo@taxglue.com'
+        const name = tokenData.user.user_metadata?.name || storedName
+        
         document.getElementById("userEmail").innerText = email
         document.getElementById("userName").innerText = name
         document.getElementById("userAvatar").innerText = name.charAt(0).toUpperCase()
@@ -1071,12 +1074,55 @@ async function checkUser() {
     window.location.href = "login.html"
   } else {
     const email = data.user.email
-    document.getElementById("userEmail").innerText = email
-    document.getElementById("userName").innerText = email.split('@')[0]
-    document.getElementById("userAvatar").innerText = email.charAt(0).toUpperCase()
+    
+    // Load profile for user info display
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, company_name')
+        .eq('id', data.user.id)
+        .single()
+      
+      // Set user info from profile or email
+      const displayName = profile?.full_name || profile?.company_name || email.split('@')[0]
+      const displayEmail = email
+      
+      document.getElementById("userEmail").innerText = displayEmail
+      document.getElementById("userName").innerText = displayName
+      document.getElementById("userAvatar").innerText = displayName.charAt(0).toUpperCase()
+      
+      // Also save to localStorage for other pages
+      localStorage.setItem('userName', displayName)
+      localStorage.setItem('userEmail', displayEmail)
+      
+      // Load organization_id for user
+      loadUserOrganization(data.user.id)
+    } catch (e) {
+      // Fallback to email
+      document.getElementById("userEmail").innerText = email
+      document.getElementById("userName").innerText = email.split('@')[0]
+      document.getElementById("userAvatar").innerText = email.charAt(0).toUpperCase()
+    }
     
     // Initialize global client selector after auth check
     initGlobalClientSelector()
+  }
+}
+
+// Load user organization and cache it
+async function loadUserOrganization(userId) {
+  try {
+    const { data: members } = await supabase
+      .from('organization_members')
+      .select('organization_id')
+      .eq('user_id', userId)
+      .limit(1)
+    
+    if (members && members.length > 0) {
+      localStorage.setItem('userOrganizationId', members[0].organization_id)
+    }
+  } catch (e) {
+    console.log('Could not load organization:', e)
   }
 }
 
