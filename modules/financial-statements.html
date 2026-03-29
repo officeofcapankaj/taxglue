@@ -784,7 +784,7 @@ function exportSingle(format) {
     const wb = XLSX.utils.book_new()
     const ws = XLSX.utils.aoa_to_sheet(reportData)
     XLSX.utils.book_append_sheet(wb, ws, 'Report')
-    XLSX.writeFile(wb, `${clientName.replace(/[^a-zA-Z0-9]/g, '_')}_${reportType.replace(/[^a-zA-Z0-9]/g, '_')}_${fy}.xlsx`)
+    XLSX.writeFile(wb, clientName.replace(/\\s+/g, '_') + '_' + reportType.replace(/\\s+/g, '_') + '_' + fy + '.xlsx')
   } else if (format === 'pdf') {
     window.print()
   } else if (format === 'word') {
