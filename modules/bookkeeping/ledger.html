@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ledger | TaxGlue</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; color: #1e293b; }
+    .container { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); color: white; padding: 0; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-header { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .logo { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .sidebar-nav { padding: 20px 12px; }
+    .nav-section { margin-bottom: 24px; }
+    .nav-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; }
+    .sidebar a { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+    .sidebar a:hover { background: rgba(255,255,255,0.1); color: white; }
+    .sidebar a.active { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .main { flex: 1; margin-left: 260px; }
+    .topbar { background: white; padding: 16px 32px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .page-title { font-size: 20px; font-weight: 600; }
+    .btn-back { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn-back:hover { background: #e2e8f0; }
+    .content { padding: 32px; }
+    .toolbar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn-primary { background: #22c55e; color: white; }
+    .btn-primary:hover { background: #16a34a; }
+    .btn-secondary { background: #3b82f6; color: white; }
+    .btn-secondary:hover { background: #2563eb; }
+    .select-group { display: flex; gap: 16px; margin-bottom: 24px; }
+    .form-group { flex: 1; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+    .form-select { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; }
+    .form-select:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
+    .table-container { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f8fafc; padding: 14px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+    .summary-row { background: #f8fafc; font-weight: 600; }
+    .summary-row td { border-top: 2px solid #e2e8f0; }
+    .amount-credit { color: #16a34a; }
+    .amount-debit { color: #dc2626; }
+    .empty-state { text-align: center; padding: 48px; color: #64748b; }
+    .group-row { cursor: pointer; }
+    .group-row:hover { background: #f8fafc; }
+    .indent-1 { padding-left: 32px; }
+    .indent-2 { padding-left: 64px; }
+    .ledger-name { font-weight: 500; }
+    .ledger-group-name { color: #64748b; font-size: 13px; }
+    .tree-toggle { width: 20px; display: inline-block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="sidebar">
+      <div class="sidebar-header"><div class="logo"><div class="logo-icon">📒</div>TaxGlue</div></div>
+      <div class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">Main</div>
+          <a href="/app/dashboard.html">🏠 Dashboard</a>
+          <a href="/app/clients.html">👥 Clients</a>
+        </div>
+        <div class="nav-section"><div class="nav-section-title">Accounting</div>
+          <a href="/modules/bookkeeping.html">📒 Book-Keeping</a>
+          <a href="/modules/trial-balance.html">📊 Trial Balance</a>
+          <a href="/modules/financial-statements.html">⚖️ Financial Statements</a>
+        </div>
+      </div>
+    </nav>
+    
+    <main class="main">
+      <header class="topbar">
+        <h1 class="page-title">📒 Ledger</h1>
+        <a href="/modules/bookkeeping.html" class="btn-back">← Back to Book-Keeping</a>
+      </header>
+      
+      <div class="content">
+        <div class="select-group">
+          <div class="form-group">
+            <label class="form-label">Select Client</label>
+            <select class="form-select" id="clientSelect" onchange="loadClientData()">
+              <option value="">-- Select Client --</option>
+              <option value="demo-1">Singla Steel Corporation</option>
+              <option value="demo-2">Rana Industries</option>
+              <option value="demo-3">Sharma Traders</option>
+              <option value="demo-4">Gupta Construction</option>
+              <option value="demo-5">Aggarwal Textiles</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Financial Year</label>
+            <select class="form-select" id="fySelect" onchange="loadClientData()">
+              <option value="2024-25">2024-25</option>
+              <option value="2023-24">2023-24</option>
+              <option value="2022-23">2022-23</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="toolbar">
+          <button class="btn btn-primary" onclick="showAddGroupModal()">+ Add Group</button>
+          <button class="btn btn-secondary" onclick="showAddLedgerModal()">+ Add Ledger</button>
+        </div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 30px;"></th>
+                <th>Account Name</th>
+                <th>Group</th>
+                <th style="text-align: right;">Opening</th>
+                <th style="text-align: right;">Debit</th>
+                <th style="text-align: right;">Credit</th>
+                <th style="text-align: right;">Closing</th>
+              </tr>
+            </thead>
+            <tbody id="accountsTable">
+              <tr><td colspan="7" class="empty-state">Select a client to view ledger accounts</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Demo data
+    const demoGroups = [
+      { id: 1, name: 'Assets', parentId: null },
+      { id: 2, name: 'Fixed Assets', parentId: 1 },
+      { id: 3, name: 'Current Assets', parentId: 1 },
+      { id: 4, name: 'Cash in Hand', parentId: 3 },
+      { id: 5, name: 'Bank Accounts', parentId: 3 },
+      { id: 6, name: 'Sundry Debtors', parentId: 3 },
+      { id: 7, name: 'Liabilities', parentId: null },
+      { id: 8, name: 'Capital Account', parentId: 7 },
+      { id: 9, name: 'Current Liabilities', parentId: 7 },
+      { id: 10, name: 'Sundry Creditors', parentId: 9 },
+      { id: 11, name: 'Income', parentId: null },
+      { id: 12, name: 'Direct Income', parentId: 11 },
+      { id: 13, name: 'Indirect Income', parentId: 11 },
+      { id: 14, name: 'Expenses', parentId: null },
+      { id: 15, name: 'Direct Expenses', parentId: 14 },
+      { id: 16, name: 'Indirect Expenses', parentId: 14 }
+    ]
+    
+    const demoLedgers = [
+      { id: 1, name: 'Cash', groupId: 4, opening: 50000 },
+      { id: 2, name: 'HDFC Bank', groupId: 5, opening: 150000 },
+      { id: 3, name: 'ICICI Bank', groupId: 5, opening: 75000 },
+      { id: 4, name: 'Singla Steel Corp', groupId: 6, opening: 125000 },
+      { id: 5, name: 'Rana Industries', groupId: 6, opening: 85000 },
+      { id: 6, name: 'Capital Account', groupId: 8, opening: 500000 },
+      { id: 7, name: 'Sharma Traders', groupId: 10, opening: 45000 },
+      { id: 8, name: 'Sales', groupId: 12, opening: 0 },
+      { id: 9, name: 'Purchase', groupId: 15, opening: 0 },
+      { id: 10, name: 'Rent Received', groupId: 13, opening: 0 },
+      { id: 11, name: 'Interest Paid', groupId: 16, opening: 0 },
+      { id: 12, name: 'Salaries', groupId: 16, opening: 0 }
+    ]
+    
+    const demoVouchers = [
+      { id: 1, date: '2024-04-01', ledgerId: 1, narration: 'Opening balance', debit: 50000, credit: 0 },
+      { id: 2, date: '2024-04-05', ledgerId: 1, narration: 'Sales receipt', debit: 0, credit: 25000 },
+      { id: 3, date: '2024-04-10', ledgerId: 2, narration: 'Bank deposit', debit: 25000, credit: 0 },
+      { id: 4, date: '2024-04-15', ledgerId: 8, narration: 'Invoice #1', debit: 0, credit: 100000 },
+      { id: 5, date: '2024-04-20', ledgerId: 9, narration: 'Purchase #1', debit: 50000, credit: 0 }
+    ]
+    
+    let currentClientId = ''
+    let currentFY = '2024-25'
+    
+    function loadClientData() {
+      currentClientId = document.getElementById('clientSelect').value
+      currentFY = document.getElementById('fySelect').value
+      if (currentClientId) {
+        loadGroupsAndLedgers()
+      }
+    }
+    
+    function loadGroupsAndLedgers() {
+      renderAccountsTable()
+    }
+    
+    function getGroupName(groupId) {
+      const group = demoGroups.find(g => g.id === groupId)
+      return group ? group.name : 'Unknown'
+    }
+    
+    function renderAccountsTable() {
+      const tbody = document.getElementById('accountsTable')
+      
+      if (!currentClientId) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Select a client to view ledger accounts</td></tr>'
+        return
+      }
+      
+      let html = ''
+      
+      // Group by parent
+      const rootGroups = demoGroups.filter(g => g.parentId === null)
+      rootGroups.forEach(root => {
+        const childGroups = demoGroups.filter(g => g.parentId === root.id)
+        
+        // Root group
+        html += `<tr class="group-row" onclick="toggleGroup(${root.id})">
+          <td class="tree-toggle">▶</td>
+          <td class="ledger-name">${root.name}</td>
+          <td class="ledger-group-name">-</td>
+          <td style="text-align: right;">-</td>
+          <td style="text-align: right;">-</td>
+          <td style="text-align: right;">-</td>
+          <td style="text-align: right;">-</td>
+        </tr>`
+        
+        // Child groups
+        childGroups.forEach(child => {
+          const ledgers = demoLedgers.filter(l => l.groupId === child.id)
+          
+          html += `<tr class="group-row indent-1" onclick="toggleGroup(${child.id})">
+            <td class="tree-toggle">▶</td>
+            <td class="ledger-name">${child.name}</td>
+            <td class="ledger-group-name">${root.name}</td>
+            <td style="text-align: right;">-</td>
+            <td style="text-align: right;">-</td>
+            <td style="text-align: right;">-</td>
+            <td style="text-align: right;">-</td>
+          </tr>`
+          
+          // Ledgers in this group
+          ledgers.forEach(ledger => {
+            const vouchers = demoVouchers.filter(v => v.ledgerId === ledger.id)
+            const totalDebit = vouchers.reduce((sum, v) => sum + v.debit, 0)
+            const totalCredit = vouchers.reduce((sum, v) => sum + v.credit, 0)
+            const closing = ledger.opening + totalCredit - totalDebit
+            
+            html += `<tr class="indent-2" onclick="viewLedger(${ledger.id})">
+              <td></td>
+              <td>${ledger.name}</td>
+              <td class="ledger-group-name">${child.name}</td>
+              <td style="text-align: right;">₹${ledger.opening.toLocaleString()}</td>
+              <td style="text-align: right;" class="amount-debit">₹${totalDebit.toLocaleString()}</td>
+              <td style="text-align: right;" class="amount-credit">₹${totalCredit.toLocaleString()}</td>
+              <td style="text-align: right;">₹${closing.toLocaleString()}</td>
+            </tr>`
+          })
+        })
+      })
+      
+      tbody.innerHTML = html
+    }
+    
+    function toggleGroup(groupId) {
+      alert('Toggle group: ' + groupId)
+    }
+    
+    function viewLedger(ledgerId) {
+      const ledger = demoLedgers.find(l => l.id === ledgerId)
+      if (ledger) {
+        alert(`Viewing ledger: ${ledger.name}\n\nThis would show the full transaction history for this account.`)
+      }
+    }
+    
+    function showAddGroupModal() {
+      const name = prompt('Enter new group name:')
+      if (name) {
+        alert('Group "' + name + '" would be created.')
+      }
+    }
+    
+    function showAddLedgerModal() {
+      const name = prompt('Enter new ledger name:')
+      if (name) {
+        alert('Ledger "' + name + '" would be created.')
+      }
+    }
+    
+    function formatCurrency(amount) {
+      return '₹' + amount.toLocaleString()
+    }
+  </script>
+</body>
+</html>

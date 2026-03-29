@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock | TaxGlue</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; color: #1e293b; }
+    .container { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); color: white; padding: 0; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-header { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .logo { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .sidebar-nav { padding: 20px 12px; }
+    .nav-section { margin-bottom: 24px; }
+    .nav-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; }
+    .sidebar a { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+    .sidebar a:hover { background: rgba(255,255,255,0.1); color: white; }
+    .sidebar a.active { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .main { flex: 1; margin-left: 260px; }
+    .topbar { background: white; padding: 16px 32px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .page-title { font-size: 20px; font-weight: 600; }
+    .btn-back { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn-back:hover { background: #e2e8f0; }
+    .content { padding: 32px; }
+    .select-group { display: flex; gap: 16px; margin-bottom: 24px; }
+    .form-group { flex: 1; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+    .form-select { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; }
+    .form-select:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
+    .toolbar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn-primary { background: #22c55e; color: white; }
+    .btn-primary:hover { background: #16a34a; }
+    .btn-secondary { background: #3b82f6; color: white; }
+    .btn-secondary:hover { background: #2563eb; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; }
+    .stat-label { font-size: 13px; color: #64748b; margin-bottom: 4px; }
+    .stat-value { font-size: 24px; font-weight: 700; }
+    .table-container { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f8fafc; padding: 14px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+    tr:hover { background: #f8fafc; }
+    .amount { text-align: right; }
+    .stock-low { color: #dc2626; }
+    .stock-ok { color: #16a34a; }
+    .empty-state { text-align: center; padding: 48px; color: #64748b; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="sidebar">
+      <div class="sidebar-header"><div class="logo"><div class="logo-icon">📒</div>TaxGlue</div></div>
+      <div class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">Main</div>
+          <a href="/app/dashboard.html">🏠 Dashboard</a>
+          <a href="/app/clients.html">👥 Clients</a>
+        </div>
+        <div class="nav-section"><div class="nav-section-title">Accounting</div>
+          <a href="/modules/bookkeeping.html">📒 Book-Keeping</a>
+          <a href="/modules/trial-balance.html">📊 Trial Balance</a>
+          <a href="/modules/financial-statements.html">⚖️ Financial Statements</a>
+        </div>
+      </div>
+    </nav>
+    
+    <main class="main">
+      <header class="topbar">
+        <h1 class="page-title">📦 Stock / Inventory</h1>
+        <a href="/modules/bookkeeping.html" class="btn-back">← Back to Book-Keeping</a>
+      </header>
+      
+      <div class="content">
+        <div class="select-group">
+          <div class="form-group">
+            <label class="form-label">Select Client</label>
+            <select class="form-select" id="clientSelect" onchange="loadClientData()">
+              <option value="">-- Select Client --</option>
+              <option value="demo-1">Singla Steel Corporation</option>
+              <option value="demo-2">Rana Industries</option>
+              <option value="demo-3">Sharma Traders</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Financial Year</label>
+            <select class="form-select" id="fySelect">
+              <option value="2024-25">2024-25</option>
+              <option value="2023-24">2023-24</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Items</div>
+            <div class="stat-value" id="totalItems">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Quantity</div>
+            <div class="stat-value" id="totalQty">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Value</div>
+            <div class="stat-value" id="totalValue">₹0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Low Stock Alerts</div>
+            <div class="stat-value stock-low" id="lowStock">0</div>
+          </div>
+        </div>
+        
+        <div class="toolbar">
+          <button class="btn btn-primary" onclick="showAddItemModal()">+ Add Item</button>
+          <button class="btn btn-secondary" onclick="exportStock()">📤 Export</button>
+        </div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Item Code</th>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Unit</th>
+                <th style="text-align: right;">Qty</th>
+                <th style="text-align: right;">Rate</th>
+                <th style="text-align: right;">Value</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="stockTable">
+              <tr><td colspan="8" class="empty-state">Select a client to view stock</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const demoStockItems = [
+      { id: 1, code: 'STL001', name: 'Steel Pipes 2"', category: 'Steel', unit: 'piece', qty: 500, rate: 450, minStock: 50 },
+      { id: 2, code: 'STL002', name: 'Steel Pipes 3"', category: 'Steel', unit: 'piece', qty: 320, rate: 650, minStock: 30 },
+      { id: 3, code: 'STL003', name: 'Steel Sheets 4x8', category: 'Steel', unit: 'piece', qty: 45, rate: 2800, minStock: 20 },
+      { id: 4, code: 'GAL001', name: 'Galvanized Sheets', category: 'Sheets', unit: 'piece', qty: 180, rate: 1200, minStock: 25 },
+      { id: 5, code: 'COP001', name: 'Copper Wire 12G', category: 'Wire', unit: 'kg', qty: 25, rate: 850, minStock: 10 },
+      { id: 6, code: 'COP002', name: 'Copper Wire 14G', category: 'Wire', unit: 'kg', qty: 8, rate: 920, minStock: 10 },
+      { id: 7, code: 'FAS001', name: 'Faucets Chrome', category: 'Fittings', unit: 'piece', qty: 120, rate: 350, minStock: 15 },
+      { id: 8, code: 'PIP001', name: 'PVC Pipes 1"', category: 'Pipes', unit: 'piece', qty: 250, rate: 85, minStock: 50 }
+    ]
+    
+    let currentClientId = ''
+    
+    function loadClientData() {
+      currentClientId = document.getElementById('clientSelect').value
+      if (currentClientId) {
+        loadStockItems()
+      }
+    }
+    
+    function loadStockItems() {
+      const tbody = document.getElementById('stockTable')
+      
+      if (!currentClientId) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-state">Select a client to view stock</td></tr>'
+        return
+      }
+      
+      const items = demoStockItems
+      let totalQty = 0
+      let totalValue = 0
+      let lowStockCount = 0
+      
+      const rows = items.map(item => {
+        totalQty += item.qty
+        totalValue += item.qty * item.rate
+        if (item.qty <= item.minStock) lowStockCount++
+        
+        const status = item.qty <= item.minStock ? '<span class="stock-low">Low Stock</span>' : '<span class="stock-ok">In Stock</span>'
+        
+        return `<tr>
+          <td>${item.code}</td>
+          <td>${item.name}</td>
+          <td>${item.category}</td>
+          <td>${item.unit}</td>
+          <td class="amount">${item.qty}</td>
+          <td class="amount">₹${item.rate.toLocaleString()}</td>
+          <td class="amount">₹${(item.qty * item.rate).toLocaleString()}</td>
+          <td>${status}</td>
+        </tr>`
+      }).join('')
+      
+      tbody.innerHTML = rows
+      
+      // Update stats
+      document.getElementById('totalItems').textContent = items.length
+      document.getElementById('totalQty').textContent = totalQty
+      document.getElementById('totalValue').textContent = '₹' + totalValue.toLocaleString()
+      document.getElementById('lowStock').textContent = lowStockCount
+    }
+    
+    function showAddItemModal() {
+      alert('Add Stock Item\n\nThis would open a modal to add new stock items.')
+    }
+    
+    function exportStock() {
+      alert('Export Stock Report\n\nThis would download the stock report as Excel/CSV.')
+    }
+  </script>
+</body>
+</html>

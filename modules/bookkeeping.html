@@ -339,19 +339,13 @@ input[type="number"] {
     <div class="success-message" id="successMessage">Saved successfully!</div>
     
     <div class="tabs">
-      <button class="tab active" id="mastersTab" onclick="switchTab('masters')">📋 Masters</button>
-      <button class="tab" id="voucherTab" onclick="switchTab('voucher')">📝 Voucher Entry</button>
-      <button class="tab" id="ledgerTab" onclick="switchTab('ledger')">📒 Ledger</button>
-      <button class="tab" id="daybookTab" onclick="switchTab('daybook')">📖 Day Book</button>
-      <button class="tab" id="cashbookTab" onclick="switchTab('cashbook')">💰 Cash Book</button>
-      <button class="tab" id="bankReconTab" onclick="switchTab('bankReconciliation')">🏦 Bank Recon</button>
-      <button class="tab" id="ocrTab" onclick="switchTab('ocrEntry')">🤖 AI Entry</button>
-      <button class="tab" id="eInvoiceTab" onclick="switchTab('eInvoice')">📄 E-Invoice</button>
-      <button class="tab" id="workflowsTab" onclick="switchTab('workflows')">⚡ Workflows</button>
-      <button class="tab" id="stockTab" onclick="switchTab('stock')">📦 Stock</button>
-      <button class="tab" id="trialbalanceTab" onclick="switchTab('trialbalance')">📊 Trial Balance</button>
-      <button class="tab" id="reportsTab" onclick="switchTab('reportsAdvanced')">📈 Reports</button>
-      <button class="tab" id="settingsTab" onclick="switchTab('settings')">⚙️ Settings</button>
+      <button class="tab active" id="voucherTab" onclick="switchTab('voucher')">📝 Voucher Entry</button>
+      <button class="tab" id="ledgerTab" onclick="window.location.href='/modules/bookkeeping/ledger.html'">📒 Ledger</button>
+      <button class="tab" id="daybookTab" onclick="window.location.href='/modules/bookkeeping/daybook.html'">📖 Day Book</button>
+      <button class="tab" id="cashbookTab" onclick="window.location.href='/modules/bookkeeping/cashbook.html'">💰 Cash Book</button>
+      <button class="tab" id="bankReconTab" onclick="window.location.href='/modules/bookkeeping/bank-recon.html'">🏦 Bank Recon</button>
+      <button class="tab" id="stockTab" onclick="window.location.href='/modules/bookkeeping/stock.html'">📦 Stock</button>
+      <button class="tab" id="trialbalanceTab" onclick="window.location.href='/modules/bookkeeping/trial-balance.html'">📊 Trial Balance</button>
     </div>
     
     <!-- Masters Section -->
@@ -1523,23 +1517,51 @@ input[type="number"] {
 </div>
 
 <script>
-// Supabase Configuration - wait for CDN to load
-const supabaseUrl = "https://jgjeuybgideeqcjxvlmn.supabase.co"
-const supabaseKey = "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
-let supabase = null
+// API Configuration - use backend REST API
+const API_BASE = '/api'
 
-// Wait for supabase library to be available
-function initSupabase() {
-  console.log('Checking for Supabase...', typeof supabase)
-  if (typeof supabase !== 'undefined' && supabase && supabase.createClient) {
-    window.supabase = supabase = supabase.createClient(supabaseUrl, supabaseKey)
-    console.log('✅ Supabase initialized successfully')
-    initApp()
-  } else {
-    console.log('Retrying Supabase init...')
-    setTimeout(initSupabase, 100)
+// Simple API client for backend
+const api = {
+  async request(endpoint, options = {}) {
+    const url = `${API_BASE}${endpoint}`
+    const token = localStorage.getItem('auth_token') || ''
+    
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+        ...options.headers
+      },
+      ...options
+    }
+    
+    const response = await fetch(url, config)
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Request failed' }))
+      throw new Error(error.error || 'Request failed')
+    }
+    return response.json()
+  },
+  
+  get(endpoint) {
+    return this.request(endpoint, { method: 'GET' })
+  },
+  
+  post(endpoint, data) {
+    return this.request(endpoint, { method: 'POST', body: JSON.stringify(data) })
+  },
+  
+  put(endpoint, data) {
+    return this.request(endpoint, { method: 'PUT', body: JSON.stringify(data) })
+  },
+  
+  delete(endpoint) {
+    return this.request(endpoint, { method: 'DELETE' })
   }
 }
+
+// Demo mode - simulate logged in user
+let demoUser = { id: 'demo-user', email: 'demo@taxglue.com', name: 'Demo User' }
 
 // Initialize app
 function initApp() {
@@ -1549,7 +1571,7 @@ function initApp() {
   loadDemoClients()
 }
 
-document.addEventListener('DOMContentLoaded', initSupabase)
+document.addEventListener('DOMContentLoaded', initApp)
 
 let clients = []
 let vouchers = []
@@ -1649,7 +1671,7 @@ function switchTab(tab) {
   }
   
   // Toggle section active class
-  const sections = ['masters', 'voucher', 'ledger', 'daybook', 'cashbook', 'bankReconciliation', 'ocrEntry', 'eInvoice', 'workflows', 'stock', 'trialbalance', 'reportsAdvanced', 'settings']
+  const sections = ['voucher']
   sections.forEach(section => {
     const el = document.getElementById(section + 'Section')
     if (el) {
@@ -2463,31 +2485,29 @@ async function saveVoucher() {
   }
   
   try {
-    await supabase.from('vouchers').insert(voucherData)
+    // Use backend API instead of Supabase
+    await api.post('/vouchers', voucherData)
     hideVoucherForm()
     loadVouchers()
     showSuccess('Voucher saved successfully!')
   } catch (e) {
     console.error('Error saving voucher:', e)
-    alert('Error saving voucher')
+    alert('Error saving voucher: ' + e.message)
   }
 }
 
 async function loadVouchers() {
+  if (!currentClientId) return
+  
   try {
-    const { data } = await supabase
-      .from('vouchers')
-      .select('*')
-      .eq('client_id', currentClientId)
-      .eq('fy', currentFY)
-      .order('date', { ascending: false })
-    
-    if (data) {
-      vouchers = data
-      renderVoucherTable()
-    }
+    // Use backend API instead of Supabase
+    const data = await api.get(`/vouchers/${currentClientId}?fy=${currentFY}`)
+    vouchers = data || []
+    renderVoucherTable()
   } catch (e) {
     console.log('Error loading vouchers:', e)
+    vouchers = []
+    renderVoucherTable()
   }
 }
 
