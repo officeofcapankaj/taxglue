@@ -348,6 +348,7 @@ input[type="number"] {
       <button class="btn btn-secondary" id="saveTB">💾 Save Trial</button>
       <button class="btn btn-outline" id="autoCalcTB" onclick="autoCalculateFromLedger()">🔄 Auto-Calculate</button>
       <button class="btn btn-outline" id="importExcel" onclick="document.getElementById('importFileInput').click()">📥 Import Excel</button>
+      <button class="btn btn-outline" onclick="downloadTrialBalanceTemplate()">📄 Download Template</button>
       <button class="btn btn-outline" onclick="window.print()">🖨️ Print</button>
       <button class="btn btn-outline" onclick="location.href='/modules/financial-statements.html'">📊 Financial Stmnts</button>
     </div>
@@ -797,6 +798,102 @@ function importFromExcel(event) {
     }
   }
   reader.readAsArrayBuffer(file)
+}
+
+// Download Trial Balance Template with Sample Data
+function downloadTrialBalanceTemplate() {
+  // Sample trial balance data
+  const templateData = [
+    ['Account Name', 'Debit', 'Credit', 'Main Head'],
+    ['Cash in Hand', 50000, 0, 'Assets'],
+    ['HDFC Bank Account', 150000, 0, 'Assets'],
+    ['ICICI Bank Account', 75000, 0, 'Assets'],
+    ['Sundry Debtors - ABC Corp', 125000, 0, 'Assets'],
+    ['Sundry Debtors - XYZ Ltd', 85000, 0, 'Assets'],
+    ['Fixed Assets - Plant & Machinery', 200000, 0, 'Assets'],
+    ['Furniture & Fixtures', 50000, 0, 'Assets'],
+    ['', 0, 0, ''],
+    ['Capital Account', 0, 500000, 'Liabilities'],
+    ['Sundry Creditors - Supplier A', 0, 45000, 'Liabilities'],
+    ['Sundry Creditors - Supplier B', 0, 35000, 'Liabilities'],
+    ['Bank Overdraft', 0, 75000, 'Liabilities'],
+    ['Provision for Tax', 0, 25000, 'Liabilities'],
+    ['', 0, 0, ''],
+    ['Sales - Domestic', 0, 450000, 'Income'],
+    ['Sales - Export', 0, 150000, 'Income'],
+    ['Other Income', 0, 25000, 'Income'],
+    ['', 0, 0, ''],
+    ['Purchases', 280000, 0, 'Expense'],
+    ['Direct Expenses', 35000, 0, 'Expense'],
+    ['Salaries', 120000, 0, 'Expense'],
+    ['Rent', 48000, 0, 'Expense'],
+    ['Electricity', 18000, 0, 'Expense'],
+    ['Insurance', 12000, 0, 'Expense'],
+    ['Printing & Stationery', 8000, 0, 'Expense'],
+    ['Travelling Expenses', 25000, 0, 'Expense'],
+    ['Depreciation', 40000, 0, 'Expense'],
+    ['', 0, 0, ''],
+    ['TOTAL', 1435000, 1435000, '']
+  ]
+  
+  // Create workbook
+  const wb = XLSX.utils.book_new()
+  
+  // Create template sheet
+  const wsTemplate = XLSX.utils.aoa_to_sheet(templateData)
+  
+  // Set column widths
+  wsTemplate['!cols'] = [
+    { wch: 35 },  // Account Name
+    { wch: 15 },  // Debit
+    { wch: 15 },  // Credit
+    { wch: 15 }   // Main Head
+  ]
+  
+  // Add template sheet
+  XLSX.utils.book_append_sheet(wb, wsTemplate, 'Trial Balance Template')
+  
+  // Create instructions sheet
+  const instructionsData = [
+    ['TRIAL BALANCE TEMPLATE - INSTRUCTIONS'],
+    [''],
+    ['HOW TO USE THIS TEMPLATE:'],
+    ['1. Fill in your Account Names in Column A'],
+    ['2. Enter Debit amounts in Column B (if applicable)'],
+    ['3. Enter Credit amounts in Column C (if applicable)'],
+    ['4. Select Main Head from dropdown in Column D (Assets/Liabilities/Income/Expense)'],
+    ['5. Leave blank rows are allowed'],
+    ['6. Total row at bottom will be auto-calculated'],
+    [''],
+    ['IMPORTANT NOTES:'],
+    ['- Do not change the header row'],
+    ['- Each account should be on a separate row'],
+    ['- Debit and Credit should not have values in the same row (except for adjustments)'],
+    ['- Main Head determines how the account is classified in financial statements'],
+    [''],
+    ['MAIN HEAD OPTIONS:'],
+    ['- Assets: Cash, Bank, Debtors, Fixed Assets, Stock, etc.'],
+    ['- Liabilities: Capital, Creditors, Loans, Bank OD, etc.'],
+    ['- Income: Sales, Commission, Interest Received, etc.'],
+    ['- Expense: Purchases, Rent, Salary, Insurance, etc.'],
+    [''],
+    ['AFTER IMPORT:'],
+    ['1. Click "Import Excel" button'],
+    ['2. Select this template file'],
+    ['3. Review and adjust Main Head classifications if needed'],
+    ['4. Click "Save Trial Balance"'],
+    ['5. Click "Financial Stmnts" to generate Balance Sheet and P&L']
+  ]
+  
+  const wsInstructions = XLSX.utils.aoa_to_sheet(instructionsData)
+  wsInstructions['!cols'] = [{ wch: 60 }]
+  XLSX.utils.book_append_sheet(wb, wsInstructions, 'Instructions')
+  
+  // Download the file
+  XLSX.writeFile(wb, 'TaxGlue_Trial_Balance_Template.xlsx')
+  
+  // Show confirmation
+  alert('✓ Template downloaded!\n\nFile: TaxGlue_Trial_Balance_Template.xlsx\n\n1. Open the file in Excel\n2. Replace sample data with your trial balance\n3. Save and import back using "Import Excel" button')
 }
 
 // Delete row
