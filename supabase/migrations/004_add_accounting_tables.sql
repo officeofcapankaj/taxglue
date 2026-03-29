@@ -4,7 +4,7 @@
 
 -- Account Groups Table
 CREATE TABLE IF NOT EXISTS account_groups (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
   fy VARCHAR(20),
   name VARCHAR(255) NOT NULL,
@@ -24,7 +24,7 @@ CREATE POLICY "Users can manage account_groups" ON account_groups
 
 -- Stock Items Table
 CREATE TABLE IF NOT EXISTS stock_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
   fy VARCHAR(20),
   name VARCHAR(255) NOT NULL,

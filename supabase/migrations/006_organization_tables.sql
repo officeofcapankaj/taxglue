@@ -101,7 +101,7 @@ CREATE POLICY "Users can manage roles" ON roles
 -- Create index
 CREATE INDEX IF NOT EXISTS idx_roles_organization_id ON roles(organization_id);
 
-RAISE NOTICE 'Organization tables created successfully!';
+-- RAISE NOTICE 'Organization tables created successfully!';
 
 -- Insert default system roles
 INSERT INTO roles (name, description, is_system_role, permissions) VALUES
@@ -115,4 +115,4 @@ INSERT INTO roles (name, description, is_system_role, permissions) VALUES
   '{"clients": "view", "accounts": "view", "vouchers": "view", "payroll": "none", "reports": "view", "settings": "none"}'::jsonb)
 ON CONFLICT DO NOTHING;
 
-RAISE NOTICE 'Default roles inserted successfully!';
+-- RAISE NOTICE 'Default roles inserted successfully!';

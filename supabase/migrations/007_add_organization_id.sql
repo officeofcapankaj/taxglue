@@ -57,15 +57,17 @@ BEGIN
   END IF;
 END $$;
 
--- 8. Add organization_id column to payroll_settings table
+-- 8. Add organization_id column to payroll_settings table (if table exists)
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'payroll_settings' AND column_name = 'organization_id') THEN
-    ALTER TABLE payroll_settings ADD COLUMN organization_id UUID;
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'payroll_settings') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'payroll_settings' AND column_name = 'organization_id') THEN
+      ALTER TABLE payroll_settings ADD COLUMN organization_id UUID;
+    END IF;
   END IF;
 END $$;
 
--- Create indexes for organization_id on all tables
+-- Create indexes for organization_id on all tables (conditional)
 CREATE INDEX IF NOT EXISTS idx_clients_organization_id ON clients(organization_id);
 CREATE INDEX IF NOT EXISTS idx_accounts_organization_id ON accounts(organization_id);
 CREATE INDEX IF NOT EXISTS idx_vouchers_organization_id ON vouchers(organization_id);
@@ -73,7 +75,20 @@ CREATE INDEX IF NOT EXISTS idx_trial_balance_organization_id ON trial_balance(or
 CREATE INDEX IF NOT EXISTS idx_employees_organization_id ON employees(organization_id);
 CREATE INDEX IF NOT EXISTS idx_salary_structures_organization_id ON salary_structures(organization_id);
 CREATE INDEX IF NOT EXISTS idx_salary_payments_organization_id ON salary_payments(organization_id);
-CREATE INDEX IF NOT EXISTS idx_payroll_settings_organization_id ON payroll_settings(organization_id);
+
+-- Conditional index and update for payroll_settings
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'payroll_settings') THEN
+    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_payroll_settings_organization_id ON payroll_settings(organization_id)';
+    
+    UPDATE payroll_settings ps
+    SET organization_id = c.organization_id
+    FROM clients c
+    WHERE ps.client_id = c.id
+    AND ps.organization_id IS NULL;
+  END IF;
+END $$;
 
 -- Migration: Create organizations for existing users and update data
 -- This runs only once for existing data
@@ -140,11 +155,16 @@ FROM employees e
 WHERE sp.employee_id = e.id
 AND sp.organization_id IS NULL;
 
--- Update payroll_settings with organization_id (via client)
-UPDATE payroll_settings ps
-SET organization_id = c.organization_id
-FROM clients c
-WHERE ps.client_id = c.id
-AND ps.organization_id IS NULL;
+-- Update payroll_settings with organization_id (via client) - only if table exists
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'payroll_settings') THEN
+    UPDATE payroll_settings ps
+    SET organization_id = c.organization_id
+    FROM clients c
+    WHERE ps.client_id = c.id
+    AND ps.organization_id IS NULL;
+  END IF;
+END $$;
 
-RAISE NOTICE 'Organization migration completed successfully!';
+-- RAISE NOTICE 'Organization migration completed successfully!';

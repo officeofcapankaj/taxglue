@@ -102,4 +102,4 @@ CREATE POLICY "Users can delete avatars" ON storage.objects
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
-RAISE NOTICE 'Storage configuration created successfully!';
+-- RAISE NOTICE 'Storage configuration created successfully!';

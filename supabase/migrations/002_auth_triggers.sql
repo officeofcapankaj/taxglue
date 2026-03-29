@@ -47,4 +47,4 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-RAISE NOTICE 'Auth trigger functions created successfully!';
+-- RAISE NOTICE 'Auth trigger functions created successfully!';

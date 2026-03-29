@@ -95,16 +95,21 @@ CREATE POLICY "Users can manage own salary_payments" ON salary_payments
   );
 
 -- ======================
--- PAYROLL SETTINGS
+-- PAYROLL SETTINGS (only if table exists)
 -- ======================
-DROP POLICY IF EXISTS "Users can manage own payroll_settings" ON payroll_settings;
-CREATE POLICY "Users can manage own payroll_settings" ON payroll_settings
-  FOR ALL USING (
-    organization_id IN (
-      SELECT om.organization_id 
-      FROM organization_members om 
-      WHERE om.user_id = auth.uid()
-    )
-  );
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'payroll_settings') THEN
+    EXECUTE 'DROP POLICY IF EXISTS "Users can manage own payroll_settings" ON payroll_settings';
+    EXECUTE 'CREATE POLICY "Users can manage own payroll_settings" ON payroll_settings
+      FOR ALL USING (
+        organization_id IN (
+          SELECT om.organization_id 
+          FROM organization_members om 
+          WHERE om.user_id = auth.uid()
+        )
+      )';
+  END IF;
+END $$;
 
-RAISE NOTICE 'RLS policies updated for organization-based access successfully!';
+-- RAISE NOTICE 'RLS policies updated for organization-based access successfully!';

@@ -42,7 +42,7 @@ CREATE POLICY "Admins can view all profiles" ON profiles
 -- 2. CLIENTS
 -- ============================================
 CREATE TABLE IF NOT EXISTS clients (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   constitution VARCHAR(100),
   name VARCHAR(255) NOT NULL,
@@ -81,7 +81,7 @@ CREATE INDEX idx_clients_user_id ON clients(user_id);
 -- 3. ACCOUNTS (Chart of Accounts)
 -- ============================================
 CREATE TABLE IF NOT EXISTS accounts (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
   fy VARCHAR(20) NOT NULL,
   code VARCHAR(20),
@@ -110,7 +110,7 @@ CREATE INDEX idx_accounts_client_fy ON accounts(client_id, fy);
 -- 4. VOUCHERS
 -- ============================================
 CREATE TABLE IF NOT EXISTS vouchers (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
   fy VARCHAR(20) NOT NULL,
   date DATE NOT NULL,
@@ -140,7 +140,7 @@ CREATE INDEX idx_vouchers_date ON vouchers(date);
 -- 5. TRIAL BALANCE
 -- ============================================
 CREATE TABLE IF NOT EXISTS trial_balance (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
   fy VARCHAR(20) NOT NULL,
   data JSONB DEFAULT '[]',
@@ -165,7 +165,7 @@ CREATE INDEX idx_trial_balance_client_fy ON trial_balance(client_id, fy);
 -- 6. CA MASTER (Chartered Accountant Details)
 -- ============================================
 CREATE TABLE IF NOT EXISTS ca_master (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   first_name VARCHAR(100),
   middle_name VARCHAR(100),
@@ -206,7 +206,7 @@ CREATE POLICY "Users can manage ca_master" ON ca_master
 -- 7. TDS DEDUCTORS
 -- ============================================
 CREATE TABLE IF NOT EXISTS tds_deductors (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   organization_id UUID,
   tan VARCHAR(10) UNIQUE,
@@ -243,7 +243,7 @@ CREATE INDEX idx_tds_deductors_user ON tds_deductors(user_id);
 -- 8. TDS DEDUCTEES
 -- ============================================
 CREATE TABLE IF NOT EXISTS tds_deductees (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   deductor_id UUID REFERENCES tds_deductors(id) ON DELETE CASCADE,
   pan VARCHAR(10),
@@ -281,7 +281,7 @@ CREATE INDEX idx_tds_deductees_deductor ON tds_deductees(deductor_id);
 -- 9. TDS TRANSACTIONS
 -- ============================================
 CREATE TABLE IF NOT EXISTS tds_transactions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   deductor_id UUID REFERENCES tds_deductors(id) ON DELETE CASCADE,
   deductee_id UUID REFERENCES tds_deductees(id) ON DELETE SET NULL,
@@ -321,7 +321,7 @@ CREATE INDEX idx_tds_transactions_fy_quarter ON tds_transactions(fy, quarter);
 -- 10. TDS CHALLANS
 -- ============================================
 CREATE TABLE IF NOT EXISTS tds_challans (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   deductor_id UUID REFERENCES tds_deductors(id) ON DELETE CASCADE,
   bsr_code VARCHAR(10),
@@ -358,7 +358,7 @@ CREATE INDEX idx_tds_challans_fy ON tds_challans(fy);
 -- 11. TDS RETURNS
 -- ============================================
 CREATE TABLE IF NOT EXISTS tds_returns (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   deductor_id UUID REFERENCES tds_deductors(id) ON DELETE CASCADE,
   form_type VARCHAR(10) DEFAULT '26Q',
@@ -394,7 +394,7 @@ CREATE INDEX idx_tds_returns_quarter_fy ON tds_returns(quarter, fy);
 -- 12. TDS SECTION RATES (Reference Table)
 -- ============================================
 CREATE TABLE IF NOT EXISTS tds_section_rates (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   section VARCHAR(10) UNIQUE NOT NULL,
   name VARCHAR(255) NOT NULL,
   rate DECIMAL(5,2),
@@ -430,7 +430,7 @@ ON CONFLICT (section) DO NOTHING;
 -- 13. GST INVOICES
 -- ============================================
 CREATE TABLE IF NOT EXISTS gst_invoices (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
   invoice_number VARCHAR(50) NOT NULL,
@@ -468,7 +468,7 @@ CREATE INDEX idx_gst_invoices_client_fy ON gst_invoices(client_id, fy);
 -- 14. GST RETURNS
 -- ============================================
 CREATE TABLE IF NOT EXISTS gst_returns (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
   return_type VARCHAR(20) NOT NULL, -- GSTR-1, GSTR-3B, GSTR-4, GSTR-9
@@ -494,7 +494,7 @@ CREATE POLICY "Users can manage gst_returns" ON gst_returns
 -- 15. E-WAY BILLS
 -- ============================================
 CREATE TABLE IF NOT EXISTS eway_bills (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
   eway_bill_number VARCHAR(50),
@@ -525,7 +525,7 @@ CREATE POLICY "Users can manage eway_bills" ON eway_bills
 -- 16. GST RATES (Reference Table)
 -- ============================================
 CREATE TABLE IF NOT EXISTS gst_rates (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   rate DECIMAL(5,2) UNIQUE NOT NULL,
   name VARCHAR(100) NOT NULL,
   description TEXT,
@@ -554,7 +554,7 @@ ON CONFLICT (rate) DO NOTHING;
 -- 17. INCOME TAX RETURNS (ITR)
 -- ============================================
 CREATE TABLE IF NOT EXISTS income_tax_returns (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
   itr_type VARCHAR(20) NOT NULL, -- ITR-1, ITR-2, ITR-3, etc.
@@ -584,7 +584,7 @@ CREATE POLICY "Users can manage income_tax_returns" ON income_tax_returns
 -- 18. FORM 16
 -- ============================================
 CREATE TABLE IF NOT EXISTS form16 (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
   certificate_number VARCHAR(50) NOT NULL,
@@ -614,7 +614,7 @@ CREATE POLICY "Users can manage form16" ON form16
 -- 19. TAX COMPUTATIONS
 -- ============================================
 CREATE TABLE IF NOT EXISTS tax_computations (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
   assessment_year VARCHAR(10) NOT NULL,
@@ -643,7 +643,7 @@ CREATE POLICY "Users can manage tax_computations" ON tax_computations
 -- 20. DOCUMENTS
 -- ============================================
 CREATE TABLE IF NOT EXISTS documents (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
   document_type VARCHAR(50) NOT NULL,
@@ -672,7 +672,7 @@ CREATE INDEX idx_documents_client ON documents(client_id);
 -- 21. AUDIT LOGS
 -- ============================================
 CREATE TABLE IF NOT EXISTS audit_logs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   action VARCHAR(100) NOT NULL,
   table_name VARCHAR(50),
@@ -700,7 +700,7 @@ CREATE INDEX idx_audit_logs_created ON audit_logs(created_at);
 -- 22. PAYROLL - EMPLOYEES
 -- ============================================
 CREATE TABLE IF NOT EXISTS employees (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
   fy VARCHAR(20) NOT NULL,
@@ -749,7 +749,7 @@ CREATE POLICY "Users can manage employees" ON employees
 -- 23. PAYROLL - SALARY STRUCTURES
 -- ============================================
 CREATE TABLE IF NOT EXISTS salary_structures (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
   employee_id UUID REFERENCES employees(id) ON DELETE CASCADE,
   fy VARCHAR(20) NOT NULL,
@@ -776,7 +776,7 @@ CREATE POLICY "Users can manage salary_structures" ON salary_structures
 -- 24. PAYROLL - SALARY PAYMENTS
 -- ============================================
 CREATE TABLE IF NOT EXISTS salary_payments (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
   employee_id UUID REFERENCES employees(id) ON DELETE CASCADE,
   year INTEGER NOT NULL,
@@ -813,4 +813,4 @@ CREATE INDEX idx_salary_payments_employee_month ON salary_payments(employee_id, 
 -- ============================================
 -- FINAL NOTICE
 -- ============================================
-RAISE NOTICE 'TaxGlue database schema created successfully!';
+-- TaxGlue database schema created;
