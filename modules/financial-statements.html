@@ -784,17 +784,17 @@ function exportSingle(format) {
     const wb = XLSX.utils.book_new()
     const ws = XLSX.utils.aoa_to_sheet(reportData)
     XLSX.utils.book_append_sheet(wb, ws, 'Report')
-    // Create download with Blob using array buffer
-    const wbout = XLSX.write(wb, {bookType: 'xlsx', type: 'array'})
-    const blob = new Blob([wbout], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})
-    const url = URL.createObjectURL(blob)
+    // Use base64 encoding for download
+    const wbout = XLSX.write(wb, {bookType: 'xlsx', type: 'base64'})
+    const fileName = (clientName || 'TaxGlue').replace(/\\s+/g, '_') + '_' + (reportType || 'Report').replace(/\\s+/g, '_') + '_' + (fy || '2024-25') + '.xlsx'
+
+    // Create link with data URL
     const link = document.createElement('a')
-    link.href = url
-    link.download = (clientName || 'TaxGlue').replace(/\\s+/g, '_') + '_' + (reportType || 'Report').replace(/\\s+/g, '_') + '_' + (fy || '2024-25') + '.xlsx'
+    link.href = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,' + wbout
+    link.download = fileName
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
   } else if (format === 'pdf') {
     window.print()
   } else if (format === 'word') {
