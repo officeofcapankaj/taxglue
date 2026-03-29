@@ -28,6 +28,30 @@
     {
       "src": "data/**",
       "use": "@vercel/static"
+    },
+    {
+      "src": "data.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "export.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "server/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "supabase/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "electron/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "database/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -36,8 +60,68 @@
       "dest": "/index.html"
     },
     {
+      "src": "/app",
+      "dest": "/app/index.html"
+    },
+    {
+      "src": "/app/",
+      "dest": "/app/index.html"
+    },
+    {
+      "src": "/app/index.html",
+      "dest": "/app/index.html"
+    },
+    {
+      "src": "/app/dashboard",
+      "dest": "/app/dashboard.html"
+    },
+    {
+      "src": "/app/clients",
+      "dest": "/app/clients.html"
+    },
+    {
+      "src": "/app/bookkeeping",
+      "dest": "/app/bookkeeping.html"
+    },
+    {
+      "src": "/app/gst",
+      "dest": "/app/gst.html"
+    },
+    {
+      "src": "/app/tds",
+      "dest": "/app/tds.html"
+    },
+    {
+      "src": "/app/incometax",
+      "dest": "/app/incometax.html"
+    },
+    {
+      "src": "/app/organization",
+      "dest": "/app/organization.html"
+    },
+    {
+      "src": "/app/user",
+      "dest": "/app/user.html"
+    },
+    {
+      "src": "/app/login",
+      "dest": "/app/login.html"
+    },
+    {
+      "src": "/app/ca-master",
+      "dest": "/app/ca-master.html"
+    },
+    {
+      "src": "/app/sample-financial-statements",
+      "dest": "/app/sample-financial-statements.html"
+    },
+    {
+      "src": "/app/components/(.*)",
+      "dest": "/app/components/$1"
+    },
+    {
       "src": "/app/(.*)",
-      "dest": "/app/$1"
+      "dest": "/app/$1.html"
     },
     {
       "src": "/css/(.*)",
@@ -52,24 +136,100 @@
       "dest": "/modules/$1"
     },
     {
+      "src": "/modules",
+      "dest": "/modules/index.html"
+    },
+    {
+      "src": "/modules/balance-sheet",
+      "dest": "/modules/balance-sheet.html"
+    },
+    {
+      "src": "/modules/trial-balance",
+      "dest": "/modules/trial-balance.html"
+    },
+    {
+      "src": "/modules/financial-statements",
+      "dest": "/modules/financial-statements.html"
+    },
+    {
+      "src": "/modules/bookkeeping",
+      "dest": "/modules/bookkeeping.html"
+    },
+    {
+      "src": "/modules/payroll",
+      "dest": "/modules/payroll.html"
+    },
+    {
+      "src": "/modules/stock-statement",
+      "dest": "/modules/stock-statement.html"
+    },
+    {
+      "src": "/modules/audit",
+      "dest": "/modules/audit.html"
+    },
+    {
+      "src": "/modules/tasks",
+      "dest": "/modules/tasks.html"
+    },
+    {
+      "src": "/modules/updates",
+      "dest": "/modules/updates.html"
+    },
+    {
+      "src": "/modules/mca",
+      "dest": "/modules/mca.html"
+    },
+    {
       "src": "/templates/(.*)",
       "dest": "/templates/$1"
+    },
+    {
+      "src": "/templates",
+      "dest": "/templates/index.html"
+    },
+    {
+      "src": "/templates/tds",
+      "dest": "/templates/tds.html"
     },
     {
       "src": "/data/(.*)",
       "dest": "/data/$1"
     },
     {
-      "src": "/(.*)\\.(png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$",
+      "src": "/data.js",
+      "dest": "/data.js"
+    },
+    {
+      "src": "/export.js",
+      "dest": "/export.js"
+    },
+    {
+      "src": "/server/(.*)",
+      "dest": "/server/$1"
+    },
+    {
+      "src": "/supabase/(.*)",
+      "dest": "/supabase/$1"
+    },
+    {
+      "src": "/electron/(.*)",
+      "dest": "/electron/$1"
+    },
+    {
+      "src": "/database/(.*)",
+      "dest": "/database/$1"
+    },
+    {
+      "src": "/docs/(.*)",
+      "dest": "/docs/$1"
+    },
+    {
+      "src": "/(.*)\\.(png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|js|css|html)$",
       "dest": "/$1.$2"
     },
     {
       "src": "/",
       "dest": "/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/app/$1"
     }
   ]
 }
