@@ -1,222 +1,231 @@
-[
-  {
-    "id": "demo-1",
-    "user_id": "admin",
-    "constitution": "Proprietorship",
-    "name": "Singla Steel Corporation",
-    "phone": "9876543210",
-    "email": "info@singlasteel.com",
-    "address": "123 Industrial Area, Phase-1",
-    "city": "Ludhiana",
-    "state": "Punjab",
-    "pincode": "141001",
-    "country": "India",
-    "registrations": {
-      "panNumber": "ABPFS1234C",
-      "gstin": "03ABPFS1234C1Z5"
-    },
-    "contactPersons": [],
-    "documents": [],
-    "fy": "2024-25",
-    "created_at": "2024-01-15T10:00:00",
-    "updated_at": "2024-01-15T10:00:00"
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-29T09:15:17.389871Z",
+  "metadata": {
+    "generatedBy": "seed",
+    "notes": "Demo data from clients.json",
+    "environment": "development"
   },
-  {
-    "id": "demo-2",
-    "user_id": "admin",
-    "constitution": "Partnership Firm",
-    "name": "Rana Industries",
-    "phone": "9876543211",
-    "email": "info@ranaindustries.com",
-    "address": "456 Commercial Complex",
-    "city": "Jalandhar",
-    "state": "Punjab",
-    "pincode": "144001",
-    "country": "India",
-    "registrations": {
-      "panNumber": "AABCU1234E",
-      "gstin": "03AABCU1234E1Z6"
+  "data": [
+    {
+      "id": "demo-1",
+      "user_id": "admin",
+      "constitution": "Proprietorship",
+      "name": "Singla Steel Corporation",
+      "phone": "9876543210",
+      "email": "info@singlasteel.com",
+      "address": "123 Industrial Area, Phase-1",
+      "city": "Ludhiana",
+      "state": "Punjab",
+      "pincode": "141001",
+      "country": "India",
+      "registrations": {
+        "panNumber": "ABPFS1234C",
+        "gstin": "03ABPFS1234C1Z5"
+      },
+      "contactPersons": [],
+      "documents": [],
+      "fy": "2024-25",
+      "created_at": "2024-01-15T10:00:00",
+      "updated_at": "2024-01-15T10:00:00"
     },
-    "contactPersons": [],
-    "documents": [],
-    "fy": "2024-25",
-    "created_at": "2024-01-16T10:00:00",
-    "updated_at": "2024-01-16T10:00:00"
-  },
-  {
-    "id": "demo-3",
-    "user_id": "admin",
-    "constitution": "Sole Proprietorship",
-    "name": "Sharma Traders",
-    "phone": "9876543212",
-    "email": "contact@sharmatraders.com",
-    "address": "789 Market Road",
-    "city": "Amritsar",
-    "state": "Punjab",
-    "pincode": "143001",
-    "country": "India",
-    "registrations": {
-      "panNumber": "BBFPS5678D",
-      "gstin": "03BBFPS5678C1Z4"
+    {
+      "id": "demo-2",
+      "user_id": "admin",
+      "constitution": "Partnership Firm",
+      "name": "Rana Industries",
+      "phone": "9876543211",
+      "email": "info@ranaindustries.com",
+      "address": "456 Commercial Complex",
+      "city": "Jalandhar",
+      "state": "Punjab",
+      "pincode": "144001",
+      "country": "India",
+      "registrations": {
+        "panNumber": "AABCU1234E",
+        "gstin": "03AABCU1234E1Z6"
+      },
+      "contactPersons": [],
+      "documents": [],
+      "fy": "2024-25",
+      "created_at": "2024-01-16T10:00:00",
+      "updated_at": "2024-01-16T10:00:00"
     },
-    "contactPersons": [],
-    "documents": [],
-    "fy": "2024-25",
-    "created_at": "2024-01-17T10:00:00",
-    "updated_at": "2024-01-17T10:00:00"
-  },
-  {
-    "id": "demo-4",
-    "user_id": "admin",
-    "constitution": "Private Limited Company",
-    "name": "Gupta Construction",
-    "phone": "9876543213",
-    "email": "info@guptaconstruction.com",
-    "address": "321 Builder Colony",
-    "city": "Chandigarh",
-    "state": "Punjab",
-    "pincode": "160001",
-    "country": "India",
-    "registrations": {
-      "panNumber": "AACCG9012H",
-      "gstin": "03AACCG9012H1Z8"
+    {
+      "id": "demo-3",
+      "user_id": "admin",
+      "constitution": "Sole Proprietorship",
+      "name": "Sharma Traders",
+      "phone": "9876543212",
+      "email": "contact@sharmatraders.com",
+      "address": "789 Market Road",
+      "city": "Amritsar",
+      "state": "Punjab",
+      "pincode": "143001",
+      "country": "India",
+      "registrations": {
+        "panNumber": "BBFPS5678D",
+        "gstin": "03BBFPS5678C1Z4"
+      },
+      "contactPersons": [],
+      "documents": [],
+      "fy": "2024-25",
+      "created_at": "2024-01-17T10:00:00",
+      "updated_at": "2024-01-17T10:00:00"
     },
-    "contactPersons": [],
-    "documents": [],
-    "fy": "2024-25",
-    "created_at": "2024-01-18T10:00:00",
-    "updated_at": "2024-01-18T10:00:00"
-  },
-  {
-    "id": "demo-5",
-    "user_id": "admin",
-    "constitution": "LLP",
-    "name": "Aggarwal Textiles",
-    "phone": "9876543214",
-    "email": "contact@aggarwaltextiles.com",
-    "address": "555 Textile Market",
-    "city": "Panipat",
-    "state": "Haryana",
-    "pincode": "132103",
-    "country": "India",
-    "registrations": {
-      "panNumber": "CCFFI3456K",
-      "gstin": "06CCFFI3456K1Z1"
+    {
+      "id": "demo-4",
+      "user_id": "admin",
+      "constitution": "Private Limited Company",
+      "name": "Gupta Construction",
+      "phone": "9876543213",
+      "email": "info@guptaconstruction.com",
+      "address": "321 Builder Colony",
+      "city": "Chandigarh",
+      "state": "Punjab",
+      "pincode": "160001",
+      "country": "India",
+      "registrations": {
+        "panNumber": "AACCG9012H",
+        "gstin": "03AACCG9012H1Z8"
+      },
+      "contactPersons": [],
+      "documents": [],
+      "fy": "2024-25",
+      "created_at": "2024-01-18T10:00:00",
+      "updated_at": "2024-01-18T10:00:00"
     },
-    "contactPersons": [],
-    "documents": [],
-    "fy": "2024-25",
-    "created_at": "2024-01-19T10:00:00",
-    "updated_at": "2024-01-19T10:00:00"
-  },
-  {
-    "id": "demo-6",
-    "user_id": "admin",
-    "constitution": "Proprietorship",
-    "name": "Jain Logistics",
-    "phone": "9876543215",
-    "email": "info@jainlogistics.com",
-    "address": "777 Transport Nagar",
-    "city": "Sonipat",
-    "state": "Haryana",
-    "pincode": "131001",
-    "country": "India",
-    "registrations": {
-      "panNumber": "DDGGH7890L",
-      "gstin": "06DDGGH7890L1Z2"
+    {
+      "id": "demo-5",
+      "user_id": "admin",
+      "constitution": "LLP",
+      "name": "Aggarwal Textiles",
+      "phone": "9876543214",
+      "email": "contact@aggarwaltextiles.com",
+      "address": "555 Textile Market",
+      "city": "Panipat",
+      "state": "Haryana",
+      "pincode": "132103",
+      "country": "India",
+      "registrations": {
+        "panNumber": "CCFFI3456K",
+        "gstin": "06CCFFI3456K1Z1"
+      },
+      "contactPersons": [],
+      "documents": [],
+      "fy": "2024-25",
+      "created_at": "2024-01-19T10:00:00",
+      "updated_at": "2024-01-19T10:00:00"
     },
-    "contactPersons": [],
-    "documents": [],
-    "fy": "2024-25",
-    "created_at": "2024-01-20T10:00:00",
-    "updated_at": "2024-01-20T10:00:00"
-  },
-  {
-    "id": "demo-7",
-    "user_id": "admin",
-    "constitution": "Private Limited Company",
-    "name": "Patel Electronics",
-    "phone": "9876543216",
-    "email": "sales@patelelectronics.com",
-    "address": "888 Electronics City",
-    "city": "Ahmedabad",
-    "state": "Gujarat",
-    "pincode": "380001",
-    "country": "India",
-    "registrations": {
-      "panNumber": "AADDJ1234M",
-      "gstin": "24AADDJ1234M1Z5"
+    {
+      "id": "demo-6",
+      "user_id": "admin",
+      "constitution": "Proprietorship",
+      "name": "Jain Logistics",
+      "phone": "9876543215",
+      "email": "info@jainlogistics.com",
+      "address": "777 Transport Nagar",
+      "city": "Sonipat",
+      "state": "Haryana",
+      "pincode": "131001",
+      "country": "India",
+      "registrations": {
+        "panNumber": "DDGGH7890L",
+        "gstin": "06DDGGH7890L1Z2"
+      },
+      "contactPersons": [],
+      "documents": [],
+      "fy": "2024-25",
+      "created_at": "2024-01-20T10:00:00",
+      "updated_at": "2024-01-20T10:00:00"
     },
-    "contactPersons": [],
-    "documents": [],
-    "fy": "2024-25",
-    "created_at": "2024-01-21T10:00:00",
-    "updated_at": "2024-01-21T10:00:00"
-  },
-  {
-    "id": "demo-8",
-    "user_id": "admin",
-    "constitution": "Partnership Firm",
-    "name": "Reddy & Co",
-    "phone": "9876543217",
-    "email": "info@reddyandco.com",
-    "address": "999 Business Park",
-    "city": "Hyderabad",
-    "state": "Telangana",
-    "pincode": "500001",
-    "country": "India",
-    "registrations": {
-      "panNumber": "AAEEK5678N",
-      "gstin": "36AAEEK5678N1Z4"
+    {
+      "id": "demo-7",
+      "user_id": "admin",
+      "constitution": "Private Limited Company",
+      "name": "Patel Electronics",
+      "phone": "9876543216",
+      "email": "sales@patelelectronics.com",
+      "address": "888 Electronics City",
+      "city": "Ahmedabad",
+      "state": "Gujarat",
+      "pincode": "380001",
+      "country": "India",
+      "registrations": {
+        "panNumber": "AADDJ1234M",
+        "gstin": "24AADDJ1234M1Z5"
+      },
+      "contactPersons": [],
+      "documents": [],
+      "fy": "2024-25",
+      "created_at": "2024-01-21T10:00:00",
+      "updated_at": "2024-01-21T10:00:00"
     },
-    "contactPersons": [],
-    "documents": [],
-    "fy": "2024-25",
-    "created_at": "2024-01-22T10:00:00",
-    "updated_at": "2024-01-22T10:00:00"
-  },
-  {
-    "id": "demo-9",
-    "user_id": "admin",
-    "constitution": "Sole Proprietorship",
-    "name": "Kumar Medical Stores",
-    "phone": "9876543218",
-    "email": "kumar@medicalstores.com",
-    "address": "111 Medical Road",
-    "city": "Coimbatore",
-    "state": "Tamil Nadu",
-    "pincode": "641001",
-    "country": "India",
-    "registrations": {
-      "panNumber": "BBFFL9012P",
-      "gstin": "10BBFFL9012P1Z3"
+    {
+      "id": "demo-8",
+      "user_id": "admin",
+      "constitution": "Partnership Firm",
+      "name": "Reddy & Co",
+      "phone": "9876543217",
+      "email": "info@reddyandco.com",
+      "address": "999 Business Park",
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "pincode": "500001",
+      "country": "India",
+      "registrations": {
+        "panNumber": "AAEEK5678N",
+        "gstin": "36AAEEK5678N1Z4"
+      },
+      "contactPersons": [],
+      "documents": [],
+      "fy": "2024-25",
+      "created_at": "2024-01-22T10:00:00",
+      "updated_at": "2024-01-22T10:00:00"
     },
-    "contactPersons": [],
-    "documents": [],
-    "fy": "2024-25",
-    "created_at": "2024-01-23T10:00:00",
-    "updated_at": "2024-01-23T10:00:00"
-  },
-  {
-    "id": "demo-10",
-    "user_id": "admin",
-    "constitution": "LLP",
-    "name": "Chowdhury Consultants",
-    "phone": "9876543219",
-    "email": "consult@chowdhury.com",
-    "address": "222 Consultancy Plaza",
-    "city": "Kolkata",
-    "state": "West Bengal",
-    "pincode": "700001",
-    "country": "India",
-    "registrations": {
-      "panNumber": "CCGGM3456Q",
-      "gstin": "19CCGGM3456Q1Z2"
+    {
+      "id": "demo-9",
+      "user_id": "admin",
+      "constitution": "Sole Proprietorship",
+      "name": "Kumar Medical Stores",
+      "phone": "9876543218",
+      "email": "kumar@medicalstores.com",
+      "address": "111 Medical Road",
+      "city": "Coimbatore",
+      "state": "Tamil Nadu",
+      "pincode": "641001",
+      "country": "India",
+      "registrations": {
+        "panNumber": "BBFFL9012P",
+        "gstin": "10BBFFL9012P1Z3"
+      },
+      "contactPersons": [],
+      "documents": [],
+      "fy": "2024-25",
+      "created_at": "2024-01-23T10:00:00",
+      "updated_at": "2024-01-23T10:00:00"
     },
-    "contactPersons": [],
-    "documents": [],
-    "fy": "2024-25",
-    "created_at": "2024-01-24T10:00:00",
-    "updated_at": "2024-01-24T10:00:00"
-  }
-]
+    {
+      "id": "demo-10",
+      "user_id": "admin",
+      "constitution": "LLP",
+      "name": "Chowdhury Consultants",
+      "phone": "9876543219",
+      "email": "consult@chowdhury.com",
+      "address": "222 Consultancy Plaza",
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "pincode": "700001",
+      "country": "India",
+      "registrations": {
+        "panNumber": "CCGGM3456Q",
+        "gstin": "19CCGGM3456Q1Z2"
+      },
+      "contactPersons": [],
+      "documents": [],
+      "fy": "2024-25",
+      "created_at": "2024-01-24T10:00:00",
+      "updated_at": "2024-01-24T10:00:00"
+    }
+  ]
+}

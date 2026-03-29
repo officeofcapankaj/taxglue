@@ -1,9 +1,18 @@
-[
-  {
-    "id": "ae65ed67-3dbe-4edc-8325-e409fa351992",
-    "email": "admin@taxglue.com",
-    "password": "admin123",
-    "name": "Admin",
-    "role": "admin"
-  }
-]
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-29T09:15:17.390433Z",
+  "metadata": {
+    "generatedBy": "seed",
+    "notes": "Demo data from users.json",
+    "environment": "development"
+  },
+  "data": [
+    {
+      "id": "ae65ed67-3dbe-4edc-8325-e409fa351992",
+      "email": "admin@taxglue.com",
+      "password": "admin123",
+      "name": "Admin",
+      "role": "admin"
+    }
+  ]
+}

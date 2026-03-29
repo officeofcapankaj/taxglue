@@ -1,20 +1,29 @@
-[
-  {
-    "id": "4f4169b7-22f1-4f79-9e7f-433ce2ce1cee",
-    "tan": "TEST123",
-    "name": "Test Company",
-    "ddo_type": "NON_DDO",
-    "gstin": "",
-    "address": "",
-    "city": "",
-    "state": "",
-    "pincode": "",
-    "phone": "",
-    "email": "",
-    "contact_person": "",
-    "fy": "2024-25",
-    "quarter": "Q1",
-    "status": "ACTIVE",
-    "created_at": "2026-03-11T18:37:35.893540"
-  }
-]
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-29T09:15:17.390901Z",
+  "metadata": {
+    "generatedBy": "seed",
+    "notes": "Demo data from tds_deductors.json",
+    "environment": "development"
+  },
+  "data": [
+    {
+      "id": "4f4169b7-22f1-4f79-9e7f-433ce2ce1cee",
+      "tan": "TEST123",
+      "name": "Test Company",
+      "ddo_type": "NON_DDO",
+      "gstin": "",
+      "address": "",
+      "city": "",
+      "state": "",
+      "pincode": "",
+      "phone": "",
+      "email": "",
+      "contact_person": "",
+      "fy": "2024-25",
+      "quarter": "Q1",
+      "status": "ACTIVE",
+      "created_at": "2026-03-11T18:37:35.893540"
+    }
+  ]
+}

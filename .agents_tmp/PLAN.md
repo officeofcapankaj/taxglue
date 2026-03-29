@@ -1,15 +1,56 @@
 # 1. OBJECTIVE
 
-Transform the TaxGlue application from a single-user-per-client model to a multi-tenant subscription system with comprehensive reporting capabilities:
+Implement critical data structure and architectural improvements for TaxGlue:
 
-**Part A: Multi-Tenant Organization System**
-- A user subscribes and creates an organization (workspace/master) as the owner
-- The owner can invite other users (accountants, auditors, consultants) to access their data with definable permissions
+**Phase 1 (Immediate):**
+1. Fix hardcoded Supabase credentials - move to environment variables
+2. Fix insecure RLS policies - implement proper tenant isolation
+3. Consolidate duplicate database schema files
 
-**Part B: Enhanced Reporting Features**
-- Drill-down option in every report (click to see underlying transactions/vouchers)
-- Manual data entry OR Excel template import
-- Export all reports in Word, Excel, and PDF formats
+**Phase 2 (High Priority):**
+4. Extract common utilities (sidebar, client-selector) into shared components
+5. Standardize JSON data files with versioning
+
+**Phase 3 (Medium):**
+6. Document backend architecture decision
+
+---
+
+## IMPLEMENTATION STATUS
+
+### Phase 1: Critical Security Fixes
+- [ ] Step 1: Remove hardcoded credentials from `js/supabase-api.js`
+- [ ] Step 2: Create `.env.example` with environment variable placeholders
+- [ ] Step 3: Update `js/supabase-api.js` to read from environment variables
+- [ ] Step 4: Fix RLS policies in `supabase-rls-setup.sql`
+- [ ] Step 5: Consolidate `supabase-tables.sql` and `supabase-rls-setup.sql`
+
+### Phase 2: High Priority Improvements
+- [ ] Step 6: Extract sidebar component to `js/shared/sidebar.js`
+- [ ] Step 7: Extract client-selector to `js/shared/client-selector.js`
+- [ ] Step 8: Standardize JSON data files with version metadata
+
+### Phase 3: Documentation
+- [ ] Step 9: Update DEVELOPMENT.md with backend decision
+- [ ] Step 10: Add gitignore entry for .env files
+
+---
+
+## FILES TO MODIFY
+
+1. `js/supabase-api.js` - Remove hardcoded credentials, use environment variables
+2. `js/config.js` - Update to use environment variables
+3. `.env.example` - Create with placeholder values
+4. `.gitignore` - Add .env to ignore list
+5. `supabase-rls-setup.sql` - Fix RLS policies with auth.uid()
+6. `supabase-tables.sql` - Consolidate schema definitions
+7. `database/schema.sql` - Create consolidated schema file
+8. `js/shared/sidebar.js` - Create shared sidebar component
+9. `js/shared/client-selector.js` - Create shared client selector
+10. `data/clients.json` - Add version metadata
+11. `DEVELOPMENT.md` - Document backend decision
+
+---
 
 # 2. CONTEXT SUMMARY
 
@@ -396,3 +437,353 @@ Templates shall include columns matching the input fields in each page:
 | Nice-to-Have | Document Storage | Complete solution |
 | **Unique** | Word Export | Differentiator |
 | **Unique** | Dynamic Excel | Better than all |
+
+---
+
+# 7. DATA STRUCTURE & ARCHITECTURAL IMPROVEMENTS
+
+## Executive Summary
+
+After thorough analysis of the TaxGlue codebase, the following critical issues and recommendations have been identified for data structure and architectural improvements.
+
+---
+
+## 7.1 CRITICAL ISSUES IDENTIFIED
+
+### Issue 1: Hardcoded Supabase Credentials 🔴 CRITICAL
+**Severity**: SECURITY
+**File**: `js/supabase-api.js` (Lines 8-9)
+
+```javascript
+const SUPABASE_URL = "https://jgjeuybgideeqcjxvlmn.supabase.co"
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+**Impact**: Production credentials exposed in client-side code
+**Recommendation**: Move to environment variables via `.env` file and import at runtime
+
+---
+
+### Issue 2: Insecure Row Level Security Policies 🔴 CRITICAL
+**Severity**: SECURITY
+**File**: `supabase-rls-setup.sql`
+
+All RLS policies use `USING (true)` allowing unrestricted access:
+```sql
+CREATE POLICY "Allow public read access to clients" ON clients 
+  FOR SELECT TO anon, authenticated USING (true);
+```
+
+**Impact**: Any authenticated user can access any organization's data
+**Recommendation**: Implement proper user-based access control using `auth.uid() = user_id`
+
+---
+
+### Issue 3: Duplicate Table Definitions 🟠 HIGH
+**Severity**: MAINTAINABILITY
+**Files**: `supabase-tables.sql`, `supabase-rls-setup.sql`
+
+Both files define identical tables with conflicting schema:
+- `supabase-tables.sql`: Uses UUID primary keys
+- `supabase-rls-setup.sql`: Uses SERIAL primary keys
+
+**Impact**: Confusion about correct schema, potential deployment errors
+**Recommendation**: Consolidate into single `database/schema.sql`
+
+---
+
+### Issue 4: Duplicate Backend Servers 🟡 MEDIUM
+**Severity**: MAINTAINABILITY
+**Files**: `server.py`, `server_new.py`, `server/index.js`
+
+Three different server implementations create maintenance burden and confusion.
+
+**Recommendation**: Choose one primary backend (Node.js/Express recommended for consistency with frontend)
+
+---
+
+## 7.2 DATA STRUCTURE IMPROVEMENTS
+
+### Recommendation 1: Consolidate Database Schema
+**Current**: Two conflicting SQL files
+**Proposed**: Single `database/schema.sql` with all tables, RLS, and indexes
+
+**Proposed Structure**:
+```
+database/
+├── schema.sql          # Single source of truth
+├── migrations/
+│   ├── 001_clients.sql
+│   ├── 002_accounting.sql
+│   └── 003_organization.sql
+└── seeds/
+    └── default_accounts.sql
+```
+
+---
+
+### Recommendation 2: Standardize JSON Data Files
+**Current**: No consistent schema across `data/` directory
+**Proposed**: Add versioning and metadata to all JSON files
+
+**Current `data/clients.json`**:
+```json
+[
+  {
+    "id": "demo-1",
+    "user_id": "admin",
+    ...
+  }
+]
+```
+
+**Proposed Structure**:
+```json
+{
+  "version": "1.0",
+  "lastUpdated": "2026-03-29T10:00:00Z",
+  "metadata": {
+    "generatedBy": "seed",
+    "notes": "Demo clients for testing"
+  },
+  "data": [
+    {
+      "id": "demo-1",
+      "owner_id": "admin",
+      ...
+    }
+  ]
+}
+```
+
+---
+
+### Recommendation 3: Add Data Validation Layer
+**Current**: Direct insert/update without validation
+**Proposed**: Create validators for all entity types
+
+**Proposed Structure**:
+```
+js/
+├── validators/
+│   ├── client.validator.js
+│   ├── voucher.validator.js
+│   └── tds-transaction.validator.js
+└── api/
+    └── client-wrapper.js  # Centralized with interceptors
+```
+
+---
+
+## 7.3 ARCHITECTURAL IMPROVEMENTS
+
+### Recommendation 4: Reorganize Frontend Structure
+**Current**: Flat directory with mixed concerns
+**Proposed**: Feature-based organization
+
+**Current Structure**:
+```
+app/
+  ├── bookkeeping.html    # Mixed HTML + CSS + JS
+  ├── clients.html
+  ├── dashboard.html
+  └── ...
+```
+
+**Proposed Structure**:
+```
+app/
+├── pages/
+│   ├── dashboard/
+│   │   ├── dashboard.html
+│   │   └── dashboard.js
+│   ├── clients/
+│   │   ├── clients.html
+│   │   └── clients.js
+│   └── bookkeeping/
+│       ├── bookkeeping.html
+│       └── bookkeeping.js
+├── components/
+│   ├── sidebar/
+│   │   ├── sidebar.html
+│   │   └── sidebar.js
+│   ├── client-selector/
+│   │   ├── client-selector.html
+│   │   └── client-selector.js
+│   └── drilldown-modal/
+│       ├── drilldown-modal.html
+│       └── drilldown-modal.js
+└── shared/
+    ├── styles/
+    │   └── main.css
+    └── utils/
+        ├── format.js
+        └── excel.js
+```
+
+---
+
+### Recommendation 5: Extract Common Utilities
+**Current**: Code duplication across HTML modules
+**Identified Duplications**:
+- Sidebar HTML/CSS (duplicated in ~8 files)
+- Client/FY selection (duplicated in ~10 files)
+- Table styling (duplicated in ~6 files)
+- Success/error messages (duplicated everywhere)
+
+**Proposed Utilities**:
+```javascript
+// js/shared/sidebar.js
+export function initSidebar(activePage) { ... }
+
+// js/shared/client-selector.js
+export function initClientSelector(onChange) { ... }
+
+// js/shared/table-formatter.js
+export function formatCurrency(amount) { ... }
+export function formatDate(date) { ... }
+
+// js/shared/notifications.js
+export function showSuccess(message) { ... }
+export function showError(message) { ... }
+```
+
+---
+
+### Recommendation 6: Module Loader System
+**Goal**: Enable lazy loading for better performance
+
+**Proposed Implementation**:
+```javascript
+// js/core/module-loader.js
+export async function loadModule(moduleName) {
+  const module = await import(`../modules/${moduleName}.js`);
+  return module.default;
+}
+
+// Usage in HTML
+<script type="module">
+  import { loadModule } from '/js/core/module-loader.js';
+  
+  // Lazy load heavy modules
+  if (needsAIChat) {
+    await loadModule('ai-chat');
+  }
+</script>
+```
+
+---
+
+### Recommendation 7: Consolidate Backend Servers
+**Current State**:
+- `server.py` - Python Flask (main)
+- `server_new.py` - Python Flask alternative
+- `server/index.js` - Node.js Express
+
+**Recommendation**: Standardize on Node.js/Express for:
+- Consistent language with frontend (JavaScript)
+- Better Vercel deployment support
+- Modern async patterns
+- Package ecosystem alignment
+
+**Migration Plan**:
+1. Deprecate `server.py` and `server_new.py`
+2. Move any Flask-specific features to Express
+3. Document decision in `DEVELOPMENT.md`
+4. Update CI/CD for single backend
+
+---
+
+### Recommendation 8: Add API Versioning
+**Current**: Routes lack versioning (`/api/clients`)
+**Proposed**: Implement `/api/v1/` prefix
+
+**Benefits**:
+- Backward compatibility during changes
+- Clear migration path for API consumers
+- Version-specific documentation
+
+**Implementation**:
+```javascript
+// server/index.js
+app.use('/api/v1/auth', authRoutesV1);
+app.use('/api/v1/clients', clientRoutesV1);
+app.use('/api/v1/accounts', accountRoutesV1);
+```
+
+---
+
+## 7.4 SECURITY IMPROVEMENTS
+
+### Fix RLS Policies (Immediate)
+
+**Current (Insecure)**:
+```sql
+CREATE POLICY "Allow public read access to clients" ON clients 
+  FOR SELECT TO anon, authenticated USING (true);
+```
+
+**Proposed (Secure)**:
+```sql
+-- Tenant isolation via user_id
+CREATE POLICY "Users can only access own clients" ON clients 
+  FOR ALL USING (auth.uid() = user_id);
+
+-- Or organization-based (after migration)
+CREATE POLICY "Users can only access org data" ON clients 
+  FOR ALL USING (organization_id IN (
+    SELECT organization_id FROM organization_members WHERE user_id = auth.uid()
+  ));
+```
+
+---
+
+### Create API Client Wrapper (Recommended)
+
+```javascript
+// js/api/safe-client.js
+export class SafeClient {
+  constructor(supabase) {
+    this.client = supabase;
+    this.setupInterceptors();
+  }
+  
+  setupInterceptors() {
+    // Auto-refresh expired tokens
+    // Normalize error responses
+    // Add request logging
+    // Rate limiting indicators
+  }
+  
+  async query(table, params) {
+    // Validation before query
+    // Error handling wrapper
+    // Return standardized response
+  }
+}
+```
+
+---
+
+## 7.5 PRIORITY SUMMARY
+
+| Priority | Issue | Impact | Effort |
+|----------|-------|--------|--------|
+| 🔴 CRITICAL | Remove hardcoded credentials | Security | Low |
+| 🔴 CRITICAL | Fix RLS policies | Security | Medium |
+| 🟠 HIGH | Consolidate database schema | Maintainability | Medium |
+| 🟠 HIGH | Extract common utilities | Maintainability | High |
+| 🟡 MEDIUM | Reorganize frontend structure | Scalability | High |
+| 🟡 MEDIUM | Consolidate backend servers | Maintainability | High |
+| 🟡 MEDIUM | Add API versioning | Future-proofing | Medium |
+| 🟢 LOW | Create technical documentation | DX | Low |
+
+---
+
+## 7.6 RECOMMENDED IMMEDIATE ACTIONS
+
+1. **Remove hardcoded Supabase credentials** from `js/supabase-api.js`
+2. **Fix RLS policies** in `supabase-rls-setup.sql` to use `auth.uid()`
+3. **Consolidate** `supabase-tables.sql` and `supabase-rls-setup.sql` into one file
+4. **Extract** sidebar and client-selector into shared components
+5. **Document** decision on primary backend (recommend Node.js)

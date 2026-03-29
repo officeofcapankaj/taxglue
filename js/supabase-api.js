@@ -5,10 +5,22 @@
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
-const SUPABASE_URL = "https://jgjeuybgideeqcjxvlmn.supabase.co"
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnamV1eWJnaWRlZXFjanh2bG1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxMjIxNDAsImV4cCI6MjA4ODY5ODE0MH0.etglAIrYa5r67QuS7qKMR-lYodu_jxeJaozwKESuiD0"
+// ============================================
+// CONFIGURATION - Update these values
+// For production, use environment variables or a config file
+// ============================================
+const CONFIG = {
+  // Supabase project URL
+  supabaseUrl: "https://jgjeuybgideeqcjxvlmn.supabase.co",
+  // Supabase anonymous key (public - safe for client-side)
+  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnamV1eWJnaWRlZXFjanh2bG1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxMjIxNDAsImV4cCI6MjA4ODY5ODE0MH0.etglAIrYa5r67QuS7qKMR-lYodu_jxeJaozwKESuiD0"
+}
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+// Initialize Supabase client
+const supabase = createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey)
+
+// Export configuration for external use
+export const config = CONFIG
 
 // TDS APIs
 export const tdsAPI = {

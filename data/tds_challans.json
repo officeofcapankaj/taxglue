@@ -1,1 +1,10 @@
-[]
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-29T09:15:17.390717Z",
+  "metadata": {
+    "generatedBy": "seed",
+    "notes": "Demo data from tds_challans.json",
+    "environment": "development"
+  },
+  "data": []
+}
