@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+<button onclick="exportExcel()">Test Excel Export</button>
+<script>
+function exportExcel() {
+  const data = [
+    ['Test Report'],
+    ['Particulars', 'Amount'],
+    ['Capital Account', 1500000],
+    ['Trade Payables', 250000],
+    ['Property Plant Equipment', 850000],
+    ['Trade Receivables', 600000]
+  ];
+  
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+  
+  // Try writeFile first
+  try {
+    XLSX.writeFile(wb, 'test_balance_sheet.xlsx');
+    console.log('writeFile succeeded');
+  } catch(e) {
+    console.log('writeFile failed:', e);
+    // Fallback to write with download
+    const wbout = XLSX.write(wb, {bookType: 'xlsx', type: 'array'});
+    const blob = new Blob([wbout], {type: 'application/octet-stream'});
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'test_balance_sheet.xlsx';
+    link.click();
+    console.log('Blob fallback succeeded');
+  }
+}
+</script>
+</body>
+</html>
