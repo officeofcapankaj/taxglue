@@ -352,7 +352,7 @@ input[type="number"] {
     </div>
     
     <div class="toolbar">
-      <button class="btn btn-primary" id="addRow">➕ Add Row</button>
+      <button class="btn btn-primary" id="addRow" onclick="addRow()">➕ Add Row</button>
       <button class="btn btn-secondary" id="saveTB">💾 Save Trial</button>
       <button class="btn btn-outline" id="autoCalcTB" onclick="autoCalculateFromLedger()">🔄 Auto-Calculate</button>
       <button class="btn btn-outline" id="importExcel" onclick="document.getElementById('importFileInput').click()">📥 Import Excel</button>
@@ -390,7 +390,7 @@ input[type="number"] {
     </div>
     
     <div class="footer-actions">
-      <button class="btn btn-primary" id="addRowBottom">➕ Add Row</button>
+      <button class="btn btn-primary" id="addRowBottom" onclick="addRow()">➕ Add Row</button>
       <button class="btn btn-secondary" id="saveTBBottom">💾 Save Trial Balance</button>
       <button class="btn btn-outline" onclick="location.href='/modules/balance-sheet.html'">📊 View Balance Sheet →</button>
     </div>
