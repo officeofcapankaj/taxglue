@@ -4,7 +4,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TaxGlue Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script type="module">
+import { clientsAPI } from '/js/supabase-api.js';
+
+// Initialize client selector on page load
+async function initClientSelector() {
+  const select = document.getElementById('clientSelector');
+  if (!select) return;
+  
+  try {
+    const clients = await clientsAPI.getAll();
+    
+    select.innerHTML = '<option value="">-- Select Client --</option>';
+    
+    if (clients && clients.length > 0) {
+      clients.forEach(client => {
+        const opt = document.createElement('option');
+        opt.value = client.id;
+        opt.textContent = `${client.name || client.client_name || 'Unnamed'} (${client.constitution || 'N/A'})`;
+        opt.dataset.name = client.name || client.client_name || '';
+        select.appendChild(opt);
+      });
+    }
+  } catch (e) {
+    console.log('Error loading clients:', e);
+  }
+}
+
+// Call init when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initClientSelector);
+} else {
+  initClientSelector();
+}
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * {

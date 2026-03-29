@@ -350,4 +350,37 @@ export const gstAPI = {
   }
 }
 
+// CA Master API
+export const caMasterAPI = {
+  async getAll() {
+    const { data, error } = await supabase.from('ca_master').select('*').order('created_at', { ascending: false })
+    if (error) throw error
+    return data
+  },
+
+  async getById(id) {
+    const { data, error } = await supabase.from('ca_master').select('*').eq('id', id)
+    if (error) throw error
+    return data[0]
+  },
+
+  async create(ca) {
+    const { data, error } = await supabase.from('ca_master').insert(ca).select()
+    if (error) throw error
+    return data[0]
+  },
+
+  async update(id, ca) {
+    const { data, error } = await supabase.from('ca_master').update(ca).eq('id', id).select()
+    if (error) throw error
+    return data[0]
+  },
+
+  async delete(id) {
+    const { error } = await supabase.from('ca_master').delete().eq('id', id)
+    if (error) throw error
+    return true
+  }
+}
+
 export default supabase

@@ -243,51 +243,106 @@ tr:hover { background: #f8fafc; }
   </div>
 </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script>
-const supabaseUrl = "https://jgjeuybgideeqcjxvlmn.supabase.co"
-const supabaseKey = "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+<script type="module">
+import { caMasterAPI } from '/js/supabase-api.js';
 
-let caList = JSON.parse(localStorage.getItem('caList')) || []
+let caList = []
 let editingCAId = null
 
-// Demo mode data for CA Master
-const DEMO_CA_LIST = [
-  {
-    id: 'demo-ca-1',
-    firstName: 'Rajesh',
-    lastName: 'Kumar',
-    membershipNo: 'CA/2018/12345',
-    firmName: 'Rajesh Kumar & Associates',
-    email: 'ca.rajesh@example.com',
-    phone: '9876543210',
-    status: 'Active',
-    address: '101, Chartered Accountants House, Mumbai',
-    city: 'Mumbai',
-    state: 'Maharashtra'
-  },
-  {
-    id: 'demo-ca-2',
-    firstName: 'Priya',
-    lastName: 'Patel',
-    membershipNo: 'CA/2019/54321',
-    firmName: 'Patel & Co',
-    email: 'ca.priya@example.com',
-    phone: '9988776655',
-    status: 'Active',
-    address: '202, Financial Plaza, Ahmedabad',
-    city: 'Ahmedabad',
-    state: 'Gujarat'
-  }
-]
+// Initialize
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadCAList()
+})
 
-// Check if demo mode
-function isDemoMode() {
-  const demoToken = localStorage.getItem('supabase.auth.token')
-  if (demoToken) {
-    try {
-      const tokenData = JSON.parse(demoToken)
+async function loadCAList() {
+  try {
+    caList = await caMasterAPI.getAll()
+    renderCAList()
+  } catch (e) {
+    console.log('Error loading CA list:', e)
+  }
+}
+
+function renderCAList() {
+  const tbody = document.getElementById('caTableBody')
+  if (!tbody) return
+  tbody.innerHTML = caList.map(ca => `
+    <tr class="border-b hover:bg-gray-50">
+      <td class="px-4 py-3">${ca.membership_no || '-'}</td>
+      <td class="px-4 py-3">${ca.first_name || ''} ${ca.last_name || ''}</td>
+      <td class="px-4 py-3">${ca.firm_name || '-'}</td>
+      <td class="px-4 py-3">${ca.email || '-'}</td>
+      <td class="px-4 py-3">${ca.phone || '-'}</td>
+      <td class="px-4 py-3">
+        <span class="px-2 py-1 rounded-full text-xs ${ca.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${ca.status || 'Active'}</span>
+      </td>
+      <td class="px-4 py-3">
+        <button onclick="editCA('${ca.id}')" class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit"></i></button>
+        <button onclick="deleteCA('${ca.id}')" class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>
+  `).join('')
+}
+
+function showCAModal(ca = null) {
+  editingCAId = ca ? ca.id : null
+  const form = document.getElementById('caForm')
+  if (form) form.reset()
+  document.getElementById('caModal')?.classList.remove('hidden')
+}
+
+async function saveCA(e) {
+  e.preventDefault()
+  const data = {
+    first_name: document.getElementById('firstName').value,
+    last_name: document.getElementById('lastName').value,
+    membership_no: document.getElementById('membershipNo').value,
+    father_name: document.getElementById('fatherName').value,
+    ca_pan: document.getElementById('caPan').value,
+    firm_name: document.getElementById('firmName').value,
+    firm_pan: document.getElementById('firmPan').value,
+    firm_gstin: document.getElementById('firmGstin').value,
+    email: document.getElementById('caEmail').value,
+    phone: document.getElementById('caPhone').value,
+    whatsapp: document.getElementById('caWhatsapp').value,
+    address: document.getElementById('caAddress').value,
+    city: document.getElementById('caCity').value,
+    state: document.getElementById('caState').value,
+    pincode: document.getElementById('caPincode').value,
+    status: 'Active'
+  }
+  
+  try {
+    if (editingCAId) {
+      await caMasterAPI.update(editingCAId, data)
+    } else {
+      await caMasterAPI.create(data)
+    }
+    closeModal('caModal')
+    await loadCAList()
+  } catch (e) {
+    console.error('Error saving CA:', e)
+  }
+}
+
+async function deleteCA(id) {
+  if (confirm('Are you sure you want to delete this CA?')) {
+    await caMasterAPI.delete(id)
+    await loadCAList()
+  }
+}
+
+function editCA(id) {
+  const ca = caList.find(c => c.id === id)
+  if (ca) {
+    document.getElementById('firstName').value = ca.first_name || ''
+    document.getElementById('lastName').value = ca.last_name || ''
+    document.getElementById('membershipNo').value = ca.membership_no || ''
+    document.getElementById('caEmail').value = ca.email || ''
+    document.getElementById('caPhone').value = ca.phone || ''
+    showCAModal(ca)
+  }
+}
       if (tokenData.user) return true
     } catch (e) {}
   }
