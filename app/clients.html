@@ -243,6 +243,8 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
 </div>
 <script type="module">
 import { clientsAPI } from '/js/supabase-api.js';
+import { initClientSelector, getSelectedFY, getSelectedQuarter } from '/js/shared/client-selector.js';
+import { formatCurrency, formatDate, showSuccess, showError } from '/js/shared/utils.js';
 
 // Shared clients array - declared at top level
 let clients = [];
@@ -260,6 +262,16 @@ async function initClients() {
   
   renderClients()
 }
+
+// Initialize client selector
+initClientSelector({
+  onClientChange: (clientId) => {
+    console.log('Client changed:', clientId);
+  },
+  onFYChange: (fy) => {
+    console.log('FY changed:', fy);
+  }
+})
 
 // Only initialize after DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
