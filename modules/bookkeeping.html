@@ -342,7 +342,8 @@ input[type="number"] {
     <div class="success-message" id="successMessage">Saved successfully!</div>
     
     <div class="tabs">
-      <button class="tab active" id="voucherTab" onclick="switchTab('voucher')">📝 Voucher Entry</button>
+      <button class="tab" id="mastersTab" onclick="switchTab('masters')">📋 Masters</button>
+      <button class="tab" id="voucherTab" onclick="switchTab('voucher')">📝 Voucher Entry</button>
       <button class="tab" id="ledgerTab" onclick="window.location.href='/modules/bookkeeping/ledger.html'">📒 Ledger</button>
       <button class="tab" id="daybookTab" onclick="window.location.href='/modules/bookkeeping/daybook.html'">📖 Day Book</button>
       <button class="tab" id="cashbookTab" onclick="window.location.href='/modules/bookkeeping/cashbook.html'">💰 Cash Book</button>
@@ -1572,6 +1573,8 @@ function initApp() {
   loadClients()
   setDefaultDates()
   loadDemoClients()
+  // Set default tab to masters
+  switchTab('masters')
 }
 
 document.addEventListener('DOMContentLoaded', initApp)
