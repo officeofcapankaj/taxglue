@@ -413,7 +413,7 @@ async function saveClient() {
   const registrationForm = document.getElementById('registrationForm')
   
   // Collect all form fields dynamically
-  const client = { id: Date.now(), created_at: new Date().toISOString() }
+  const client = { created_at: new Date().toISOString() }
   
   // Basic form fields
   if (form) {
@@ -456,61 +456,24 @@ async function saveClient() {
     return 
   }
   
-  // Get current user's organization_id
-  let userOrgId = localStorage.getItem('userOrganizationId')
-  
-  // If no organization_id stored, try to get it from session/user
-  if (!userOrgId && supabase) {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        // Look up user's organization
-        const { data: orgMembers } = await supabase
-          .from('organization_members')
-          .select('organization_id')
-          .eq('user_id', user.id)
-          .limit(1)
-        
-        if (orgMembers && orgMembers.length > 0) {
-          userOrgId = orgMembers[0].organization_id
-          localStorage.setItem('userOrganizationId', userOrgId)
-        }
-      }
-    } catch (e) {
-      console.log('Could not get organization:', e)
-    }
+  // Save to Supabase using clientsAPI
+  try {
+    const newClient = await clientsAPI.create(client)
+    console.log('Saved to Supabase:', newClient)
+    showSuccess('Client saved successfully!')
+    
+    // Also save to localStorage for local data
+    clients.push(newClient)
+    localStorage.setItem('clients', JSON.stringify(clients))
+    
+    // Hide modal and reset
+    hideClientModal()
+    renderClients()
+    resetForm()
+  } catch (e) {
+    console.error('Error saving client:', e)
+    showError('Error saving client: ' + e.message)
   }
-  
-  // Add organization_id if available
-  if (userOrgId) {
-    client.organization_id = userOrgId
-  }
-  
-  // Save to Supabase (dynamic - adds any new columns automatically)
-  if (supabase) {
-    try {
-      // Supabase creates columns dynamically if they don't exist
-      const { data, error } = await supabase.from('clients').insert([client])
-      if (error) {
-        console.log('Supabase insert error:', error)
-        showError('Error saving to database: ' + error.message)
-        return
-      }
-      console.log('Saved to Supabase:', client)
-    } catch (e) {
-      console.log('Supabase insert error:', e)
-      showError('Error saving to database: ' + e.message)
-      return
-    }
-  }
-  
-  // Always save to localStorage
-  clients.push(client)
-  localStorage.setItem('clients', JSON.stringify(clients))
-  document.getElementById('successMessage').classList.add('show')
-  setTimeout(() => document.getElementById('successMessage').classList.remove('show'), 3000)
-  renderClients()
-  resetForm()
 }
 
 function resetForm() {
