@@ -420,7 +420,7 @@ input[type="number"] {
     </div>
     
     <!-- Voucher Entry Section -->
-    <div id="voucherSection">
+    <div id="voucherSection" style="display: none;">
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">Create New Voucher</h3>
@@ -1680,8 +1680,10 @@ function switchTab(tab) {
     if (el) {
       if (section === tab) {
         el.classList.add('active')
+        el.style.display = 'block'  // Force show
       } else {
         el.classList.remove('active')
+        el.style.display = 'none'   // Force hide
       }
     }
   })
