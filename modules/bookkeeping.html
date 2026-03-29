@@ -2557,7 +2557,12 @@ async function saveVoucher() {
   })
   
   if (Math.abs(totalDebit - totalCredit) > 0.01) {
-    alert('Debit and Credit must be equal')
+    alert(`Debit (₹${totalDebit.toFixed(2)}) and Credit (₹${totalCredit.toFixed(2)}) must be equal! Difference: ₹${Math.abs(totalDebit - totalCredit).toFixed(2)}`)
+    return
+  }
+  
+  if (totalDebit === 0 && totalCredit === 0) {
+    alert('Please enter at least one debit or credit amount')
     return
   }
   
@@ -2571,7 +2576,16 @@ async function saveVoucher() {
     await api.post('/vouchers', voucherData)
     hideVoucherForm()
     loadVouchers()
-    showSuccess('Voucher saved successfully!')
+    
+    // Auto-refresh Trial Balance and Financial Statements after saving voucher
+    if (typeof generateTrialBalance === 'function') {
+      generateTrialBalance()
+    }
+    if (typeof generateFinancials === 'function') {
+      generateFinancials()
+    }
+    
+    showSuccess('Voucher saved successfully! Trial Balance and Financials updated.')
   } catch (e) {
     console.error('Error saving voucher:', e)
     alert('Error saving voucher: ' + e.message)
