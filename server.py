@@ -634,7 +634,11 @@ def init_data():
             {"id": str(uuid.uuid4()), "email": "admin@taxglue.com", "password": "admin123", "name": "Admin", "role": "admin"}
         ])
 
-init_data()
+# Only run init_data locally (not on Vercel serverless)
+import os
+is_vercel = os.environ.get('VERCEL', '') == '1'
+if not is_vercel:
+    init_data()
 
 # Auth routes
 @app.route('/api/auth/login', methods=['POST'])
