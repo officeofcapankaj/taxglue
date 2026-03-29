@@ -582,18 +582,19 @@ renderCA()
 loadCAFromSupabase()
 
 // Add event listener for Add CA button
-function handleAddCA() {
-  console.log('handleAddCA called');
-  showForm();
-}
-
 document.addEventListener('DOMContentLoaded', function() {
   const addBtn = document.getElementById('addCaBtn')
   if (addBtn) {
     addBtn.addEventListener('click', function(e) {
       e.preventDefault()
+      e.stopPropagation()
       console.log('Add CA button clicked')
-      showForm()
+      const formCard = document.getElementById('caFormCard')
+      if (formCard) {
+        formCard.classList.remove('hidden')
+        formCard.style.display = 'block'
+        formCard.scrollIntoView({ behavior: 'smooth' })
+      }
     })
   }
 })
