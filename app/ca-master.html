@@ -89,7 +89,7 @@ tr:hover { background: #f8fafc; }
     <div class="form-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #e2e8f0;">
         <h2 class="form-title" style="margin:0;padding:0;border:none;">CA / Partner List</h2>
-        <button type="button" class="btn btn-primary" id="addCaBtn">+ Add CA</button>
+        <button type="button" class="btn btn-primary" id="addCaBtn" onclick="handleAddCA()">+ Add CA</button>
       </div>
       <div style="margin-bottom: 20px;">
         <input type="text" id="caSearch" class="form-input" placeholder="🔍 Search CA by name, membership no., firm name, PAN, GSTIN or mobile..." onkeyup="searchCA()" style="max-width: 400px;">
@@ -582,6 +582,11 @@ renderCA()
 loadCAFromSupabase()
 
 // Add event listener for Add CA button
+function handleAddCA() {
+  console.log('handleAddCA called');
+  showForm();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   const addBtn = document.getElementById('addCaBtn')
   if (addBtn) {
