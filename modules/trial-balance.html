@@ -430,31 +430,37 @@ const accountClassifications = {
 
 // Add row function
 function addRow() {
-  console.log('addRow called')
-  const tbody = document.getElementById('tableBody')
-  if (!tbody) {
-    console.error('tableBody not found!')
-    return
+  try {
+    console.log('addRow called')
+    const tbody = document.getElementById('tableBody')
+    if (!tbody) {
+      console.error('tableBody not found!')
+      alert('tableBody not found')
+      return
+    }
+    const row = document.createElement('tr')
+    
+    let mainHeadOptions = '<option value="">Select Main Head</option>'
+    Object.keys(accountClassifications).forEach(head => {
+      mainHeadOptions += `<option value="${head}">${head}</option>`
+    })
+    
+    row.innerHTML = `
+      <td><input type="text" placeholder="Enter account name"></td>
+      <td><select class="mainHead" onchange="updateSubHeads(this)">${mainHeadOptions}</select></td>
+      <td><select class="sub1" onchange="updateSub2(this)" disabled><option value="">Select Main Head First</option></select></td>
+      <td><select class="sub2" disabled><option value="">Select Sub Head 1 First</option></select></td>
+      <td><input type="number" class="debit" placeholder="0.00" oninput="calculateTotals()"></td>
+      <td><input type="number" class="credit" placeholder="0.00" oninput="calculateTotals()"></td>
+      <td><button onclick="deleteRow(this)" style="background:#fee2e2;border:none;padding:8px;border-radius:4px;cursor:pointer;">✕</button></td>
+    `
+    
+    tbody.appendChild(row)
+    console.log('Row added successfully')
+  } catch(e) {
+    console.error('Error in addRow:', e)
+    alert('Error: ' + e.message)
   }
-  const row = document.createElement('tr')
-  
-  let mainHeadOptions = '<option value="">Select Main Head</option>'
-  Object.keys(accountClassifications).forEach(head => {
-    mainHeadOptions += `<option value="${head}">${head}</option>`
-  })
-  
-  row.innerHTML = `
-    <td><input type="text" placeholder="Enter account name"></td>
-    <td><select class="mainHead" onchange="updateSubHeads(this)">${mainHeadOptions}</select></td>
-    <td><select class="sub1" onchange="updateSub2(this)" disabled><option value="">Select Main Head First</option></select></td>
-    <td><select class="sub2" disabled><option value="">Select Sub Head 1 First</option></select></td>
-    <td><input type="number" class="debit" placeholder="0.00" oninput="calculateTotals()"></td>
-    <td><input type="number" class="credit" placeholder="0.00" oninput="calculateTotals()"></td>
-    <td><button onclick="deleteRow(this)" style="background:#fee2e2;border:none;padding:8px;border-radius:4px;cursor:pointer;">✕</button></td>
-  `
-  
-  tbody.appendChild(row)
-  console.log('Row added, tbody children:', tbody.children.length)
 }
 
 // Update sub-head dropdowns
