@@ -283,6 +283,43 @@ input[type="number"] {
     margin-left: 0;
   }
 }
+/* Ledger Styles */
+.ledger-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 0;
+}
+.ledger-header h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+.ledger-balance {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+}
+.ledger-balance.debit {
+  background: #fee2e2;
+  color: #dc2626;
+}
+.ledger-balance.credit {
+  background: #dcfce7;
+  color: #16a34a;
+}
+.ledger-total-row {
+  background: #f1f5f9;
+  font-weight: 600;
+}
+.ledger-total-row td {
+  border-top: 2px solid #e2e8f0;
+  padding: 12px 16px;
+}
 </style>
 </head>
 
@@ -2860,8 +2897,22 @@ function showAddUserModal() {
           <td class="amount">${formatCurrency(balance)}</td>
         </tr>
         ${rows}
+        <tr class="ledger-total-row">
+          <td colspan="4"><strong>TOTAL</strong></td>
+          <td class="amount"><strong>${formatCurrency(totalDebit)}</strong></td>
+          <td class="amount"><strong>${formatCurrency(totalCredit)}</strong></td>
+          <td class="amount"><strong>${formatCurrency(runningBalance)}</strong></td>
+        </tr>
       </tbody>
     </table>
+    <div style="margin-top: 16px; padding: 12px; background: #f8fafc; border-radius: 8px;">
+      <p style="font-size: 13px; color: #64748b; margin: 0;">
+        <strong>Ledger Summary:</strong> Opening Balance: ${formatCurrency(balance)} | 
+        Total Debit: ${formatCurrency(totalDebit)} | 
+        Total Credit: ${formatCurrency(totalCredit)} | 
+        Closing Balance: ${formatCurrency(Math.abs(runningBalance))} ${balanceType}
+      </p>
+    </div>
   `
 }
 
