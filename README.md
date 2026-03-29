@@ -2,20 +2,22 @@
 
 TaxGlue is a web application designed to help users manage and file their taxes efficiently. It provides tools for tax preparation, data export, and integration with Supabase for data storage.
 
+Built with ❤️ for Chartered Accountants and tax professionals.
+
 ## Project Structure
 
-- `server.py`: Python Flask server (for local development)
-- `server_new.py`: Alternative server implementation
-- `vercel.json`: Vercel deployment configuration
-- `agent/`: AI agent code for tax-related automation
-- `app/`: Frontend application pages
-- `modules/`: Feature modules (Trial Balance, Stock Statement, etc.)
-- `js/`: JavaScript modules and utilities
-- `css/`: Stylesheets
-- `templates/`: HTML templates
-- `data/`: Sample data and company data
-- `database/`: Supabase database migrations and schemas
-- `tests/`: Test files
+- [`server.py`](server.py): Python Flask server (for local development)
+- [`server_new.py`](server_new.py): Alternative server implementation
+- [`vercel.json`](vercel.json): Vercel deployment configuration
+- [`agent/`](agent/): AI agent code for tax-related automation
+- [`app/`](app/): Frontend application pages
+- [`modules/`](modules/): Feature modules (Trial Balance, Stock Statement, etc.)
+- [`js/`](js/): JavaScript modules and utilities
+- [`css/`](css/): Stylesheets
+- [`templates/`](templates/): HTML templates
+- [`data/`](data/): Sample data and company data
+- [`database/`](database/): Supabase database migrations and schemas
+- [`tests/`](tests/): Test files
 
 ## Architecture
 
@@ -26,7 +28,7 @@ TaxGlue is a web application designed to help users manage and file their taxes 
 
 ## Deployment
 
-The application is deployed on Vercel. All changes pushed to the `main` branch automatically deploy to https://www.taxglue.in
+The application is deployed on Vercel. All changes pushed to the `main` branch automatically deploy to [https://www.taxglue.in](https://www.taxglue.in)
 
 ### Environment Variables (Vercel)
 

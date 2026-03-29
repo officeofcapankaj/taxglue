@@ -6,9 +6,6 @@
 <title>Book-Keeping | TaxGlue</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* BOOKKEEPING-TABS: display none/block with .active class - FIX v3 */
-#mastersSection, #voucherSection, #ledgerSection, #daybookSection, #cashbookSection, #accountsSection, #stockSection, #trialbalanceSection, #financialsSection { display: none; }
-#mastersSection.active, #voucherSection.active, #ledgerSection.active, #daybookSection.active, #cashbookSection.active, #accountsSection.active, #stockSection.active, #trialbalanceSection.active, #financialsSection.active { display: block; }
 * {
   margin: 0;
   padding: 0;
@@ -196,12 +193,84 @@ body {
   border-color: #cbd5e1;
 }
 
-/* Table */
-.table-container {
+/* Section display - hidden by default */
+[id$="Section"] {
+  display: none;
+}
+
+[id$="Section"].active {
+  display: block;
+}
+
+/* Tab styles */
+.tab {
   background: white;
-  border-radius: 12px;
   border: 1px solid #e2e8f0;
-  overflow: hidden;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #64748b;
+}
+
+.tab:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.tab.active {
+  background: #22c55e;
+  color: white;
+  border-color: #22c55e;
+}
+
+/* Selection bar */
+.selection-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+/* Tab groups for organization */
+.tabs-section {
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 16px;
+}
+
+.tabs-group {
+  margin-bottom: 12px;
+}
+
+.tabs-group-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.tabs-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.form-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
 }
 
 table {
@@ -341,17 +410,59 @@ input[type="number"] {
     
     <div class="success-message" id="successMessage">Saved successfully!</div>
     
-    <div class="tabs">
-      <button class="tab active" id="voucherTab" onclick="switchTab('voucher')">📝 Voucher Entry</button>
-      <button class="tab" id="ledgerTab" onclick="window.location.href='/modules/bookkeeping/ledger.html'">📒 Ledger</button>
-      <button class="tab" id="daybookTab" onclick="window.location.href='/modules/bookkeeping/daybook.html'">📖 Day Book</button>
-      <button class="tab" id="cashbookTab" onclick="window.location.href='/modules/bookkeeping/cashbook.html'">💰 Cash Book</button>
-      <button class="tab" id="bankReconTab" onclick="window.location.href='/modules/bookkeeping/bank-recon.html'">🏦 Bank Recon</button>
-      <button class="tab" id="stockTab" onclick="window.location.href='/modules/bookkeeping/stock.html'">📦 Stock</button>
-      <button class="tab" id="trialbalanceTab" onclick="window.location.href='/modules/bookkeeping/trial-balance.html'">📊 Trial Balance</button>
+    <div class="tabs-section">
+      <div class="tabs-group">
+        <div class="tabs-group-title">Masters 📋</div>
+        <div class="tabs-row">
+          <button class="tab active" id="mastersTab" onclick="switchTab('masters')">📋 Masters</button>
+          <button class="tab" id="voucherTypesTab" onclick="switchTab('voucherTypes')">📝 Voucher Types</button>
+          <button class="tab" id="stockItemsTab" onclick="switchTab('stockItems')">📦 Stock Items</button>
+          <button class="tab" id="stockGroupsTab" onclick="switchTab('stockGroups')">🏷️ Stock Groups</button>
+          <button class="tab" id="godownsTab" onclick="switchTab('godowns')">🏭 Godowns</button>
+          <button class="tab" id="statesTab" onclick="switchTab('states')">🗺️ States</button>
+          <button class="tab" id="countriesTab" onclick="switchTab('countries')">🌍 Countries</button>
+        </div>
+      </div>
+      
+      <div class="tabs-group">
+        <div class="tabs-group-title">Transactions 💰</div>
+        <div class="tabs-row">
+          <button class="tab" id="voucherTab" onclick="switchTab('voucher')">📝 Voucher Entry</button>
+          <button class="tab" id="daybookTab" onclick="switchTab('daybook')">📖 Day Book</button>
+          <button class="tab" id="cashbookTab" onclick="switchTab('cashbook')">💵 Cash Book</button>
+        </div>
+      </div>
+      
+      <div class="tabs-group">
+        <div class="tabs-group-title">Reports 📊</div>
+        <div class="tabs-row">
+          <button class="tab" id="ledgerTab" onclick="switchTab('ledger')">📒 Ledger</button>
+          <button class="tab" id="trialbalanceTab" onclick="switchTab('trialbalance')">⚖️ Trial Balance</button>
+          <button class="tab" id="financialsTab" onclick="switchTab('financials')">📈 P&L & Balance Sheet</button>
+          <button class="tab" id="stockReportTab" onclick="switchTab('stockReport')">📦 Stock Report</button>
+        </div>
+      </div>
+      
+      <div class="tabs-group">
+        <div class="tabs-group-title">Bank & GST 🏦</div>
+        <div class="tabs-row">
+          <button class="tab" id="bankReconTab" onclick="switchTab('bankReconciliation')">🏦 Bank Reconciliation</button>
+          <button class="tab" id="ocrEntryTab" onclick="switchTab('ocrEntry')">🤖 AI Data Entry</button>
+          <button class="tab" id="eInvoiceTab" onclick="switchTab('eInvoice')">📄 GST E-Invoice</button>
+          <button class="tab" id="workflowsTab" onclick="switchTab('workflows')">⚡ Workflows</button>
+        </div>
+      </div>
+      
+      <div class="tabs-group">
+        <div class="tabs-group-title">Advanced 📈</div>
+        <div class="tabs-row">
+          <button class="tab" id="reportsAdvancedTab" onclick="switchTab('reportsAdvanced')">📊 Advanced Reports</button>
+          <button class="tab" id="settingsTab" onclick="switchTab('settings')">⚙️ Settings</button>
+        </div>
+      </div>
     </div>
     
-    <!-- Masters Section -->
+    <!-- Masters Section - shown by default -->
     <div id="mastersSection" class="active">
       <div class="card">
         <div class="card-header">
@@ -1657,8 +1768,37 @@ async function loadClientData() {
 
 // Switch tabs
 function switchTab(tab) {
+  console.log('switchTab called:', tab)
+  
+  // Tab to Section mapping (for tabs that don't follow naming convention)
+  const tabSectionMap = {
+    'masters': 'masters',
+    'voucherTypes': 'masters',
+    'stockItems': 'masters',
+    'stockGroups': 'masters',
+    'godowns': 'masters',
+    'states': 'masters',
+    'countries': 'masters',
+    'voucher': 'voucher',
+    'ledger': 'ledger',
+    'daybook': 'daybook',
+    'cashbook': 'cashbook',
+    'bankReconciliation': 'bankReconciliation',
+    'ocrEntry': 'ocrEntry',
+    'eInvoice': 'eInvoice',
+    'workflows': 'workflows',
+    'trialbalance': 'trialbalance',
+    'financials': 'financials',
+    'stockReport': 'stock',
+    'reportsAdvanced': 'reportsAdvanced',
+    'settings': 'settings'
+  }
+  
+  // Get tab section name (or use tab name directly if not in map)
+  const sectionName = tabSectionMap[tab] || tab
+  
   // Get all tab buttons
-  const allTabs = document.querySelectorAll('.tabs .tab')
+  const allTabs = document.querySelectorAll('.tab.active')
   
   // Remove active class from all tabs
   allTabs.forEach(t => {
@@ -1673,20 +1813,27 @@ function switchTab(tab) {
     console.error('Tab button not found:', tab + 'Tab')
   }
   
-  // Toggle section active class - FIX: include ALL sections
-  const sections = ['masters', 'voucher', 'ledger', 'daybook', 'cashbook', 'accounts', 'stock', 'trialbalance', 'financials']
-  sections.forEach(section => {
-    const el = document.getElementById(section + 'Section')
-    if (el) {
-      if (section === tab) {
-        el.classList.add('active')
-      } else {
-        el.classList.remove('active')
-      }
-    }
+  // Hide all sections first
+  document.querySelectorAll('[id$="Section"]').forEach(el => {
+    el.style.display = 'none'
+    el.classList.remove('active')
   })
   
-  if (tab === 'masters') loadMastersData()
+  // Show the selected section
+  const sectionEl = document.getElementById(sectionName + 'Section')
+  if (sectionEl) {
+    sectionEl.style.display = 'block'
+    sectionEl.classList.add('active')
+    console.log('Showing section:', sectionName + 'Section')
+  } else {
+    console.error('Section not found:', sectionName + 'Section')
+    // Fallback: show masters section
+    const mastersSection = document.getElementById('mastersSection')
+    if (mastersSection) {
+      mastersSection.style.display = 'block'
+      mastersSection.classList.add('active')
+    }
+  }
   if (tab === 'ledger') loadLedger()
   if (tab === 'daybook') loadDayBook()
   if (tab === 'cashbook') loadCashBook()
@@ -2057,24 +2204,24 @@ function renderGroupsTree(groups, ledgers) {
   
   const allGroups = groups.length ? groups : defaultGroups
   
-  container.innerHTML = allGroups.map(g => `
-    <div class="group-item">
-      <div class="group-header" onclick="toggleGroup('${g.id}')">
-        <span class="group-toggle">▶</span>
-        <strong>📁 ${g.name}</strong>
-        <span class="group-nature">${g.nature || ''}</span>
-      </div>
-      <div class="group-ledgers" id="group-${g.id}">
-        ${(ledgersByGroup[g.id] || []).map(l => `
-          <div class="ledger-row">
-            <span>📓 ${l.name}</span>
-            <span class="amount">${formatCurrency(l.opening_balance || 0)}</span>
-          </div>
-        `).join('')}
-        <button class="btn btn-outline" style="margin: 8px 0; font-size: 12px;" onclick="showAddLedgerModal('${g.id}')">+ Add Ledger</button>
-      </div>
-    </div>
-  `).join('')
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
+PLACEHOLDER_TO_REPLACE
 }
 
 function toggleGroup(groupId) {
@@ -2167,7 +2314,8 @@ function renderStockItems(items) {
       <td class="amount">${formatCurrency(item.rate || 0)}</td>
       <td class="amount">${formatCurrency((item.opening_qty || 0) * (item.rate || 0))}</td>
       <td>
-        <button class="btn btn-outline" style="padding: 4px 8px; font-size: 11px;" onclick="deleteStockItem('${item.id}')">Delete</button>
+        <button class="btn btn-outline" style="padding: 4px 8px; font-size: 11px; margin-right: 4px;" onclick="editStockItem('${item.id}', '${item.name}', '${item.code}', '${item.category}', '${item.unit}', ${item.opening_qty || 0}, ${item.rate || 0})">Edit</button>
+        <button class="btn btn-outline" style="padding: 4px 8px; font-size: 11px; color: #ef4444; border-color: #ef4444;" onclick="deleteStockItem('${item.id}', '${item.name}')">Delete</button>
       </td>
     </tr>
   `).join('')
@@ -3005,6 +3153,8 @@ function hideAddStockItemModal() {
         <option value="Expense">Expense</option>
       </select>
     </div>
+    <input type="hidden" id="newGroupId">
+    <input type="hidden" id="editGroupId">
     <div style="display: flex; gap: 12px;">
       <button class="btn btn-outline" onclick="hideAddGroupModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveGroup()">Save Group</button>
@@ -3020,6 +3170,7 @@ function hideAddStockItemModal() {
       <button class="modal-close" onclick="hideAddLedgerModal()">&times;</button>
     </div>
     <input type="hidden" id="ledgerGroupId">
+    <input type="hidden" id="newLedgerId">
     <div class="form-group" style="margin-bottom: 16px;">
       <label class="form-label">Ledger Name</label>
       <input type="text" class="form-input" id="newLedgerName" placeholder="Enter ledger name">
@@ -3102,6 +3253,20 @@ function hideAddStockItemModal() {
 .ledger-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
 .stock-report { padding: 16px; background: #f8fafc; border-radius: 8px; margin-top: 16px; }
 .bs-section h4 { color: #1e293b; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+
+<!-- Modal -->
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; }
+.modal.active { display: flex; }
+.modal-content { background: white; border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; box-shadow: 0 25px 50px rgba(0,0,0,0.25); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title { font-size: 20px; font-weight: 600; color: #1e293b; }
+.modal-close { background: none; border: none; font-size: 28px; cursor: pointer; color: #64748b; }
+
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; }
+.modal.active { display: flex; }
+
+#mastersSection, #voucherSection, #ledgerSection, #daybookSection, #cashbookSection, #stockSection, #trialbalanceSection, #accountsSection { display: none; }
+#mastersSection.active, #voucherSection.active, #ledgerSection.active, #daybookSection.active, #cashbookSection.active, #stockSection.active, #trialbalanceSection.active, #accountsSection.active { display: block; }
 </style>
     <!-- AI Assistant Chat Widget -->
     <div id="aiAssistant" style="position: fixed; bottom: 20px; right: 20px; z-index: 10000;">
@@ -3246,6 +3411,81 @@ function hideAddStockItemModal() {
       };
       
       recognition.start();
+    }
+    
+    // ========== EDIT/DELETE/DRILL-DOWN FUNCTIONS ==========
+    
+    // Edit a group - open modal with existing values
+    function editGroup(id, name, nature) {
+      document.getElementById('newGroupName').value = name
+      document.getElementById('newGroupNature').value = nature
+      document.getElementById('newGroupId').value = id
+      
+      // Update modal title to show we're editing
+      const modal = document.getElementById('addGroupModal')
+      modal.querySelector('.modal-title').textContent = 'Edit Group: ' + name
+      modal.classList.add('active')
+    }
+    
+    // Edit a ledger - open modal with existing values
+    function editLedger(id, name, openingBalance) {
+      document.getElementById('newLedgerName').value = name
+      document.getElementById('ledgerOpeningBalance').value = openingBalance
+      document.getElementById('newLedgerId').value = id
+      document.getElementById('addLedgerModal').classList.add('active')
+    }
+    
+    // Delete a ledger with confirmation
+    async function deleteLedger(id, name) {
+      if (!confirm('Are you sure you want to delete ledger "' + name + '"? This action cannot be undone.')) {
+        return
+      }
+      try {
+        await supabase.from('accounts').delete().eq('id', id)
+        showSuccess('Ledger deleted!')
+        loadGroupsAndLedgers()
+      } catch (e) {
+        console.error('Error deleting ledger:', e)
+        alert('Error deleting ledger')
+      }
+    }
+    
+    // Drill-down: view transactions for a ledger
+    function viewLedgerDrilldown(id, name) {
+      // Switch to ledger tab and filter by this account
+      switchTab('ledger')
+      document.getElementById('ledgerSelect').value = id
+      // Trigger the ledger load with this account selected
+      const event = new Event('change')
+      document.getElementById('ledgerSelect').dispatchEvent(event)
+      showSuccess('Showing transactions for: ' + name)
+    }
+    
+    // Edit stock item
+    function editStockItem(id, name, code, category, unit, qty, rate) {
+      document.getElementById('stockItemName').value = name
+      document.getElementById('stockItemCode').value = code
+      document.getElementById('stockItemCategory').value = category
+      document.getElementById('stockItemUnit').value = unit
+      document.getElementById('stockItemQty').value = qty
+      document.getElementById('stockItemRate').value = rate
+      document.getElementById('newItemId').value = id
+      document.getElementById('addStockItemModal').classList.add('active')
+    }
+    
+    // Delete stock item
+    async function deleteStockItem(id, name) {
+      if (!confirm('Are you sure you want to delete item "' + name + '"? This action cannot be undone.')) {
+        return
+      }
+      try {
+        await supabase.from('stock_items').delete().eq('id', id)
+        showSuccess('Stock item deleted!')
+        loadStockItems()
+      } catch (e) {
+        console.error('Error deleting stock item:', e)
+        alert('Error deleting stock item')
+      }
     }
     </script>
 

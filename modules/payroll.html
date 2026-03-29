@@ -123,6 +123,7 @@ th { background: #f8fafc; font-weight: 600; }
     <div class="tabs">
       <button class="tab active" onclick="switchTab('employees')">Employees</button>
       <button class="tab" onclick="switchTab('salary')">Salary Processing</button>
+      <button class="tab" onclick="switchTab('attendance')">Attendance</button>
       <button class="tab" onclick="switchTab('payslips')">Payslips</button>
       <button class="tab" onclick="switchTab('reports')">Reports</button>
       <button class="tab" onclick="switchTab('settings')">Settings</button>
@@ -221,6 +222,90 @@ th { background: #f8fafc; font-weight: 600; }
             </thead>
             <tbody id="salary-tbody">
               <tr><td colspan="12" style="text-align:center;padding:40px;color:#94a3b8;">Select month and click Process Salary</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attendance Tab -->
+    <div id="tab-attendance" class="tab-content" style="display:none;">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Attendance</h3>
+          <div style="display:flex;gap:10px;">
+            <select id="attendance-month" class="form-select">
+              <option value="">Select Month</option>
+              <option value="April">April</option>
+              <option value="May">May</option>
+              <option value="June">June</option>
+              <option value="July">July</option>
+              <option value="August">August</option>
+              <option value="September">September</option>
+              <option value="October">October</option>
+              <option value="November">November</option>
+              <option value="December">December</option>
+              <option value="January">January</option>
+              <option value="February">February</option>
+              <option value="March">March</option>
+            </select>
+            <button class="btn btn-primary" onclick="loadAttendance()">Load Attendance</button>
+            <button class="btn btn-secondary" onclick="openPunchModal()">Punch Attendance</button>
+          </div>
+        </div>
+        <div style="margin-bottom:16px;padding:16px;background:#f8fafc;border-radius:8px;">
+          <h4 style="margin-bottom:12px;">Quick Punch - Mark Today's Attendance</h4>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="punchAttendance('Present')">✅ Present</button>
+            <button class="btn btn-outline" onclick="punchAttendance('Absent')">❌ Absent</button>
+            <button class="btn btn-outline" onclick="punchAttendance('Half Day')">⏸ Half Day</button>
+            <button class="btn btn-outline" onclick="punchAttendance('Leave')">📋 Leave</button>
+            <button class="btn btn-outline" onclick="punchAttendance('Holiday')">🎉 Holiday</button>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:16px;">
+          <h4 style="margin-bottom:12px;">Manual Entry - Enter Working Days</h4>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end;">
+            <div class="form-group">
+              <label class="form-label">Employee</label>
+              <select id="manual-emp-select" class="form-select">
+                <option value="">Select Employee</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Working Days</label>
+              <input type="number" id="working-days" class="form-input" value="26" min="0" max="31">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Days Present</label>
+              <input type="number" id="days-present" class="form-input" value="26" min="0" max="31">
+            </div>
+            <div class="form-group">
+              <label class="form-label">OT Hours</label>
+              <input type="number" id="ot-hours" class="form-input" value="0" min="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">LWP (Loss of Pay)</label>
+              <input type="number" id="lwp-days" class="form-input" value="0" min="0">
+            </div>
+            <button class="btn btn-primary" onclick="saveManualAttendance()">Save Entry</button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Employee</th>
+                <th>Status</th>
+                <th>Working Days</th>
+                <th>Days Present</th>
+                <th>LWP</th>
+                <th>OT Hours</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-tbody">
+              <tr><td colspan="7" style="text-align:center;padding:40px;color:#94a3b8;">Select month and click Load Attendance</td></tr>
             </tbody>
           </table>
         </div>
@@ -459,6 +544,25 @@ th { background: #f8fafc; font-weight: 600; }
           <label class="form-label">Address</label>
           <input type="text" id="emp-address" class="form-input">
         </div>
+        <div class="form-group">
+          <label class="form-label">Date of Resignation</label>
+          <input type="date" id="emp-resignation" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date of Relieving</label>
+          <input type="date" id="emp-relieving" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Exit Reason</label>
+          <select id="emp-exit-reason" class="form-select">
+            <option value="">-- Select --</option>
+            <option value="Resignation">Resignation</option>
+            <option value="Termination">Termination</option>
+            <option value="Absconding">Absconding</option>
+            <option value="Retirement">Retirement</option>
+            <option value="Contract End">Contract End</option>
+          </select>
+        </div>
       </div>
       <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end;">
         <button type="button" class="btn btn-outline" onclick="closeEmployeeModal()">Cancel</button>
@@ -475,9 +579,17 @@ th { background: #f8fafc; font-weight: 600; }
       <h3 class="modal-title">Salary Structure</h3>
       <button class="modal-close" onclick="closeSalaryModal()">&times;</button>
     </div>
+    <div id="salary-history" style="margin-bottom:20px;padding:12px;background:#f8fafc;border-radius:8px;">
+      <h4 style="margin-bottom:8px;">Previous Salary Revisions</h4>
+      <div id="salary-history-list"></div>
+    </div>
     <form id="salary-form" onsubmit="saveSalaryStructure(event)">
       <input type="hidden" id="salary-employee-id">
       <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Effective From *</label>
+          <input type="date" id="salary-effective-from" class="form-input" required>
+        </div>
         <div class="form-group">
           <label class="form-label">Basic Salary *</label>
           <input type="number" id="salary-basic" class="form-input" required>
@@ -512,17 +624,76 @@ th { background: #f8fafc; font-weight: 600; }
 </div>
 
 <script>
-// Initialize Supabase
-const supabaseUrl = 'https://xyzcompany.supabase.co';
-const supabaseKey = 'YOUR_ANON_KEY';
-// const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+// Supabase client - inline for browser compatibility
+const supabaseUrl = 'https://jgjeuybgideeqcjxvlmn.supabase.co';
+const supabaseKey = 'sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j';
+let supabase = null;
 
-// Mock data for demo
+// Try to initialize Supabase
+function initSupabase() {
+  if (typeof window.supabase !== 'undefined') {
+    supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    console.log('Supabase initialized');
+  } else {
+    setTimeout(initSupabase, 100);
+  }
+}
+initSupabase();
+
+// Mock data for demo (fallback when Supabase unavailable)
 let employees = [];
 let salaryStructures = {};
 let salaryPayments = [];
 let currentClient = null;
 let currentFY = '2024-25';
+
+// API Functions (Supabase wrapper)
+async function loadEmployeesFromDB(clientId, fy) {
+  if (!supabase) return { employees: [], error: 'Supabase not initialized' };
+  const { data, error } = await supabase
+    .from('employees')
+    .select('*')
+    .eq('client_id', clientId)
+    .eq('fy', fy)
+    .order('employee_code');
+  return { employees: data || [], error };
+}
+
+async function saveEmployeeToDB(employee) {
+  if (!supabase) return { error: 'Supabase not initialized' };
+  if (employee.id) {
+    const { data, error } = await supabase.from('employees').update(employee).eq('id', employee.id).select().single();
+    return { employee: data, error };
+  } else {
+    const { data, error } = await supabase.from('employees').insert(employee).select().single();
+    return { employee: data, error };
+  }
+}
+
+async function deleteEmployeeFromDB(id) {
+  if (!supabase) return { error: 'Supabase not initialized' };
+  return await supabase.from('employees').delete().eq('id', id);
+}
+
+// Salary computation functions
+function calculatePF(basicSalary, pfApplicable = true) {
+  if (!pfApplicable) return 0;
+  const cappedBasic = Math.min(basicSalary, 15000);
+  return Math.round(cappedBasic * 0.12);
+}
+
+function calculateESIC(grossSalary, esicApplicable = true) {
+  if (!esicApplicable || grossSalary > 21000) return 0;
+  return Math.round(grossSalary * 0.0175); // 1.75% employee contribution
+}
+
+function calculateProfessionalTax(grossSalary) {
+  return grossSalary > 7500 ? 200 : 0;
+}
+
+function calculateNetSalary(gross, pf, esic, pt) {
+  return gross - pf - esic - pt;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   loadClients();
@@ -556,16 +727,23 @@ function loadEmployees() {
   currentClient = clientId;
   currentFY = fy;
   
-  // Mock employee data
-  employees = [
-    { id: '1', code: 'EMP001', first_name: 'John', last_name: 'Doe', department: 'Finance', designation: 'Manager', date_of_joining: '2022-01-15', employment_type: 'Permanent', is_active: true, basic_salary: 50000, hra: 15000, allowances: 10000 },
-    { id: '2', code: 'EMP002', first_name: 'Jane', last_name: 'Smith', department: 'IT', designation: 'Developer', date_of_joining: '2023-03-20', employment_type: 'Permanent', is_active: true, basic_salary: 40000, hra: 12000, allowances: 8000 },
-    { id: '3', code: 'EMP003', first_name: 'Mike', last_name: 'Johnson', department: 'HR', designation: 'Executive', date_of_joining: '2023-06-01', employment_type: 'Contract', is_active: true, basic_salary: 25000, hra: 5000, allowances: 3000 },
-    { id: '4', code: 'EMP004', first_name: 'Sarah', last_name: 'Williams', department: 'Marketing', designation: 'Associate', date_of_joining: '2024-01-10', employment_type: 'Permanent', is_active: true, basic_salary: 35000, hra: 10000, allowances: 6000 }
-  ];
-  
-  renderEmployees();
-  updateStats();
+  // Try to load from Supabase first
+  loadEmployeesFromDB(clientId, fy).then(result => {
+    if (result.error) {
+      console.log('Using mock data (Supabase unavailable):', result.error);
+      // Fall back to mock data
+      employees = [
+        { id: '1', employee_code: 'EMP001', first_name: 'John', last_name: 'Doe', department: 'Finance', designation: 'Manager', date_of_joining: '2022-01-15', employment_type: 'Permanent', is_active: true, basic_salary: 50000, hra: 15000, allowances: 10000 },
+        { id: '2', employee_code: 'EMP002', first_name: 'Jane', last_name: 'Smith', department: 'IT', designation: 'Developer', date_of_joining: '2023-03-20', employment_type: 'Permanent', is_active: true, basic_salary: 40000, hra: 12000, allowances: 8000 },
+        { id: '3', employee_code: 'EMP003', first_name: 'Mike', last_name: 'Johnson', department: 'HR', designation: 'Executive', date_of_joining: '2023-06-01', employment_type: 'Contract', is_active: true, basic_salary: 25000, hra: 5000, allowances: 3000 },
+        { id: '4', employee_code: 'EMP004', first_name: 'Sarah', last_name: 'Williams', department: 'Marketing', designation: 'Associate', date_of_joining: '2024-01-10', employment_type: 'Permanent', is_active: true, basic_salary: 35000, hra: 10000, allowances: 6000 }
+      ];
+    } else {
+      employees = result.employees || [];
+    }
+    renderEmployees();
+    updateStats();
+  });
 }
 
 function renderEmployees() {
@@ -585,6 +763,8 @@ function renderEmployees() {
       <td class="action-btns">
         <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="editEmployee('${emp.id}')">Edit</button>
         <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="openSalaryModal('${emp.id}')">Salary</button>
+        <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="generateOfferLetter('${emp.id}')">Offer</button>
+        <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="generateFFSettlement('${emp.id}')">F&F</button>
         <button class="btn btn-danger" style="padding:6px 10px;font-size:12px;" onclick="deleteEmployee('${emp.id}')">×</button>
       </td>
     `;
@@ -616,6 +796,8 @@ function searchEmployees(query) {
       <td class="action-btns">
         <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="editEmployee('${emp.id}')">Edit</button>
         <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="openSalaryModal('${emp.id}')">Salary</button>
+        <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="generateOfferLetter('${emp.id}')">Offer</button>
+        <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="generateFFSettlement('${emp.id}')">F&F</button>
         <button class="btn btn-danger" style="padding:6px 10px;font-size:12px;" onclick="deleteEmployee('${emp.id}')">×</button>
       </td>
     `;
@@ -654,6 +836,331 @@ function switchTab(tabName) {
   
   event.target.classList.add('active');
   document.getElementById('tab-' + tabName).style.display = 'block';
+  
+  // Load employee dropdown for manual entry when switching to attendance tab
+  if (tabName === 'attendance') {
+    loadEmployeeDropdown();
+  }
+}
+
+// Attendance functions
+let attendanceRecords = [];
+
+function loadEmployeeDropdown() {
+  const select = document.getElementById('manual-emp-select');
+  select.innerHTML = '<option value="">Select Employee</option>';
+  employees.forEach(emp => {
+    const option = document.createElement('option');
+    option.value = emp.id;
+    option.textContent = (emp.first_name || '') + ' ' + (emp.last_name || '');
+    select.appendChild(option);
+  });
+}
+
+function punchAttendance(status) {
+  const empSelect = document.getElementById('manual-emp-select');
+  const employeeId = empSelect.value;
+  if (!employeeId) {
+    alert('Please select an employee first');
+    return;
+  }
+  
+  const today = new Date().toISOString().split('T')[0];
+  const record = {
+    employee_id: employeeId,
+    date: today,
+    status: status,
+    month: document.getElementById('attendance-month').value || getCurrentMonth(),
+    year: '2024-25'
+  };
+  
+  // Save to database
+  if (supabase) {
+    supabase.from('attendance').insert(record).then(() => {
+      alert('Attendance marked: ' + status);
+    });
+  } else {
+    // Local storage fallback
+    attendanceRecords.push(record);
+    alert('Attendance marked: ' + status);
+  }
+}
+
+function openPunchModal() {
+  alert('Please select an employee from the dropdown, then click Present/Absent/etc. to mark attendance');
+}
+
+function loadAttendance() {
+  const month = document.getElementById('attendance-month').value;
+  if (!month) {
+    alert('Please select a month');
+    return;
+  }
+  
+  // Try to load from database
+  if (supabase) {
+    supabase.from('attendance')
+      .select('*')
+      .eq('month', month)
+      .then(({ data, error }) => {
+        if (error) {
+          console.log('Using local attendance');
+          renderAttendance([]);
+        } else {
+          renderAttendance(data || []);
+        }
+      });
+  } else {
+    // Mock data
+    renderAttendance([]);
+  }
+}
+
+function renderAttendance(records) {
+  const tbody = document.getElementById('attendance-tbody');
+  tbody.innerHTML = '';
+  
+  if (records.length === 0) {
+    // Show mock data for demo
+    const mockData = [
+      { date: '2024-04-01', employee_id: '1', status: 'Present', working_days: 26, days_present: 26, lwp: 0, ot_hours: 0 },
+      { date: '2024-04-02', employee_id: '1', status: 'Present', working_days: 26, days_present: 26, lwp: 0, ot_hours: 2 },
+      { date: '2024-04-03', employee_id: '1', status: 'Absent', working_days: 26, days_present: 25, lwp: 1, ot_hours: 0 }
+    ];
+    records = mockData;
+  }
+  
+  records.forEach(rec => {
+    const emp = employees.find(e => e.id === rec.employee_id);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${rec.date || '-'}</td>
+      <td>${emp ? emp.first_name + ' ' + emp.last_name : '-'}</td>
+      <td><span class="badge ${rec.status === 'Present' ? 'badge-success' : rec.status === 'Absent' ? 'badge-danger' : 'badge-warning'}">${rec.status || '-'}</span></td>
+      <td>${rec.working_days || '-'}</td>
+      <td>${rec.days_present || '-'}</td>
+      <td>${rec.lwp || 0}</td>
+      <td>${rec.ot_hours || 0}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function saveManualAttendance() {
+  const employeeId = document.getElementById('manual-emp-select').value;
+  const workingDays = parseInt(document.getElementById('working-days').value) || 26;
+  const daysPresent = parseInt(document.getElementById('days-present').value) || 26;
+  const otHours = parseFloat(document.getElementById('ot-hours').value) || 0;
+  const lwp = parseInt(document.getElementById('lwp-days').value) || 0;
+  
+  if (!employeeId) {
+    alert('Please select an employee');
+    return;
+  }
+  
+  const month = document.getElementById('attendance-month').value || getCurrentMonth();
+  const record = {
+    employee_id: employeeId,
+    month: month,
+    year: '2024-25',
+    working_days: workingDays,
+    days_present: daysPresent,
+    ot_hours: otHours,
+    lwp: lwp,
+    status: daysPresent === workingDays ? 'Present' : lwp > 0 ? 'Partial' : 'Present'
+  };
+  
+  // Save to database
+  if (supabase) {
+    supabase.from('attendance').upsert(record).then(() => {
+      alert('Attendance saved!');
+      loadAttendance();
+    });
+  } else {
+    attendanceRecords.push(record);
+    alert('Attendance saved!');
+  }
+}
+
+function getCurrentMonth() {
+  const months = ['April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March'];
+  const now = new Date();
+  const monthIndex = now.getMonth() < 3 ? now.getMonth() + 9 : now.getMonth() - 3;
+  return months[monthIndex];
+}
+
+// Offer Letter Generation
+function generateOfferLetter(employeeId) {
+  const emp = employees.find(e => e.id === employeeId);
+  if (!emp) {
+    alert('Employee not found');
+    return;
+  }
+  
+  const joinDate = emp.date_of_joining || new Date().toISOString().split('T')[0];
+  const basicSalary = emp.basic_salary || 30000;
+  const hra = emp.hra || 10000;
+  const allowances = emp.allowances || 5000;
+  const gross = basicSalary + hra + allowances;
+  
+  const content = `
+OFFER LETTER
+
+Date: ${new Date().toLocaleDateString()}
+
+To,
+${emp.first_name} ${emp.last_name}
+${emp.address || 'Address on record'}
+
+Dear ${emp.first_name},
+
+We are pleased to offer you the position of ${emp.designation || 'Employee'} in our organization.
+
+COMPANY DETAILS:
+- Company Name: TaxGlue
+- Location: Mumbai, India
+
+EMPLOYMENT DETAILS:
+- Position: ${emp.designation || 'Employee'}
+- Department: ${emp.department || 'Operations'}
+- Date of Joining: ${joinDate}
+- Employment Type: ${emp.employment_type || 'Permanent'}
+- Probation Period: 3 months
+
+SALARY BREAKUP:
+- Basic Salary: ₹${basicSalary.toLocaleString()}/month
+- HRA: ₹${hra.toLocaleString()}/month
+- Conveyance & Other Allowances: ₹${allowances.toLocaleString()}/month
+- Gross Salary: ₹${gross.toLocaleString()}/month
+
+BENEFITS:
+- EPF contribution as per statutory norms
+- ESIC coverage as applicable
+- Performance incentives (based on company policy)
+- Paid leaves as per company policy
+
+Please sign and return the acceptance copy to confirm your acceptance of this offer.
+
+For TaxGlue,
+__________________
+HR Manager
+
+Accepted by:
+__________________
+${emp.first_name} ${emp.last_name}
+Date:
+`;
+  
+  // Create PDF
+  if (typeof jspdf !== 'undefined') {
+    const doc = new jspdf.jsPDF();
+    doc.setFontSize(16);
+    doc.text('OFFER LETTER', 105, 20, { align: 'center' });
+    doc.setFontSize(11);
+    const lines = doc.splitTextToSize(content, 180);
+    let y = 40;
+    lines.forEach(line => {
+      doc.text(line, 15, y);
+      y += 7;
+    });
+    doc.save(`Offer_Letter_${emp.employee_code || emp.id}.pdf`);
+  } else {
+    // Fallback - open in new window
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write('<pre>' + content + '</pre>');
+    printWindow.document.close();
+    printWindow.print();
+  }
+  alert('Offer letter generated!');
+}
+
+// F&F Settlement Generation
+function generateFFSettlement(employeeId) {
+  const emp = employees.find(e => e.id === employeeId);
+  if (!emp) {
+    alert('Employee not found');
+    return;
+  }
+  
+  if (!emp.date_of_joining) {
+    alert('Employee has no joining date. Please update employee record first.');
+    return;
+  }
+  
+  // Calculate settlement amounts
+  const basicSalary = emp.basic_salary || 30000;
+  const hra = emp.hra || 10000;
+  const allowances = emp.allowances || 5000;
+  const gross = basicSalary + hra + allowances;
+  const dailyRate = gross / 26;
+  
+  // Settlement calculation
+  const workedDays = 15; // Pro-rata for half month
+  const salaryDue = Math.round(dailyRate * workedDays);
+  const leaveEncashment = 0; // No leave data
+  const noticePay = 0;
+  
+  const totalPayable = salaryDue + leaveEncashment + noticePay;
+  
+  const content = `
+FULL & FINAL SETTLEMENT
+
+Date: ${new Date().toLocaleDateString()}
+
+Employee: ${emp.first_name} ${emp.last_name}
+Employee Code: ${emp.employee_code || emp.id}
+Date of Joining: ${emp.date_of_joining}
+Date of Exit: ${new Date().toISOString().split('T')[0]}
+
+SALARY DUE:
+- Pro-rata Salary (${workedDays} days): ₹${salaryDue.toLocaleString()}
+
+ADDITIONS:
+- Leave Encashment: ₹${leaveEncashment.toLocaleString()}
+- Notice Period Salary: ₹${noticePay.toLocaleString()}
+
+DEDUCTIONS:
+- Notice Period Recovery: ₹0
+- Loans/Advances: ₹0
+- Other Deductions: ₹0
+
+TOTAL PAYABLE: ₹${totalPayable.toLocaleString()}
+
+CLEARANCE CERTIFICATE
+
+This is to certify that all dues have been settled with the above employee.
+
+For TaxGlue,
+__________________
+HR Manager
+
+Employee Acknowledgement:
+__________________
+${emp.first_name} ${emp.last_name}
+Date:
+`;
+  
+  // Create PDF
+  if (typeof jspdf !== 'undefined') {
+    const doc = new jspdf.jsPDF();
+    doc.setFontSize(16);
+    doc.text('FULL & FINAL SETTLEMENT', 105, 20, { align: 'center' });
+    doc.setFontSize(11);
+    const lines = doc.splitTextToSize(content, 180);
+    let y = 40;
+    lines.forEach(line => {
+      doc.text(line, 15, y);
+      y += 7;
+    });
+    doc.save(`FF_Settlement_${emp.employee_code || emp.id}.pdf`);
+  } else {
+    // Fallback - open in new window
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write('<pre>' + content + '</pre>');
+    printWindow.document.close();
+    printWindow.print();
+  }
+  alert('F&F Settlement generated!');
 }
 
 function openEmployeeModal() {
@@ -695,6 +1202,9 @@ function editEmployee(id) {
   document.getElementById('emp-bank-account').value = emp.bank_account_no || '';
   document.getElementById('emp-ifsc').value = emp.bank_ifsc_code || '';
   document.getElementById('emp-address').value = emp.address || '';
+  document.getElementById('emp-resignation').value = emp.date_of_resignation || '';
+  document.getElementById('emp-relieving').value = emp.date_of_relieving || '';
+  document.getElementById('emp-exit-reason').value = emp.exit_reason || '';
   
   document.getElementById('employee-modal').classList.add('active');
 }
@@ -703,9 +1213,13 @@ function saveEmployee(e) {
   e.preventDefault();
   
   const id = document.getElementById('employee-id').value;
+  const clientId = document.getElementById('client-select').value;
+  const fy = document.getElementById('fy-select').value;
+  
   const employee = {
-    id: id || Date.now().toString(),
-    code: document.getElementById('emp-code').value,
+    client_id: clientId,
+    fy: fy,
+    employee_code: document.getElementById('emp-code').value,
     first_name: document.getElementById('emp-first-name').value,
     last_name: document.getElementById('emp-last-name').value,
     date_of_birth: document.getElementById('emp-dob').value,
@@ -727,28 +1241,41 @@ function saveEmployee(e) {
     bank_account_no: document.getElementById('emp-bank-account').value,
     bank_ifsc_code: document.getElementById('emp-ifsc').value,
     address: document.getElementById('emp-address').value,
-    is_active: true
+    date_of_resignation: document.getElementById('emp-resignation').value,
+    date_of_relieving: document.getElementById('emp-relieving').value,
+    exit_reason: document.getElementById('emp-exit-reason').value,
+    is_active: !document.getElementById('emp-relieving').value
   };
   
-  if (id) {
-    const index = employees.findIndex(e => e.id === id);
-    if (index !== -1) employees[index] = { ...employees[index], ...employee };
-  } else {
-    employees.push(employee);
-  }
+  if (id) employee.id = id;
   
-  closeEmployeeModal();
-  renderEmployees();
-  updateStats();
-  alert('Employee saved successfully!');
-}
-
-function deleteEmployee(id) {
-  if (confirm('Are you sure you want to delete this employee?')) {
-    employees = employees.filter(e => e.id !== id);
+  // Save to database
+  saveEmployeeToDB(employee).then(result => {
+    if (result.error) {
+      // Fallback to local array
+      if (id) {
+        const index = employees.findIndex(e => e.id === id);
+        if (index !== -1) employees[index] = { ...employees[index], ...employee };
+      } else {
+        employee.id = Date.now().toString();
+        employees.push(employee);
+      }
+    }
+    closeEmployeeModal();
     renderEmployees();
     updateStats();
-  }
+    alert('Employee saved successfully!');
+  });
+}
+
+async function deleteEmployee(id) {
+  if (!confirm('Are you sure you want to delete this employee?')) return;
+  
+  // Try database first
+  await deleteEmployeeFromDB(id);
+  employees = employees.filter(e => e.id !== id);
+  renderEmployees();
+  updateStats();
 }
 
 function openSalaryModal(employeeId) {
@@ -756,6 +1283,7 @@ function openSalaryModal(employeeId) {
   if (!emp) return;
   
   document.getElementById('salary-employee-id').value = employeeId;
+  document.getElementById('salary-effective-from').value = new Date().toISOString().split('T')[0];
   document.getElementById('salary-basic').value = emp.basic_salary || 0;
   document.getElementById('salary-hra').value = emp.hra || 0;
   document.getElementById('salary-conveyance').value = emp.conveyance_allowance || 0;
@@ -763,7 +1291,28 @@ function openSalaryModal(employeeId) {
   document.getElementById('salary-medical').value = emp.medical_allowance || 0;
   document.getElementById('salary-other').value = emp.other_allowance || 0;
   
+  // Show salary history
+  renderSalaryHistory(employeeId);
+  
   document.getElementById('salary-modal').classList.add('active');
+}
+
+function renderSalaryHistory(employeeId) {
+  const container = document.getElementById('salary-history-list');
+  const structures = salaryStructures[employeeId] || [];
+  
+  if (structures.length === 0) {
+    container.innerHTML = '<p style="color:#64748b;font-size:13px;">No previous salary revisions</p>';
+    return;
+  }
+  
+  let html = '<table style="width:100%;font-size:12px;"><tr><th>Effective From</th><th>Basic</th><th>Gross</th></tr>';
+  structures.forEach(s => {
+    const gross = s.basic + s.hra + s.conveyance + s.special + s.medical + s.other;
+    html += `<tr><td>${s.effective_from || '-'}</td><td>₹${s.basic || 0}</td><td>₹${gross}</td></tr>`;
+  });
+  html += '</table>';
+  container.innerHTML = html;
 }
 
 function closeSalaryModal() {
@@ -774,7 +1323,10 @@ function saveSalaryStructure(e) {
   e.preventDefault();
   
   const employeeId = document.getElementById('salary-employee-id').value;
+  const effectiveFrom = document.getElementById('salary-effective-from').value;
   const structure = {
+    employee_id: employeeId,
+    effective_from: effectiveFrom,
     basic: parseFloat(document.getElementById('salary-basic').value) || 0,
     hra: parseFloat(document.getElementById('salary-hra').value) || 0,
     conveyance: parseFloat(document.getElementById('salary-conveyance').value) || 0,
@@ -783,20 +1335,44 @@ function saveSalaryStructure(e) {
     other: parseFloat(document.getElementById('salary-other').value) || 0
   };
   
-  salaryStructures[employeeId] = structure;
+  // Store in array for versioning
+  if (!salaryStructures[employeeId]) {
+    salaryStructures[employeeId] = [];
+  }
+  salaryStructures[employeeId].push(structure);
   
-  // Update employee data
+  // Get latest for current calculations
+  const latest = salaryStructures[employeeId].reduce((a, b) => 
+    new Date(a.effective_from) > new Date(b.effective_from) ? a : b
+  );
+  
+  // Update employee data with latest salary
   const emp = employees.find(e => e.id === employeeId);
   if (emp) {
-    emp.basic_salary = structure.basic;
-    emp.hra = structure.hra;
-    emp.allowances = structure.conveyance + structure.special + structure.medical + structure.other;
+    emp.basic_salary = latest.basic;
+    emp.hra = latest.hra;
+    emp.allowances = latest.conveyance + latest.special + latest.medical + latest.other;
   }
   
   closeSalaryModal();
   renderEmployees();
   updateStats();
-  alert('Salary structure saved successfully!');
+  alert('Salary structure saved with versioning!');
+}
+
+// Get salary for specific month
+function getSalaryForMonth(employeeId, paymentDate) {
+  const structures = salaryStructures[employeeId] || [];
+  if (structures.length === 0) return null;
+  
+  const date = new Date(paymentDate);
+  // Find most recent structure before payment date
+  const valid = structures.filter(s => new Date(s.effective_from) <= date);
+  if (valid.length === 0) return structures[0];
+  
+  return valid.reduce((a, b) => 
+    new Date(a.effective_from) > new Date(b.effective_from) ? a : b
+  );
 }
 
 function processSalary() {

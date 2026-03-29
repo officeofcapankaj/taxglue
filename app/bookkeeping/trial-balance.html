@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trial Balance | TaxGlue</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; color: #1e293b; }
+    .container { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); color: white; padding: 0; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-header { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .logo { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .sidebar-nav { padding: 20px 12px; }
+    .nav-section { margin-bottom: 24px; }
+    .nav-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; }
+    .sidebar a { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+    .sidebar a:hover { background: rgba(255,255,255,0.1); color: white; }
+    .sidebar a.active { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .main { flex: 1; margin-left: 260px; }
+    .topbar { background: white; padding: 16px 32px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .page-title { font-size: 20px; font-weight: 600; }
+    .btn-back { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn-back:hover { background: #e2e8f0; }
+    .content { padding: 32px; }
+    .select-group { display: flex; gap: 16px; margin-bottom: 24px; }
+    .form-group { flex: 1; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+    .form-select { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; }
+    .form-select:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
+    .toolbar { display: flex; gap: 12px; margin-bottom: 24px; }
+    .btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn-primary { background: #22c55e; color: white; }
+    .btn-primary:hover { background: #16a34a; }
+    .btn-secondary { background: #3b82f6; color: white; }
+    .summary-box { background: white; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 24px; }
+    .summary-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+    .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+    .summary-item { text-align: center; padding: 16px; background: #f8fafc; border-radius: 8px; }
+    .summary-label { font-size: 13px; color: #64748b; margin-bottom: 4px; }
+    .summary-value { font-size: 20px; font-weight: 700; }
+    .summary-value.balanced { color: #16a34a; }
+    .summary-value.unbalanced { color: #dc2626; }
+    .table-container { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f8fafc; padding: 14px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+    tr:hover { background: #f8fafc; }
+    tr.group-header { background: #f1f5f9; font-weight: 600; cursor: pointer; }
+    tr.group-header:hover { background: #e2e8f0; }
+    .amount { text-align: right; font-family: monospace; }
+    .amount-debit { color: #dc2626; }
+    .amount-credit { color: #16a34a; }
+    .total-row { background: #f8fafc; font-weight: 700; }
+    .total-row td { border-top: 2px solid #e2e8f0; }
+    .empty-state { text-align: center; padding: 48px; color: #64748b; }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; }
+    .status-balanced { background: #dcfce7; color: #16a34a; }
+    .status-unbalanced { background: #fee2e2; color: #dc2626; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="sidebar">
+      <div class="sidebar-header"><div class="logo"><div class="logo-icon">📒</div>TaxGlue</div></div>
+      <div class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">Main</div>
+          <a href="/app/dashboard.html">🏠 Dashboard</a>
+          <a href="/app/clients.html">👥 Clients</a>
+        </div>
+        <div class="nav-section"><div class="nav-section-title">Accounting</div>
+          <a href="/modules/bookkeeping.html">📒 Book-Keeping</a>
+          <a href="/modules/trial-balance.html" class="active">📊 Trial Balance</a>
+          <a href="/modules/financial-statements.html">⚖️ Financial Statements</a>
+        </div>
+      </div>
+    </nav>
+    
+    <main class="main">
+      <header class="topbar">
+        <h1 class="page-title">📊 Trial Balance</h1>
+        <a href="/modules/bookkeeping.html" class="btn-back">← Back to Book-Keeping</a>
+      </header>
+      
+      <div class="content">
+        <div class="select-group">
+          <div class="form-group">
+            <label class="form-label">Select Client</label>
+            <select class="form-select" id="clientSelect" onchange="loadClientData()">
+              <option value="">-- Select Client --</option>
+              <option value="demo-1">Singla Steel Corporation</option>
+              <option value="demo-2">Rana Industries</option>
+              <option value="demo-3">Sharma Traders</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">As on Date</label>
+            <select class="form-select" id="asOnDate" onchange="generateTrialBalance()">
+              <option value="2024-04-30">30 April 2024</option>
+              <option value="2024-03-31">31 March 2024</option>
+              <option value="2024-02-29">29 February 2024</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Financial Year</label>
+            <select class="form-select" id="fySelect">
+              <option value="2024-25">2024-25</option>
+              <option value="2023-24">2023-24</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="toolbar">
+          <button class="btn btn-primary" onclick="generateTrialBalance()">🔄 Generate</button>
+          <button class="btn btn-secondary" onclick="printTrialBalance()">🖨️ Print</button>
+          <button class="btn btn-secondary" onclick="exportTrialBalance()">📤 Export</button>
+        </div>
+        
+        <div class="summary-box">
+          <div class="summary-title">Trial Balance Summary</div>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <div class="summary-label">Total Debit</div>
+              <div class="summary-value amount-debit" id="totalDebit">₹0</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">Total Credit</div>
+              <div class="summary-value amount-credit" id="totalCredit">₹0</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">Difference</div>
+              <div class="summary-value" id="difference">₹0</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">Status</div>
+              <div class="status-badge" id="tbStatus">-</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Account Name</th>
+                <th style="text-align: right;">Opening</th>
+                <th style="text-align: right;">Debit</th>
+                <th style="text-align: right;">Credit</th>
+                <th style="text-align: right;">Closing Debit</th>
+                <th style="text-align: right;">Closing Credit</th>
+              </tr>
+            </thead>
+            <tbody id="trialBalanceTable">
+              <tr><td colspan="6" class="empty-state">Select a client to generate trial balance</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const demoAccounts = [
+      // Assets (Debit balances)
+      { id: 1, name: 'Cash in Hand', group: 'Assets', opening: 50000, debit: 25000, credit: 10000 },
+      { id: 2, name: 'HDFC Bank', group: 'Assets', opening: 150000, debit: 50000, credit: 25000 },
+      { id: 3, name: 'ICICI Bank', group: 'Assets', opening: 75000, debit: 10000, credit: 5000 },
+      { id: 4, name: 'Sundry Debtors', group: 'Assets', opening: 125000, debit: 50000, credit: 75000 },
+      { id: 5, name: 'Fixed Assets', group: 'Assets', opening: 500000, debit: 0, credit: 0 },
+      
+      // Liabilities (Credit balances)
+      { id: 6, name: 'Capital Account', group: 'Liabilities', opening: 500000, debit: 0, credit: 50000 },
+      { id: 7, name: 'Sundry Creditors', group: 'Liabilities', opening: 45000, debit: 25000, credit: 10000 },
+      { id: 8, name: 'GST Payable', group: 'Liabilities', opening: 0, debit: 0, credit: 15000 },
+      { id: 9, name: 'TDS Payable', group: 'Liabilities', opening: 0, debit: 0, credit: 5000 },
+      
+      // Income (Credit balances)
+      { id: 10, name: 'Sales', group: 'Income', opening: 0, debit: 0, credit: 250000 },
+      { id: 11, name: 'Rent Received', group: 'Income', opening: 0, debit: 0, credit: 24000 },
+      { id: 12, name: 'Interest Received', group: 'Income', opening: 0, debit: 0, credit: 5000 },
+      
+      // Expenses (Debit balances)
+      { id: 13, name: 'Purchase', group: 'Expenses', opening: 0, debit: 150000, credit: 0 },
+      { id: 14, name: 'Salaries', group: 'Expenses', opening: 0, debit: 75000, credit: 0 },
+      { id: 15, name: 'Rent', group: 'Expenses', opening: 0, debit: 24000, credit: 0 },
+      { id: 16, name: 'Interest Paid', group: 'Expenses', opening: 0, debit: 8000, credit: 0 },
+      { id: 17, name: 'Printing & Stationery', group: 'Expenses', opening: 0, debit: 5000, credit: 0 },
+      { id: 18, name: 'Bank Charges', group: 'Expenses', opening: 0, debit: 1500, credit: 0 }
+    ]
+    
+    let currentClientId = ''
+    
+    function loadClientData() {
+      currentClientId = document.getElementById('clientSelect').value
+      if (currentClientId) {
+        generateTrialBalance()
+      }
+    }
+    
+    function generateTrialBalance() {
+      const tbody = document.getElementById('trialBalanceTable')
+      
+      if (!currentClientId) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Select a client to generate trial balance</td></tr>'
+        return
+      }
+      
+      const accounts = demoAccounts
+      let totalDebit = 0
+      let totalCredit = 0
+      
+      // Group accounts
+      const groups = ['Assets', 'Liabilities', 'Income', 'Expenses']
+      let html = ''
+      
+      groups.forEach(groupName => {
+        const groupAccounts = accounts.filter(a => a.group === groupName)
+        if (groupAccounts.length === 0) return
+        
+        let groupDebit = 0
+        groupAccounts.forEach(acc => {
+          groupDebit += acc.opening + acc.debit - acc.credit
+        })
+        
+        // Group header
+        html += `<tr class="group-header">
+          <td>${groupName}</td>
+          <td class="amount"></td>
+          <td class="amount"></td>
+          <td class="amount"></td>
+          <td class="amount"></td>
+          <td class="amount"></td>
+        </tr>`
+        
+        // Accounts
+        groupAccounts.forEach(acc => {
+          const closing = acc.opening + acc.debit - acc.credit
+          totalDebit += closing > 0 ? closing : 0
+          totalCredit += closing < 0 ? -closing : 0
+          
+          const openingBal = acc.opening || '-'
+          const debitBal = acc.debit || '-'
+          const creditBal = acc.credit || '-'
+          const closeDebit = closing > 0 ? closing : '-'
+          const closeCredit = closing < 0 ? -closing : '-'
+          
+          html += `<tr>
+            <td style="padding-left: 24px;">${acc.name}</td>
+            <td class="amount">${openingBal}</td>
+            <td class="amount">${debitBal}</td>
+            <td class="amount">${creditBal}</td>
+            <td class="amount amount-debit">${closeDebit}</td>
+            <td class="amount amount-credit">${closeCredit}</td>
+          </tr>`
+        })
+      })
+      
+      // Total row
+      const diff = Math.abs(totalDebit - totalCredit)
+      html += `<tr class="total-row">
+        <td>Total</td>
+        <td class="amount">-</td>
+        <td class="amount">-</td>
+        <td class="amount">-</td>
+        <td class="amount amount-debit">₹${totalDebit.toLocaleString()}</td>
+        <td class="amount amount-credit">₹${totalCredit.toLocaleString()}</td>
+      </tr>`
+      
+      tbody.innerHTML = html
+      
+      // Update summary
+      document.getElementById('totalDebit').textContent = '₹' + totalDebit.toLocaleString()
+      document.getElementById('totalCredit').textContent = '₹' + totalCredit.toLocaleString()
+      document.getElementById('difference').textContent = '₹' + diff.toLocaleString()
+      
+      const statusEl = document.getElementById('tbStatus')
+      if (totalDebit === totalCredit) {
+        statusEl.innerHTML = '✓ Balanced'
+        statusEl.className = 'status-badge status-balanced'
+      } else {
+        statusEl.innerHTML = '✗ Unbalanced'
+        statusEl.className = 'status-badge status-unbalanced'
+      }
+    }
+    
+    function printTrialBalance() {
+      window.print()
+    }
+    
+    function exportTrialBalance() {
+      alert('Export Trial Balance\n\nThis would download the trial balance as Excel/PDF.')
+    }
+  </script>
+</body>
+</html>

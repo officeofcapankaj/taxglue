@@ -23,3 +23,12 @@ env/
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Database
+data/*.db
+data/*.db-shm
+data/*.db-wal
+
+# Build
+dist/
+build/

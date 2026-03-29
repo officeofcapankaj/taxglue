@@ -520,6 +520,124 @@ export async function createSalaryPayment(payment) {
   return { payment: data, error };
 }
 
+// Update employee
+export async function updateEmployee(id, updates) {
+  const { data, error } = await supabase
+    .from('employees')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+  return { employee: data, error };
+}
+
+// Delete employee
+export async function deleteEmployee(id) {
+  const { error } = await supabase
+    .from('employees')
+    .delete()
+    .eq('id', id);
+  return { error };
+}
+
+// Get salary structure for employee
+export async function getSalaryStructure(employeeId) {
+  const { data, error } = await supabase
+    .from('salary_structures')
+    .select('*')
+    .eq('employee_id', employeeId)
+    .order('effective_date', { ascending: false })
+    .limit(1)
+    .single();
+  return { structure: data, error };
+}
+
+// Create salary structure
+export async function createSalaryStructure(structure) {
+  const { data, error } = await supabase
+    .from('salary_structures')
+    .insert(structure)
+    .select()
+    .single();
+  return { structure: data, error };
+}
+
+// Update salary structure
+export async function updateSalaryStructure(id, updates) {
+  const { data, error } = await supabase
+    .from('salary_structures')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+  return { structure: data, error };
+}
+
+// Create bulk salary payments
+export async function createBulkSalaryPayments(payments) {
+  const { data, error } = await supabase
+    .from('salary_payments')
+    .insert(payments)
+    .select();
+  return { payments: data, error };
+}
+
+// Get payroll settings
+export async function getPayrollSettings(clientId, fy) {
+  const { data, error } = await supabase
+    .from('payroll_settings')
+    .select('*')
+    .eq('client_id', clientId)
+    .eq('fy', fy)
+    .single();
+  return { settings: data, error };
+}
+
+// Save payroll settings
+export async function savePayrollSettings(settings) {
+  // Upsert - update if exists, insert if not
+  const { data, error } = await supabase
+    .from('payroll_settings')
+    .upsert(settings)
+    .select()
+    .single();
+  return { settings: data, error };
+}
+
+// Get attendance records
+export async function getAttendance(clientId, employeeId, month, year) {
+  let query = supabase
+    .from('attendance')
+    .select('*')
+    .eq('client_id', clientId);
+  
+  if (employeeId) query = query.eq('employee_id', employeeId);
+  if (month) query = query.eq('month', month);
+  if (year) query = query.eq('year', year);
+  
+  const { data, error } = await query.order('date');
+  return { attendance: data, error };
+}
+
+// Create attendance record
+export async function createAttendance(record) {
+  const { data, error } = await supabase
+    .from('attendance')
+    .insert(record)
+    .select()
+    .single();
+  return { attendance: data, error };
+}
+
+// Bulk create attendance
+export async function createBulkAttendance(records) {
+  const { data, error } = await supabase
+    .from('attendance')
+    .insert(records)
+    .select();
+  return { attendance: data, error };
+}
+
 // ============================================
 // Utility Functions
 // ============================================
