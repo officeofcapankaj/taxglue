@@ -193,12 +193,84 @@ body {
   border-color: #cbd5e1;
 }
 
-/* Table */
-.table-container {
+/* Section display - hidden by default */
+[id$="Section"] {
+  display: none;
+}
+
+[id$="Section"].active {
+  display: block;
+}
+
+/* Tab styles */
+.tab {
   background: white;
-  border-radius: 12px;
   border: 1px solid #e2e8f0;
-  overflow: hidden;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #64748b;
+}
+
+.tab:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.tab.active {
+  background: #22c55e;
+  color: white;
+  border-color: #22c55e;
+}
+
+/* Selection bar */
+.selection-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+/* Tab groups for organization */
+.tabs-section {
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 16px;
+}
+
+.tabs-group {
+  margin-bottom: 12px;
+}
+
+.tabs-group-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.tabs-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.form-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
 }
 
 table {
@@ -338,17 +410,59 @@ input[type="number"] {
     
     <div class="success-message" id="successMessage">Saved successfully!</div>
     
-    <div class="tabs">
-      <button class="tab active" id="voucherTab" onclick="switchTab('voucher')">📝 Voucher Entry</button>
-      <button class="tab" id="ledgerTab" onclick="switchTab('ledger')">📒 Ledger</button>
-      <button class="tab" id="daybookTab" onclick="switchTab('daybook')">📖 Day Book</button>
-      <button class="tab" id="cashbookTab" onclick="switchTab('cashbook')">💰 Cash Book</button>
-      <button class="tab" id="bankReconTab" onclick="switchTab('bankReconciliation')">🏦 Bank Recon</button>
-      <button class="tab" id="stockTab" onclick="switchTab('stock')">📦 Stock</button>
-      <button class="tab" id="trialbalanceTab" onclick="switchTab('trialbalance')">📊 Trial Balance</button>
+    <div class="tabs-section">
+      <div class="tabs-group">
+        <div class="tabs-group-title">Masters 📋</div>
+        <div class="tabs-row">
+          <button class="tab active" id="mastersTab" onclick="switchTab('masters')">📋 Masters</button>
+          <button class="tab" id="voucherTypesTab" onclick="switchTab('voucherTypes')">📝 Voucher Types</button>
+          <button class="tab" id="stockItemsTab" onclick="switchTab('stockItems')">📦 Stock Items</button>
+          <button class="tab" id="stockGroupsTab" onclick="switchTab('stockGroups')">🏷️ Stock Groups</button>
+          <button class="tab" id="godownsTab" onclick="switchTab('godowns')">🏭 Godowns</button>
+          <button class="tab" id="statesTab" onclick="switchTab('states')">🗺️ States</button>
+          <button class="tab" id="countriesTab" onclick="switchTab('countries')">🌍 Countries</button>
+        </div>
+      </div>
+      
+      <div class="tabs-group">
+        <div class="tabs-group-title">Transactions 💰</div>
+        <div class="tabs-row">
+          <button class="tab" id="voucherTab" onclick="switchTab('voucher')">📝 Voucher Entry</button>
+          <button class="tab" id="daybookTab" onclick="switchTab('daybook')">📖 Day Book</button>
+          <button class="tab" id="cashbookTab" onclick="switchTab('cashbook')">💵 Cash Book</button>
+        </div>
+      </div>
+      
+      <div class="tabs-group">
+        <div class="tabs-group-title">Reports 📊</div>
+        <div class="tabs-row">
+          <button class="tab" id="ledgerTab" onclick="switchTab('ledger')">📒 Ledger</button>
+          <button class="tab" id="trialbalanceTab" onclick="switchTab('trialbalance')">⚖️ Trial Balance</button>
+          <button class="tab" id="financialsTab" onclick="switchTab('financials')">📈 P&L & Balance Sheet</button>
+          <button class="tab" id="stockReportTab" onclick="switchTab('stockReport')">📦 Stock Report</button>
+        </div>
+      </div>
+      
+      <div class="tabs-group">
+        <div class="tabs-group-title">Bank & GST 🏦</div>
+        <div class="tabs-row">
+          <button class="tab" id="bankReconTab" onclick="switchTab('bankReconciliation')">🏦 Bank Reconciliation</button>
+          <button class="tab" id="ocrEntryTab" onclick="switchTab('ocrEntry')">🤖 AI Data Entry</button>
+          <button class="tab" id="eInvoiceTab" onclick="switchTab('eInvoice')">📄 GST E-Invoice</button>
+          <button class="tab" id="workflowsTab" onclick="switchTab('workflows')">⚡ Workflows</button>
+        </div>
+      </div>
+      
+      <div class="tabs-group">
+        <div class="tabs-group-title">Advanced 📈</div>
+        <div class="tabs-row">
+          <button class="tab" id="reportsAdvancedTab" onclick="switchTab('reportsAdvanced')">📊 Advanced Reports</button>
+          <button class="tab" id="settingsTab" onclick="switchTab('settings')">⚙️ Settings</button>
+        </div>
+      </div>
     </div>
     
-    <!-- Masters Section -->
+    <!-- Masters Section - shown by default -->
     <div id="mastersSection" class="active">
       <div class="card">
         <div class="card-header">
@@ -1656,6 +1770,33 @@ async function loadClientData() {
 function switchTab(tab) {
   console.log('switchTab called:', tab)
   
+  // Tab to Section mapping (for tabs that don't follow naming convention)
+  const tabSectionMap = {
+    'masters': 'masters',
+    'voucherTypes': 'masters',
+    'stockItems': 'masters',
+    'stockGroups': 'masters',
+    'godowns': 'masters',
+    'states': 'masters',
+    'countries': 'masters',
+    'voucher': 'voucher',
+    'ledger': 'ledger',
+    'daybook': 'daybook',
+    'cashbook': 'cashbook',
+    'bankReconciliation': 'bankReconciliation',
+    'ocrEntry': 'ocrEntry',
+    'eInvoice': 'eInvoice',
+    'workflows': 'workflows',
+    'trialbalance': 'trialbalance',
+    'financials': 'financials',
+    'stockReport': 'stock',
+    'reportsAdvanced': 'reportsAdvanced',
+    'settings': 'settings'
+  }
+  
+  // Get tab section name (or use tab name directly if not in map)
+  const sectionName = tabSectionMap[tab] || tab
+  
   // Get all tab buttons
   const allTabs = document.querySelectorAll('.tab.active')
   
@@ -1679,13 +1820,13 @@ function switchTab(tab) {
   })
   
   // Show the selected section
-  const sectionEl = document.getElementById(tab + 'Section')
+  const sectionEl = document.getElementById(sectionName + 'Section')
   if (sectionEl) {
     sectionEl.style.display = 'block'
     sectionEl.classList.add('active')
-    console.log('Showing section:', tab + 'Section')
+    console.log('Showing section:', sectionName + 'Section')
   } else {
-    console.error('Section not found:', tab + 'Section')
+    console.error('Section not found:', sectionName + 'Section')
     // Fallback: show masters section
     const mastersSection = document.getElementById('mastersSection')
     if (mastersSection) {
