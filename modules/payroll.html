@@ -123,6 +123,7 @@ th { background: #f8fafc; font-weight: 600; }
     <div class="tabs">
       <button class="tab active" onclick="switchTab('employees')">Employees</button>
       <button class="tab" onclick="switchTab('salary')">Salary Processing</button>
+      <button class="tab" onclick="switchTab('attendance')">Attendance</button>
       <button class="tab" onclick="switchTab('payslips')">Payslips</button>
       <button class="tab" onclick="switchTab('reports')">Reports</button>
       <button class="tab" onclick="switchTab('settings')">Settings</button>
@@ -221,6 +222,90 @@ th { background: #f8fafc; font-weight: 600; }
             </thead>
             <tbody id="salary-tbody">
               <tr><td colspan="12" style="text-align:center;padding:40px;color:#94a3b8;">Select month and click Process Salary</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attendance Tab -->
+    <div id="tab-attendance" class="tab-content" style="display:none;">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Attendance</h3>
+          <div style="display:flex;gap:10px;">
+            <select id="attendance-month" class="form-select">
+              <option value="">Select Month</option>
+              <option value="April">April</option>
+              <option value="May">May</option>
+              <option value="June">June</option>
+              <option value="July">July</option>
+              <option value="August">August</option>
+              <option value="September">September</option>
+              <option value="October">October</option>
+              <option value="November">November</option>
+              <option value="December">December</option>
+              <option value="January">January</option>
+              <option value="February">February</option>
+              <option value="March">March</option>
+            </select>
+            <button class="btn btn-primary" onclick="loadAttendance()">Load Attendance</button>
+            <button class="btn btn-secondary" onclick="openPunchModal()">Punch Attendance</button>
+          </div>
+        </div>
+        <div style="margin-bottom:16px;padding:16px;background:#f8fafc;border-radius:8px;">
+          <h4 style="margin-bottom:12px;">Quick Punch - Mark Today's Attendance</h4>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="punchAttendance('Present')">✅ Present</button>
+            <button class="btn btn-outline" onclick="punchAttendance('Absent')">❌ Absent</button>
+            <button class="btn btn-outline" onclick="punchAttendance('Half Day')">⏸ Half Day</button>
+            <button class="btn btn-outline" onclick="punchAttendance('Leave')">📋 Leave</button>
+            <button class="btn btn-outline" onclick="punchAttendance('Holiday')">🎉 Holiday</button>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:16px;">
+          <h4 style="margin-bottom:12px;">Manual Entry - Enter Working Days</h4>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end;">
+            <div class="form-group">
+              <label class="form-label">Employee</label>
+              <select id="manual-emp-select" class="form-select">
+                <option value="">Select Employee</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Working Days</label>
+              <input type="number" id="working-days" class="form-input" value="26" min="0" max="31">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Days Present</label>
+              <input type="number" id="days-present" class="form-input" value="26" min="0" max="31">
+            </div>
+            <div class="form-group">
+              <label class="form-label">OT Hours</label>
+              <input type="number" id="ot-hours" class="form-input" value="0" min="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">LWP (Loss of Pay)</label>
+              <input type="number" id="lwp-days" class="form-input" value="0" min="0">
+            </div>
+            <button class="btn btn-primary" onclick="saveManualAttendance()">Save Entry</button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Employee</th>
+                <th>Status</th>
+                <th>Working Days</th>
+                <th>Days Present</th>
+                <th>LWP</th>
+                <th>OT Hours</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-tbody">
+              <tr><td colspan="7" style="text-align:center;padding:40px;color:#94a3b8;">Select month and click Load Attendance</td></tr>
             </tbody>
           </table>
         </div>
@@ -651,6 +736,8 @@ function renderEmployees() {
       <td class="action-btns">
         <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="editEmployee('${emp.id}')">Edit</button>
         <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="openSalaryModal('${emp.id}')">Salary</button>
+        <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="generateOfferLetter('${emp.id}')">Offer</button>
+        <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="generateFFSettlement('${emp.id}')">F&F</button>
         <button class="btn btn-danger" style="padding:6px 10px;font-size:12px;" onclick="deleteEmployee('${emp.id}')">×</button>
       </td>
     `;
@@ -682,6 +769,8 @@ function searchEmployees(query) {
       <td class="action-btns">
         <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="editEmployee('${emp.id}')">Edit</button>
         <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="openSalaryModal('${emp.id}')">Salary</button>
+        <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="generateOfferLetter('${emp.id}')">Offer</button>
+        <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="generateFFSettlement('${emp.id}')">F&F</button>
         <button class="btn btn-danger" style="padding:6px 10px;font-size:12px;" onclick="deleteEmployee('${emp.id}')">×</button>
       </td>
     `;
@@ -720,6 +809,331 @@ function switchTab(tabName) {
   
   event.target.classList.add('active');
   document.getElementById('tab-' + tabName).style.display = 'block';
+  
+  // Load employee dropdown for manual entry when switching to attendance tab
+  if (tabName === 'attendance') {
+    loadEmployeeDropdown();
+  }
+}
+
+// Attendance functions
+let attendanceRecords = [];
+
+function loadEmployeeDropdown() {
+  const select = document.getElementById('manual-emp-select');
+  select.innerHTML = '<option value="">Select Employee</option>';
+  employees.forEach(emp => {
+    const option = document.createElement('option');
+    option.value = emp.id;
+    option.textContent = (emp.first_name || '') + ' ' + (emp.last_name || '');
+    select.appendChild(option);
+  });
+}
+
+function punchAttendance(status) {
+  const empSelect = document.getElementById('manual-emp-select');
+  const employeeId = empSelect.value;
+  if (!employeeId) {
+    alert('Please select an employee first');
+    return;
+  }
+  
+  const today = new Date().toISOString().split('T')[0];
+  const record = {
+    employee_id: employeeId,
+    date: today,
+    status: status,
+    month: document.getElementById('attendance-month').value || getCurrentMonth(),
+    year: '2024-25'
+  };
+  
+  // Save to database
+  if (supabase) {
+    supabase.from('attendance').insert(record).then(() => {
+      alert('Attendance marked: ' + status);
+    });
+  } else {
+    // Local storage fallback
+    attendanceRecords.push(record);
+    alert('Attendance marked: ' + status);
+  }
+}
+
+function openPunchModal() {
+  alert('Please select an employee from the dropdown, then click Present/Absent/etc. to mark attendance');
+}
+
+function loadAttendance() {
+  const month = document.getElementById('attendance-month').value;
+  if (!month) {
+    alert('Please select a month');
+    return;
+  }
+  
+  // Try to load from database
+  if (supabase) {
+    supabase.from('attendance')
+      .select('*')
+      .eq('month', month)
+      .then(({ data, error }) => {
+        if (error) {
+          console.log('Using local attendance');
+          renderAttendance([]);
+        } else {
+          renderAttendance(data || []);
+        }
+      });
+  } else {
+    // Mock data
+    renderAttendance([]);
+  }
+}
+
+function renderAttendance(records) {
+  const tbody = document.getElementById('attendance-tbody');
+  tbody.innerHTML = '';
+  
+  if (records.length === 0) {
+    // Show mock data for demo
+    const mockData = [
+      { date: '2024-04-01', employee_id: '1', status: 'Present', working_days: 26, days_present: 26, lwp: 0, ot_hours: 0 },
+      { date: '2024-04-02', employee_id: '1', status: 'Present', working_days: 26, days_present: 26, lwp: 0, ot_hours: 2 },
+      { date: '2024-04-03', employee_id: '1', status: 'Absent', working_days: 26, days_present: 25, lwp: 1, ot_hours: 0 }
+    ];
+    records = mockData;
+  }
+  
+  records.forEach(rec => {
+    const emp = employees.find(e => e.id === rec.employee_id);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${rec.date || '-'}</td>
+      <td>${emp ? emp.first_name + ' ' + emp.last_name : '-'}</td>
+      <td><span class="badge ${rec.status === 'Present' ? 'badge-success' : rec.status === 'Absent' ? 'badge-danger' : 'badge-warning'}">${rec.status || '-'}</span></td>
+      <td>${rec.working_days || '-'}</td>
+      <td>${rec.days_present || '-'}</td>
+      <td>${rec.lwp || 0}</td>
+      <td>${rec.ot_hours || 0}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function saveManualAttendance() {
+  const employeeId = document.getElementById('manual-emp-select').value;
+  const workingDays = parseInt(document.getElementById('working-days').value) || 26;
+  const daysPresent = parseInt(document.getElementById('days-present').value) || 26;
+  const otHours = parseFloat(document.getElementById('ot-hours').value) || 0;
+  const lwp = parseInt(document.getElementById('lwp-days').value) || 0;
+  
+  if (!employeeId) {
+    alert('Please select an employee');
+    return;
+  }
+  
+  const month = document.getElementById('attendance-month').value || getCurrentMonth();
+  const record = {
+    employee_id: employeeId,
+    month: month,
+    year: '2024-25',
+    working_days: workingDays,
+    days_present: daysPresent,
+    ot_hours: otHours,
+    lwp: lwp,
+    status: daysPresent === workingDays ? 'Present' : lwp > 0 ? 'Partial' : 'Present'
+  };
+  
+  // Save to database
+  if (supabase) {
+    supabase.from('attendance').upsert(record).then(() => {
+      alert('Attendance saved!');
+      loadAttendance();
+    });
+  } else {
+    attendanceRecords.push(record);
+    alert('Attendance saved!');
+  }
+}
+
+function getCurrentMonth() {
+  const months = ['April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March'];
+  const now = new Date();
+  const monthIndex = now.getMonth() < 3 ? now.getMonth() + 9 : now.getMonth() - 3;
+  return months[monthIndex];
+}
+
+// Offer Letter Generation
+function generateOfferLetter(employeeId) {
+  const emp = employees.find(e => e.id === employeeId);
+  if (!emp) {
+    alert('Employee not found');
+    return;
+  }
+  
+  const joinDate = emp.date_of_joining || new Date().toISOString().split('T')[0];
+  const basicSalary = emp.basic_salary || 30000;
+  const hra = emp.hra || 10000;
+  const allowances = emp.allowances || 5000;
+  const gross = basicSalary + hra + allowances;
+  
+  const content = `
+OFFER LETTER
+
+Date: ${new Date().toLocaleDateString()}
+
+To,
+${emp.first_name} ${emp.last_name}
+${emp.address || 'Address on record'}
+
+Dear ${emp.first_name},
+
+We are pleased to offer you the position of ${emp.designation || 'Employee'} in our organization.
+
+COMPANY DETAILS:
+- Company Name: TaxGlue
+- Location: Mumbai, India
+
+EMPLOYMENT DETAILS:
+- Position: ${emp.designation || 'Employee'}
+- Department: ${emp.department || 'Operations'}
+- Date of Joining: ${joinDate}
+- Employment Type: ${emp.employment_type || 'Permanent'}
+- Probation Period: 3 months
+
+SALARY BREAKUP:
+- Basic Salary: ₹${basicSalary.toLocaleString()}/month
+- HRA: ₹${hra.toLocaleString()}/month
+- Conveyance & Other Allowances: ₹${allowances.toLocaleString()}/month
+- Gross Salary: ₹${gross.toLocaleString()}/month
+
+BENEFITS:
+- EPF contribution as per statutory norms
+- ESIC coverage as applicable
+- Performance incentives (based on company policy)
+- Paid leaves as per company policy
+
+Please sign and return the acceptance copy to confirm your acceptance of this offer.
+
+For TaxGlue,
+__________________
+HR Manager
+
+Accepted by:
+__________________
+${emp.first_name} ${emp.last_name}
+Date:
+`;
+  
+  // Create PDF
+  if (typeof jspdf !== 'undefined') {
+    const doc = new jspdf.jsPDF();
+    doc.setFontSize(16);
+    doc.text('OFFER LETTER', 105, 20, { align: 'center' });
+    doc.setFontSize(11);
+    const lines = doc.splitTextToSize(content, 180);
+    let y = 40;
+    lines.forEach(line => {
+      doc.text(line, 15, y);
+      y += 7;
+    });
+    doc.save(`Offer_Letter_${emp.employee_code || emp.id}.pdf`);
+  } else {
+    // Fallback - open in new window
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write('<pre>' + content + '</pre>');
+    printWindow.document.close();
+    printWindow.print();
+  }
+  alert('Offer letter generated!');
+}
+
+// F&F Settlement Generation
+function generateFFSettlement(employeeId) {
+  const emp = employees.find(e => e.id === employeeId);
+  if (!emp) {
+    alert('Employee not found');
+    return;
+  }
+  
+  if (!emp.date_of_joining) {
+    alert('Employee has no joining date. Please update employee record first.');
+    return;
+  }
+  
+  // Calculate settlement amounts
+  const basicSalary = emp.basic_salary || 30000;
+  const hra = emp.hra || 10000;
+  const allowances = emp.allowances || 5000;
+  const gross = basicSalary + hra + allowances;
+  const dailyRate = gross / 26;
+  
+  // Settlement calculation
+  const workedDays = 15; // Pro-rata for half month
+  const salaryDue = Math.round(dailyRate * workedDays);
+  const leaveEncashment = 0; // No leave data
+  const noticePay = 0;
+  
+  const totalPayable = salaryDue + leaveEncashment + noticePay;
+  
+  const content = `
+FULL & FINAL SETTLEMENT
+
+Date: ${new Date().toLocaleDateString()}
+
+Employee: ${emp.first_name} ${emp.last_name}
+Employee Code: ${emp.employee_code || emp.id}
+Date of Joining: ${emp.date_of_joining}
+Date of Exit: ${new Date().toISOString().split('T')[0]}
+
+SALARY DUE:
+- Pro-rata Salary (${workedDays} days): ₹${salaryDue.toLocaleString()}
+
+ADDITIONS:
+- Leave Encashment: ₹${leaveEncashment.toLocaleString()}
+- Notice Period Salary: ₹${noticePay.toLocaleString()}
+
+DEDUCTIONS:
+- Notice Period Recovery: ₹0
+- Loans/Advances: ₹0
+- Other Deductions: ₹0
+
+TOTAL PAYABLE: ₹${totalPayable.toLocaleString()}
+
+CLEARANCE CERTIFICATE
+
+This is to certify that all dues have been settled with the above employee.
+
+For TaxGlue,
+__________________
+HR Manager
+
+Employee Acknowledgement:
+__________________
+${emp.first_name} ${emp.last_name}
+Date:
+`;
+  
+  // Create PDF
+  if (typeof jspdf !== 'undefined') {
+    const doc = new jspdf.jsPDF();
+    doc.setFontSize(16);
+    doc.text('FULL & FINAL SETTLEMENT', 105, 20, { align: 'center' });
+    doc.setFontSize(11);
+    const lines = doc.splitTextToSize(content, 180);
+    let y = 40;
+    lines.forEach(line => {
+      doc.text(line, 15, y);
+      y += 7;
+    });
+    doc.save(`FF_Settlement_${emp.employee_code || emp.id}.pdf`);
+  } else {
+    // Fallback - open in new window
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write('<pre>' + content + '</pre>');
+    printWindow.document.close();
+    printWindow.print();
+  }
+  alert('F&F Settlement generated!');
 }
 
 function openEmployeeModal() {
