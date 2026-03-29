@@ -6,9 +6,9 @@
 <title>Book-Keeping | TaxGlue</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* BOOKKEEPING-TABS: display none/block with .active class - FIX v3 */
-#mastersSection, #voucherSection, #ledgerSection, #daybookSection, #cashbookSection, #accountsSection, #stockSection, #trialbalanceSection, #financialsSection { display: none; }
-#mastersSection.active, #voucherSection.active, #ledgerSection.active, #daybookSection.active, #cashbookSection.active, #accountsSection.active, #stockSection.active, #trialbalanceSection.active, #financialsSection.active { display: block; }
+/* BOOKKEEPING-TABS: display none/block with .active class - FIX v4 */
+#mastersSection, #voucherSection, #ledgerSection, #daybookSection, #cashbookSection, #accountsSection, #stockSection, #trialbalanceSection, #financialsSection, #bankReconciliationSection, #eInvoiceSection, #ocrEntrySection, #reportsAdvancedSection, #settingsSection, #workflowsSection { display: none; }
+#mastersSection.active, #voucherSection.active, #ledgerSection.active, #daybookSection.active, #cashbookSection.active, #accountsSection.active, #stockSection.active, #trialbalanceSection.active, #financialsSection.active, #bankReconciliationSection.active, #eInvoiceSection.active, #ocrEntrySection.active, #reportsAdvancedSection.active, #settingsSection.active, #workflowsSection.active { display: block; }
 * {
   margin: 0;
   padding: 0;
@@ -381,12 +381,12 @@ input[type="number"] {
     <div class="tabs">
       <button class="tab" id="mastersTab" onclick="switchTab('masters')">📋 Masters</button>
       <button class="tab" id="voucherTab" onclick="switchTab('voucher')">📝 Voucher Entry</button>
-      <button class="tab" id="ledgerTab" onclick="window.location.href='/modules/bookkeeping/ledger.html'">📒 Ledger</button>
-      <button class="tab" id="daybookTab" onclick="window.location.href='/modules/bookkeeping/daybook.html'">📖 Day Book</button>
-      <button class="tab" id="cashbookTab" onclick="window.location.href='/modules/bookkeeping/cashbook.html'">💰 Cash Book</button>
-      <button class="tab" id="bankReconTab" onclick="window.location.href='/modules/bookkeeping/bank-recon.html'">🏦 Bank Recon</button>
-      <button class="tab" id="stockTab" onclick="window.location.href='/modules/bookkeeping/stock.html'">📦 Stock</button>
-      <button class="tab" id="trialbalanceTab" onclick="window.location.href='/modules/bookkeeping/trial-balance.html'">📊 Trial Balance</button>
+      <button class="tab" id="ledgerTab" onclick="switchTab('ledger')">📒 Ledger</button>
+      <button class="tab" id="daybookTab" onclick="switchTab('daybook')">📖 Day Book</button>
+      <button class="tab" id="cashbookTab" onclick="switchTab('cashbook')">💰 Cash Book</button>
+      <button class="tab" id="bankReconTab" onclick="switchTab('bankReconciliation')">🏦 Bank Recon</button>
+      <button class="tab" id="stockTab" onclick="switchTab('stock')">📦 Stock</button>
+      <button class="tab" id="trialbalanceTab" onclick="switchTab('trialbalance')">📊 Trial Balance</button>
     </div>
     
     <!-- Masters Section -->
@@ -1720,7 +1720,7 @@ function switchTab(tab) {
   }
   
   // Toggle section active class - FIX: include ALL sections
-  const sections = ['masters', 'voucher', 'ledger', 'daybook', 'cashbook', 'accounts', 'stock', 'trialbalance', 'financials']
+  const sections = ['masters', 'voucher', 'ledger', 'daybook', 'cashbook', 'accounts', 'stock', 'trialbalance', 'financials', 'bankReconciliation', 'eInvoice', 'ocrEntry', 'reportsAdvanced', 'settings', 'workflows']
   sections.forEach(section => {
     const el = document.getElementById(section + 'Section')
     if (el) {
