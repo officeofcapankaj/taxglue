@@ -70,6 +70,8 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
 .tab.active { background: #22c55e; color: white; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
+.form-card.hidden { display: none !important; }
+.table-container { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
 </style>
 </head>
 <body onload="document.body.classList.add('body-loaded')">
@@ -95,14 +97,33 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
   <div class="content">
     <div class="success-message" id="successMessage">Client saved successfully!</div>
     <div class="error-message" id="errorMessage"></div>
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('basic')">Basic Details</button>
-      <button class="tab" onclick="switchTab('registrations')">Registrations</button>
-      <button class="tab" onclick="switchTab('contacts')">Contact Persons</button>
-    </div>
+    
+    <!-- Client List Card (Always Visible) -->
     <div class="form-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #e2e8f0;">
+        <h2 class="form-title" style="margin:0;padding:0;border:none;">Client List</h2>
+        <button type="button" class="btn btn-primary" id="addClientBtn" onclick="(function(){var f=document.getElementById('clientFormCard');if(f){f.classList.remove('hidden');f.style.display='block';f.scrollIntoView({behavior:'smooth'});console.log('Form shown');}}())">+ Add Client</button>
+      </div>
+      <div style="margin-bottom: 20px;">
+        <input type="text" id="searchInput" class="form-input" placeholder="🔍 Search by name, PAN, mobile..." onkeyup="searchClients()" style="max-width: 400px;">
+      </div>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Constitution</th><th>Client Name</th><th>PAN</th><th>GSTIN</th><th>Phone</th><th>Contacts</th><th>Docs</th></tr></thead>
+          <tbody id="clientTable"></tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Client Form Card (Hidden by Default) -->
+    <div class="form-card hidden" id="clientFormCard" style="display: none !important;">
+      <h2 class="form-title" id="clientFormTitle">Add New Client</h2>
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('basic')">Basic Details</button>
+        <button class="tab" onclick="switchTab('registrations')">Registrations</button>
+        <button class="tab" onclick="switchTab('contacts')">Contact Persons</button>
+      </div>
       <div id="basic" class="tab-content active">
-        <h2 class="form-title">Basic Details</h2>
         <form id="basicForm">
           <div class="form-grid">
             <div class="form-group">
@@ -160,7 +181,6 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
         </form>
       </div>
       <div id="registrations" class="tab-content">
-        <h2 class="form-title">Registrations</h2>
         <form id="registrationForm">
           <div class="form-grid-3">
             <div class="form-group"><label class="form-label">PAN Number</label><input type="text" class="form-input" id="panNumber" placeholder="ABCDE1234A"></div>
@@ -185,7 +205,6 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
         </form>
       </div>
       <div id="contacts" class="tab-content">
-        <h2 class="form-title">Contact Persons</h2>
         <div class="contact-persons">
           <div class="contact-person-header">
             <h3 class="contact-person-title">Contact Persons</h3>
@@ -222,21 +241,8 @@ td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
       </div>
       <div style="margin-top: 24px; display: flex; gap: 12px;">
         <button type="button" class="btn btn-primary" onclick="var c=document.getElementById('constitution').value,n=document.getElementById('clientName').value;if(!c||!n){alert('Please fill mandatory fields')}else{alert('Saving... (this would save to Supabase)')}">💾 Save Client</button>
-        <button type="button" class="btn btn-outline" onclick="document.getElementById('basicForm').reset();document.getElementById('registrationForm').reset();document.getElementById('contactPersonsContainer').innerHTML=''">Clear Form</button>
+        <button type="button" class="btn btn-outline" onclick="var f=document.getElementById('clientFormCard');if(f){f.classList.add('hidden');f.style.display='none'};document.getElementById('basicForm').reset();document.getElementById('registrationForm').reset();document.getElementById('contactPersonsContainer').innerHTML=''">Clear Form</button>
       </div>
-    </div>
-    <div class="form-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #e2e8f0;">
-        <h2 class="form-title" style="margin:0;padding:0;border:none;">Client List</h2>
-        <div style="display:flex;gap:12px;">
-          <input type="text" id="searchInput" class="form-input" placeholder="Search by name, PAN, mobile..." oninput="searchClients()" style="width:250px;">
-          <button class="btn btn-primary tab" onclick="switchTab('basic'); resetForm()">+ Add Client</button>
-        </div>
-      </div>
-      <table>
-        <thead><tr><th>Constitution</th><th>Client Name</th><th>PAN</th><th>GSTIN</th><th>Phone</th><th>Contacts</th><th>Docs</th></tr></thead>
-        <tbody id="clientTable"></tbody>
-      </table>
     </div>
   </div>
 </main>
