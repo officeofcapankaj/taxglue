@@ -512,17 +512,76 @@ th { background: #f8fafc; font-weight: 600; }
 </div>
 
 <script>
-// Initialize Supabase
-const supabaseUrl = 'https://xyzcompany.supabase.co';
-const supabaseKey = 'YOUR_ANON_KEY';
-// const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+// Supabase client - inline for browser compatibility
+const supabaseUrl = 'https://jgjeuybgideeqcjxvlmn.supabase.co';
+const supabaseKey = 'sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j';
+let supabase = null;
 
-// Mock data for demo
+// Try to initialize Supabase
+function initSupabase() {
+  if (typeof window.supabase !== 'undefined') {
+    supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    console.log('Supabase initialized');
+  } else {
+    setTimeout(initSupabase, 100);
+  }
+}
+initSupabase();
+
+// Mock data for demo (fallback when Supabase unavailable)
 let employees = [];
 let salaryStructures = {};
 let salaryPayments = [];
 let currentClient = null;
 let currentFY = '2024-25';
+
+// API Functions (Supabase wrapper)
+async function loadEmployeesFromDB(clientId, fy) {
+  if (!supabase) return { employees: [], error: 'Supabase not initialized' };
+  const { data, error } = await supabase
+    .from('employees')
+    .select('*')
+    .eq('client_id', clientId)
+    .eq('fy', fy)
+    .order('employee_code');
+  return { employees: data || [], error };
+}
+
+async function saveEmployeeToDB(employee) {
+  if (!supabase) return { error: 'Supabase not initialized' };
+  if (employee.id) {
+    const { data, error } = await supabase.from('employees').update(employee).eq('id', employee.id).select().single();
+    return { employee: data, error };
+  } else {
+    const { data, error } = await supabase.from('employees').insert(employee).select().single();
+    return { employee: data, error };
+  }
+}
+
+async function deleteEmployeeFromDB(id) {
+  if (!supabase) return { error: 'Supabase not initialized' };
+  return await supabase.from('employees').delete().eq('id', id);
+}
+
+// Salary computation functions
+function calculatePF(basicSalary, pfApplicable = true) {
+  if (!pfApplicable) return 0;
+  const cappedBasic = Math.min(basicSalary, 15000);
+  return Math.round(cappedBasic * 0.12);
+}
+
+function calculateESIC(grossSalary, esicApplicable = true) {
+  if (!esicApplicable || grossSalary > 21000) return 0;
+  return Math.round(grossSalary * 0.0175); // 1.75% employee contribution
+}
+
+function calculateProfessionalTax(grossSalary) {
+  return grossSalary > 7500 ? 200 : 0;
+}
+
+function calculateNetSalary(gross, pf, esic, pt) {
+  return gross - pf - esic - pt;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   loadClients();
@@ -556,16 +615,23 @@ function loadEmployees() {
   currentClient = clientId;
   currentFY = fy;
   
-  // Mock employee data
-  employees = [
-    { id: '1', code: 'EMP001', first_name: 'John', last_name: 'Doe', department: 'Finance', designation: 'Manager', date_of_joining: '2022-01-15', employment_type: 'Permanent', is_active: true, basic_salary: 50000, hra: 15000, allowances: 10000 },
-    { id: '2', code: 'EMP002', first_name: 'Jane', last_name: 'Smith', department: 'IT', designation: 'Developer', date_of_joining: '2023-03-20', employment_type: 'Permanent', is_active: true, basic_salary: 40000, hra: 12000, allowances: 8000 },
-    { id: '3', code: 'EMP003', first_name: 'Mike', last_name: 'Johnson', department: 'HR', designation: 'Executive', date_of_joining: '2023-06-01', employment_type: 'Contract', is_active: true, basic_salary: 25000, hra: 5000, allowances: 3000 },
-    { id: '4', code: 'EMP004', first_name: 'Sarah', last_name: 'Williams', department: 'Marketing', designation: 'Associate', date_of_joining: '2024-01-10', employment_type: 'Permanent', is_active: true, basic_salary: 35000, hra: 10000, allowances: 6000 }
-  ];
-  
-  renderEmployees();
-  updateStats();
+  // Try to load from Supabase first
+  loadEmployeesFromDB(clientId, fy).then(result => {
+    if (result.error) {
+      console.log('Using mock data (Supabase unavailable):', result.error);
+      // Fall back to mock data
+      employees = [
+        { id: '1', employee_code: 'EMP001', first_name: 'John', last_name: 'Doe', department: 'Finance', designation: 'Manager', date_of_joining: '2022-01-15', employment_type: 'Permanent', is_active: true, basic_salary: 50000, hra: 15000, allowances: 10000 },
+        { id: '2', employee_code: 'EMP002', first_name: 'Jane', last_name: 'Smith', department: 'IT', designation: 'Developer', date_of_joining: '2023-03-20', employment_type: 'Permanent', is_active: true, basic_salary: 40000, hra: 12000, allowances: 8000 },
+        { id: '3', employee_code: 'EMP003', first_name: 'Mike', last_name: 'Johnson', department: 'HR', designation: 'Executive', date_of_joining: '2023-06-01', employment_type: 'Contract', is_active: true, basic_salary: 25000, hra: 5000, allowances: 3000 },
+        { id: '4', employee_code: 'EMP004', first_name: 'Sarah', last_name: 'Williams', department: 'Marketing', designation: 'Associate', date_of_joining: '2024-01-10', employment_type: 'Permanent', is_active: true, basic_salary: 35000, hra: 10000, allowances: 6000 }
+      ];
+    } else {
+      employees = result.employees || [];
+    }
+    renderEmployees();
+    updateStats();
+  });
 }
 
 function renderEmployees() {
@@ -703,9 +769,13 @@ function saveEmployee(e) {
   e.preventDefault();
   
   const id = document.getElementById('employee-id').value;
+  const clientId = document.getElementById('client-select').value;
+  const fy = document.getElementById('fy-select').value;
+  
   const employee = {
-    id: id || Date.now().toString(),
-    code: document.getElementById('emp-code').value,
+    client_id: clientId,
+    fy: fy,
+    employee_code: document.getElementById('emp-code').value,
     first_name: document.getElementById('emp-first-name').value,
     last_name: document.getElementById('emp-last-name').value,
     date_of_birth: document.getElementById('emp-dob').value,
@@ -730,25 +800,35 @@ function saveEmployee(e) {
     is_active: true
   };
   
-  if (id) {
-    const index = employees.findIndex(e => e.id === id);
-    if (index !== -1) employees[index] = { ...employees[index], ...employee };
-  } else {
-    employees.push(employee);
-  }
+  if (id) employee.id = id;
   
-  closeEmployeeModal();
-  renderEmployees();
-  updateStats();
-  alert('Employee saved successfully!');
-}
-
-function deleteEmployee(id) {
-  if (confirm('Are you sure you want to delete this employee?')) {
-    employees = employees.filter(e => e.id !== id);
+  // Save to database
+  saveEmployeeToDB(employee).then(result => {
+    if (result.error) {
+      // Fallback to local array
+      if (id) {
+        const index = employees.findIndex(e => e.id === id);
+        if (index !== -1) employees[index] = { ...employees[index], ...employee };
+      } else {
+        employee.id = Date.now().toString();
+        employees.push(employee);
+      }
+    }
+    closeEmployeeModal();
     renderEmployees();
     updateStats();
-  }
+    alert('Employee saved successfully!');
+  });
+}
+
+async function deleteEmployee(id) {
+  if (!confirm('Are you sure you want to delete this employee?')) return;
+  
+  // Try database first
+  await deleteEmployeeFromDB(id);
+  employees = employees.filter(e => e.id !== id);
+  renderEmployees();
+  updateStats();
 }
 
 function openSalaryModal(employeeId) {
