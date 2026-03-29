@@ -7,22 +7,23 @@ on:
         description: 'Supabase Service Role Key'
         required: true
         type: string
+  repository_dispatch:
+    types: [apply-rls]
 
 jobs:
   apply-rls:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Apply RLS policies
         run: |
           # Install Supabase CLI
           npm install -g supabase
-            
-          # Set environment variables
-          echo "SUPABASE_SERVICE_ROLE_KEY=${{ inputs.service_key }}" >> $GITHUB_ENV
-          echo "SUPABASE_PROJECT_REF=jgjeuybgideeqcjxvlmn" >> $GITHUB_ENV
           
           # Apply RLS fix via SQL
-          supabase db execute --project-ref jgjeuybgideeqcjxvlmn << 'SQL'
+          supabase db execute --project-ref jgjeuybgideeqcjxvlmn --db-url "${{ secrets.DATABASE_URL }}" << 'SQL'
             -- Fix RLS for clients
             ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
             DROP POLICY IF EXISTS "Users can read own clients" ON clients;
