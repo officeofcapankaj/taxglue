@@ -251,6 +251,7 @@ let caList = []
 let editingCAId = null
 
 function showForm() {
+  alert('showForm called!');
   console.log('showForm called');
   const formCard = document.getElementById('caFormCard')
   if (formCard) {
@@ -579,10 +580,13 @@ loadCAFromSupabase()
 
 // Add event listener for Add CA button
 document.addEventListener('DOMContentLoaded', function() {
+  alert('Page loaded, setting up click handler');
   const addBtn = document.getElementById('addCaBtn')
   if (addBtn) {
+    alert('Add CA button found');
     addBtn.addEventListener('click', function(e) {
       e.preventDefault()
+      alert('Click handler triggered');
       console.log('Add CA button clicked')
       showForm()
     })
