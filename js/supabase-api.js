@@ -550,3 +550,201 @@ export const organizationAPI = {
 }
 
 export default supabase
+// ============================================
+// FINANCIAL STATEMENTS API
+// ============================================
+
+export const financialStatementsAPI = {
+  async getTrialBalance(clientId, fy) {
+    let query = supabase.from('trial_balance').select('*').order('account_name')
+    if (clientId) query = query.eq('client_id', clientId)
+    if (fy) query = query.eq('fy', fy)
+    const { data, error } = await query
+    if (error) throw error
+    return data || []
+  },
+
+  async saveTrialBalance(clientId, fy, trialBalanceData) {
+    // First delete existing records
+    await supabase.from('trial_balance')
+      .delete()
+      .eq('client_id', clientId)
+      .eq('fy', fy)
+    
+    // Insert new records
+    const records = trialBalanceData.map(item => ({
+      client_id: clientId,
+      fy: fy,
+      account_name: item.account_name,
+      debit: item.debit || 0,
+      credit: item.credit || 0
+    }))
+    
+    const { data, error } = await supabase.from('trial_balance').insert(records).select()
+    if (error) throw error
+    return data
+  },
+
+  async getVouchers(clientId, fy) {
+    let query = supabase.from('vouchers').select('*').order('date', { ascending: false })
+    if (clientId) query = query.eq('client_id', clientId)
+    if (fy) query = query.eq('fy', fy)
+    const { data, error } = await query
+    if (error) throw error
+    return data || []
+  },
+
+  async getAccounts(clientId) {
+    let query = supabase.from('accounts').select('*').order('name')
+    if (clientId) query = query.eq('client_id', clientId)
+    const { data, error } = await query
+    if (error) throw error
+    return data || []
+  },
+
+  async saveAccounts(clientId, accountsData) {
+    // First delete existing records
+    await supabase.from('accounts')
+      .delete()
+      .eq('client_id', clientId)
+    
+    // Insert new records
+    const { data, error } = await supabase.from('accounts').insert(accountsData).select()
+    if (error) throw error
+    return data
+  },
+
+  // Calculate Balance Sheet from vouchers
+  async calculateBalanceSheet(clientId, fy, asOnDate) {
+    const vouchers = await this.getVouchers(clientId, fy)
+    const accounts = await this.getAccounts(clientId)
+    
+    // Filter vouchers up to asOnDate
+    const filteredVouchers = asOnDate 
+      ? vouchers.filter(v => new Date(v.date) <= new Date(asOnDate))
+      : vouchers
+    
+    // Calculate balances
+    const balances = {}
+    accounts.forEach(a => {
+      balances[a.id] = { 
+        name: a.name, 
+        nature: a.nature, 
+        openingBalance: parseFloat(a.opening_balance) || 0,
+        movements: 0 
+      }
+    })
+    
+    filteredVouchers.forEach(v => {
+      if (v.debit_account_id && balances[v.debit_account_id]) {
+        if (balances[v.debit_account_id].nature === 'Assets' || balances[v.debit_account_id].nature === 'Expense') {
+          balances[v.debit_account_id].movements += parseFloat(v.amount) || 0
+        } else {
+          balances[v.debit_account_id].movements -= parseFloat(v.amount) || 0
+        }
+      }
+      if (v.credit_account_id && balances[v.credit_account_id]) {
+        if (balances[v.credit_account_id].nature === 'Liabilities' || balances[v.credit_account_id].nature === 'Income') {
+          balances[v.credit_account_id].movements += parseFloat(v.amount) || 0
+        } else {
+          balances[v.credit_account_id].movements -= parseFloat(v.amount) || 0
+        }
+      }
+    })
+    
+    return Object.values(balances).map(b => ({
+      account_name: b.name,
+      nature: b.nature,
+      opening_balance: b.openingBalance,
+      closing_balance: b.openingBalance + b.movements
+    }))
+  },
+
+  // Calculate P&L from vouchers
+  async calculatePL(clientId, fy, fromDate, toDate) {
+    const vouchers = await this.getVouchers(clientId, fy)
+    const accounts = await this.getAccounts(clientId)
+    
+    // Filter vouchers by date range
+    const filteredVouchers = vouchers.filter(v => {
+      const vDate = new Date(v.date)
+      return (!fromDate || vDate >= new Date(fromDate)) && 
+             (!toDate || vDate <= new Date(toDate))
+    })
+    
+    // Calculate income and expenses
+    let totalIncome = 0
+    let totalExpenses = 0
+    const incomeDetails = []
+    const expenseDetails = []
+    
+    accounts.forEach(a => {
+      let movement = 0
+      filteredVouchers.forEach(v => {
+        if (v.debit_account_id === a.id) movement += parseFloat(v.amount) || 0
+        if (v.credit_account_id === a.id) movement -= parseFloat(v.amount) || 0
+      })
+      movement += parseFloat(a.opening_balance) || 0
+      
+      if (a.nature === 'Income') {
+        totalIncome += movement
+        incomeDetails.push({ name: a.name, amount: movement })
+      } else if (a.nature === 'Expense') {
+        totalExpenses += movement
+        expenseDetails.push({ name: a.name, amount: movement })
+      }
+    })
+    
+    return {
+      total_income: totalIncome,
+      total_expenses: totalExpenses,
+      net_profit: totalIncome - totalExpenses,
+      income_details: incomeDetails,
+      expense_details: expenseDetails
+    }
+  },
+
+  // Save financial statement snapshot
+  async saveFinancialSnapshot(clientId, fy, snapshot) {
+    const { data, error } = await supabase.from('financial_snapshots').upsert({
+      client_id: clientId,
+      fy: fy,
+      balance_sheet: snapshot.balance_sheet,
+      profit_loss: snapshot.profit_loss,
+      cash_flow: snapshot.cash_flow,
+      updated_at: new Date().toISOString()
+    }).select()
+    if (error) throw error
+    return data
+  },
+
+  // Get financial statement snapshot
+  async getFinancialSnapshot(clientId, fy) {
+    const { data, error } = await supabase
+      .from('financial_snapshots')
+      .select('*')
+      .eq('client_id', clientId)
+      .eq('fy', fy)
+      .single()
+    if (error && error.code !== 'PGRST116') throw error
+    return data
+  }
+}
+
+// ============================================
+// EXPORT APIS TO WINDOW FOR MODULE USAGE
+// ============================================
+
+// Make APIs available globally for non-module scripts
+if (typeof window !== 'undefined') {
+  window.supabase = supabase
+  window.clientsAPI = clientsAPI
+  window.bookkeepingAPI = bookkeepingAPI
+  window.financialStatementsAPI = financialStatementsAPI
+  window.gstAPI = gstAPI
+  window.tdsAPI = tdsAPI
+  window.incomeTaxAPI = incomeTaxAPI
+  window.caMasterAPI = caMasterAPI
+  window.organizationAPI = organizationAPI
+  console.log('Supabase APIs exported to window')
+}

@@ -6,6 +6,7 @@
 <title>Financial Statements | TaxGlue</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="/js/supabase-api.js" type="module"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -266,9 +267,12 @@ const PL_STRUCTURE = {
   ]
 }
 
+// Global variables
+let financialData = []
+
 // Load clients when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-  // Demo clients - always available
+document.addEventListener('DOMContentLoaded', async function() {
+  // Demo clients - always available as fallback
   const demoClients = [
     { id: 'demo-1', name: 'Singla Steel Corporation', constitution: 'Proprietorship' },
     { id: 'demo-2', name: 'Rana Industries', constitution: 'Partnership Firm' },
@@ -282,7 +286,6 @@ document.addEventListener('DOMContentLoaded', function() {
     { id: 'demo-10', name: 'Chowdhury Consultants', constitution: 'LLP' }
   ]
   
-  // Populate dropdown
   const select = document.getElementById('clientSelect')
   if (select) {
     // Add default option first
@@ -292,45 +295,40 @@ document.addEventListener('DOMContentLoaded', function() {
     defaultOpt.selected = true
     select.appendChild(defaultOpt)
     
+    // Add demo clients first
     demoClients.forEach(c => {
       const opt = document.createElement('option')
       opt.value = c.id
       opt.textContent = c.name + ' (' + c.constitution + ')'
       select.appendChild(opt)
     })
-  }
-  
-  // Try to load from Supabase in background
-  if (typeof supabase !== 'undefined') {
-    setTimeout(async () => {
-      try {
-        const { data } = await supabase.from('clients').select('id, name, constitution')
-        if (data && data.length > 0) {
-          const sel = document.getElementById('clientSelect')
-          if (sel) {
-            sel.innerHTML = ''
-            const defaultOpt = document.createElement('option')
-            defaultOpt.value = ""
-            defaultOpt.textContent = "-- Select Client --"
-            defaultOpt.selected = true
-            sel.appendChild(defaultOpt)
-            
-            data.forEach(c => {
-              const opt = document.createElement('option')
-              opt.value = c.id
-              opt.textContent = c.name + ' (' + c.constitution + ')'
-              sel.appendChild(opt)
-            })
-          }
-        }
-      } catch (e) {
-        console.log('Supabase not available')
+    
+    // Try to load real clients from Supabase
+    try {
+      const clients = await window.clientsAPI.getAll()
+      if (clients && clients.length > 0) {
+        select.innerHTML = ''
+        const defaultOpt = document.createElement('option')
+        defaultOpt.value = ""
+        defaultOpt.textContent = "-- Select Client --"
+        defaultOpt.selected = true
+        select.appendChild(defaultOpt)
+        
+        clients.forEach(c => {
+          const opt = document.createElement('option')
+          opt.value = c.id
+          opt.textContent = c.name + (c.constitution ? ' (' + c.constitution + ')' : '')
+          select.appendChild(opt)
+        })
+        console.log('Loaded ' + clients.length + ' clients from Supabase')
       }
-    }, 500)
+    } catch (e) {
+      console.log('Using demo clients (Supabase not available):', e.message)
+    }
   }
 })
 
-function loadClientData() {
+async function loadClientData() {
   // Check URL parameters first (from trial balance import)
   const urlParams = new URLSearchParams(window.location.search)
   let clientId = urlParams.get('client') || document.getElementById('clientSelect').value
@@ -344,16 +342,17 @@ function loadClientData() {
     document.getElementById('fySelect').value = urlParams.get('fy')
   }
   
-  // If no client selected, show sample report
+  // If no client selected, show empty report
   if (!clientId) {
-    document.getElementById('reportContainer').innerHTML = renderBalanceSheet('Select a Client', fy)
+    document.getElementById('reportContainer').innerHTML = renderEmptyState()
     return
   }
   
   const clientName = getClientName()
   
-  // Load financial data from Supabase or localStorage
-  loadFinancialData(clientId, fy).then(() => {
+  // Load financial data from Supabase
+  try {
+    await loadFinancialData(clientId, fy)
     renderReport()
     
     // Show success message if data came from import
@@ -367,7 +366,21 @@ function loadClientData() {
         }
       }, 500)
     }
-  })
+  } catch (e) {
+    console.error('Error loading financial data:', e)
+    showError('Failed to load financial data. Please try again.')
+  }
+}
+
+function renderEmptyState() {
+  return '<div class="empty-state"><p>Select a client to view financial statements</p></div>'
+}
+
+function showError(message) {
+  const container = document.getElementById('reportContainer')
+  if (container) {
+    container.innerHTML = '<div class="error-message" style="color: red; padding: 20px;">' + message + '</div>'
+  }
 }
 
 function switchReport() {
@@ -1023,28 +1036,53 @@ function renderNotesData(clientName, fy) {
   return data
 }
 
-// Initialize
-loadClients()
-
 // Store financial data per client per FY
 let financialData = {}
 
 async function loadFinancialData(clientId, fy) {
+  // Skip demo clients
+  if (clientId && clientId.startsWith('demo-')) {
+    console.log('Demo client selected, using sample data')
+    financialData = getSampleData()
+    return financialData
+  }
+  
+  // Try Supabase first
   try {
-    const { data, error } = await supabase
-      .from('trial_balance')
-      .select('data')
-      .eq('client_id', clientId)
-      .eq('fy', fy)
-      .single()
+    // Use the bookkeeping API to get trial balance
+    if (window.bookkeepingAPI) {
+      const tbData = await window.bookkeepingAPI.getTrialBalance(clientId, fy)
+      if (tbData && tbData.length > 0) {
+        financialData = tbData.map(item => ({
+          account_name: item.account_name,
+          debit: item.debit,
+          credit: item.credit
+        }))
+        console.log('Loaded trial balance from Supabase:', financialData.length, 'accounts')
+        return financialData
+      }
+    }
     
-    if (data && data.data) {
-      financialData = data.data
-      console.log('Loaded financial data from DB:', financialData)
-      return financialData
+    // Fallback to direct Supabase call
+    if (window.supabase) {
+      const { data, error } = await window.supabase
+        .from('trial_balance')
+        .select('*')
+        .eq('client_id', clientId)
+        .eq('fy', fy)
+      
+      if (!error && data && data.length > 0) {
+        financialData = data.map(item => ({
+          account_name: item.account_name,
+          debit: item.debit,
+          credit: item.credit
+        }))
+        console.log('Loaded trial balance from Supabase:', financialData.length, 'accounts')
+        return financialData
+      }
     }
   } catch (e) {
-    console.log('Error loading from DB, trying localStorage:', e)
+    console.log('Error loading from Supabase:', e.message)
   }
   
   // Fallback to localStorage
@@ -1053,7 +1091,7 @@ async function loadFinancialData(clientId, fy) {
   if (localData) {
     try {
       financialData = JSON.parse(localData)
-      console.log('Loaded financial data from localStorage:', financialData)
+      console.log('Loaded financial data from localStorage')
       return financialData
     } catch (e) {
       console.log('Error parsing localStorage data:', e)
@@ -1077,13 +1115,45 @@ async function loadFinancialData(clientId, fy) {
   return financialData
 }
 
-function saveFinancialData(clientId, fy, data) {
-  supabase.from('trial_balance').upsert({
-    client_id: clientId,
-    fy: fy,
-    data: data,
-    updated_at: new Date().toISOString()
-  }, { onConflict: 'client_id, fy' }).then()
+async function saveFinancialData(clientId, fy, data) {
+  // Save to Supabase
+  try {
+    if (window.bookkeepingAPI) {
+      await window.bookkeepingAPI.saveTrialBalance(clientId, fy, data)
+      console.log('Saved trial balance to Supabase')
+    }
+  } catch (e) {
+    console.log('Error saving to Supabase, using localStorage:', e.message)
+  }
+  
+  // Also save to localStorage as backup
+  const localKey = `trialBalance_${clientId}_${fy}`
+  localStorage.setItem(localKey, JSON.stringify(data))
+}
+
+function getSampleData() {
+  // Return sample trial balance data for demo clients
+  return [
+    { account_name: 'Capital Account', debit: 0, credit: 1500000 },
+    { account_name: 'Reserves & Surplus', debit: 0, credit: 500000 },
+    { account_name: 'Secured Loans', debit: 0, credit: 300000 },
+    { account_name: 'Sundry Creditors', debit: 0, credit: 250000 },
+    { account_name: 'Other Current Liabilities', debit: 0, credit: 100000 },
+    { account_name: 'Furniture & Fixtures', debit: 150000, credit: 0 },
+    { account_name: 'Office Equipment', debit: 200000, credit: 0 },
+    { account_name: 'Vehicles', debit: 500000, credit: 0 },
+    { account_name: 'Inventories', debit: 400000, credit: 0 },
+    { account_name: 'Trade Receivables', debit: 600000, credit: 0 },
+    { account_name: 'Cash at Bank', debit: 350000, credit: 0 },
+    { account_name: 'Cash in Hand', debit: 50000, credit: 0 },
+    { account_name: 'Sales', debit: 0, credit: 2500000 },
+    { account_name: 'Other Income', debit: 0, credit: 100000 },
+    { account_name: 'Purchases', debit: 1800000, credit: 0 },
+    { account_name: 'Employee Cost', debit: 300000, credit: 0 },
+    { account_name: 'Rent & Utilities', debit: 120000, credit: 0 },
+    { account_name: 'Depreciation', debit: 100000, credit: 0 },
+    { account_name: 'Other Expenses', debit: 150000, credit: 0 }
+  ]
 }
 </script>
 </body>

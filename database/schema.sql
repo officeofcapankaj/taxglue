@@ -363,6 +363,23 @@ CREATE TABLE IF NOT EXISTS role_permissions (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+
+-- ============================================
+-- FINANCIAL SNAPSHOTS TABLE
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS financial_snapshots (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    client_id UUID REFERENCES clients(id),
+    fy TEXT,
+    balance_sheet JSONB DEFAULT '{}',
+    profit_loss JSONB DEFAULT '{}',
+    cash_flow JSONB DEFAULT '{}',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(client_id, fy)
+);
+
 -- ============================================
 -- INDEXES
 -- ============================================
