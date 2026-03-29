@@ -8,6 +8,7 @@ from flask_cors import CORS
 import uuid
 import json
 import os
+import shutil
 from datetime import datetime
 
 app = Flask(__name__, static_folder='frontend/dist', static_url_path='')
