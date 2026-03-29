@@ -35,132 +35,221 @@ ALTER TABLE role_permissions ENABLE ROW LEVEL SECURITY;
 -- CLIENTS TABLE
 -- ============================================
 
--- Secure: Users can only access their own clients
+-- Drop existing policies
 DROP POLICY IF EXISTS "Allow public read access to clients" ON clients;
 DROP POLICY IF EXISTS "Allow public insert to clients" ON clients;
 DROP POLICY IF EXISTS "Allow public update to clients" ON clients;
 DROP POLICY IF EXISTS "Allow public delete from clients" ON clients;
 
-CREATE POLICY "Users can read own clients" ON clients
-  FOR SELECT TO anon, authenticated
+-- For authenticated users: strict owner-based access
+CREATE POLICY "Authenticated users can read own clients" ON clients
+  FOR SELECT TO authenticated
   USING (auth.uid()::text = owner_id);
 
-CREATE POLICY "Users can insert own clients" ON clients
-  FOR INSERT TO anon, authenticated
+CREATE POLICY "Authenticated users can insert own clients" ON clients
+  FOR INSERT TO authenticated
   WITH CHECK (auth.uid()::text = owner_id);
 
-CREATE POLICY "Users can update own clients" ON clients
-  FOR UPDATE TO anon, authenticated
+CREATE POLICY "Authenticated users can update own clients" ON clients
+  FOR UPDATE TO authenticated
   USING (auth.uid()::text = owner_id)
   WITH CHECK (auth.uid()::text = owner_id);
 
-CREATE POLICY "Users can delete own clients" ON clients
-  FOR DELETE TO anon, authenticated
+CREATE POLICY "Authenticated users can delete own clients" ON clients
+  FOR DELETE TO authenticated
   USING (auth.uid()::text = owner_id);
+
+-- For anonymous users (demo mode): allow all operations
+CREATE POLICY "Anonymous users can read all clients" ON clients
+  FOR SELECT TO anon
+  USING (true);
+
+CREATE POLICY "Anonymous users can insert clients" ON clients
+  FOR INSERT TO anon
+  WITH CHECK (true);
+
+CREATE POLICY "Anonymous users can update clients" ON clients
+  FOR UPDATE TO anon
+  USING (true);
+
+CREATE POLICY "Anonymous users can delete clients" ON clients
+  FOR DELETE TO anon;
 
 -- ============================================
 -- CA_MASTER TABLE
 -- ============================================
 
+-- Drop existing policies
 DROP POLICY IF EXISTS "Allow public read access to ca_master" ON ca_master;
 DROP POLICY IF EXISTS "Allow public insert to ca_master" ON ca_master;
 DROP POLICY IF EXISTS "Allow public update to ca_master" ON ca_master;
 DROP POLICY IF EXISTS "Allow public delete from ca_master" ON ca_master;
 
-CREATE POLICY "Users can read own ca_master" ON ca_master
-  FOR SELECT TO anon, authenticated
+-- For authenticated users: strict owner-based access
+CREATE POLICY "Authenticated users can read own ca_master" ON ca_master
+  FOR SELECT TO authenticated
   USING (auth.uid()::text = owner_id);
 
-CREATE POLICY "Users can insert own ca_master" ON ca_master
-  FOR INSERT TO anon, authenticated
+CREATE POLICY "Authenticated users can insert own ca_master" ON ca_master
+  FOR INSERT TO authenticated
   WITH CHECK (auth.uid()::text = owner_id);
 
-CREATE POLICY "Users can update own ca_master" ON ca_master
-  FOR UPDATE TO anon, authenticated
+CREATE POLICY "Authenticated users can update own ca_master" ON ca_master
+  FOR UPDATE TO authenticated
   USING (auth.uid()::text = owner_id)
   WITH CHECK (auth.uid()::text = owner_id);
 
-CREATE POLICY "Users can delete own ca_master" ON ca_master
-  FOR DELETE TO anon, authenticated
+CREATE POLICY "Authenticated users can delete own ca_master" ON ca_master
+  FOR DELETE TO authenticated
   USING (auth.uid()::text = owner_id);
+
+-- For anonymous users (demo mode): allow all operations
+CREATE POLICY "Anonymous users can read all ca_master" ON ca_master
+  FOR SELECT TO anon
+  USING (true);
+
+CREATE POLICY "Anonymous users can insert ca_master" ON ca_master
+  FOR INSERT TO anon
+  WITH CHECK (true);
+
+CREATE POLICY "Anonymous users can update ca_master" ON ca_master
+  FOR UPDATE TO anon
+  USING (true);
+
+CREATE POLICY "Anonymous users can delete ca_master" ON ca_master
+  FOR DELETE TO anon;
 
 -- ============================================
 -- ACCOUNTS TABLE
 -- ============================================
 
+-- Drop existing policies
 DROP POLICY IF EXISTS "Allow public read access to accounts" ON accounts;
 DROP POLICY IF EXISTS "Allow public insert to accounts" ON accounts;
 DROP POLICY IF EXISTS "Allow public update to accounts" ON accounts;
 DROP POLICY IF EXISTS "Allow public delete from accounts" ON accounts;
 
-CREATE POLICY "Users can read own accounts" ON accounts
-  FOR SELECT TO anon, authenticated
+-- For authenticated users: strict owner-based access
+CREATE POLICY "Authenticated users can read own accounts" ON accounts
+  FOR SELECT TO authenticated
   USING (auth.uid()::text = owner_id);
 
-CREATE POLICY "Users can insert own accounts" ON accounts
-  FOR INSERT TO anon, authenticated
+CREATE POLICY "Authenticated users can insert own accounts" ON accounts
+  FOR INSERT TO authenticated
   WITH CHECK (auth.uid()::text = owner_id);
 
-CREATE POLICY "Users can update own accounts" ON accounts
-  FOR UPDATE TO anon, authenticated
+CREATE POLICY "Authenticated users can update own accounts" ON accounts
+  FOR UPDATE TO authenticated
   USING (auth.uid()::text = owner_id)
   WITH CHECK (auth.uid()::text = owner_id);
 
-CREATE POLICY "Users can delete own accounts" ON accounts
-  FOR DELETE TO anon, authenticated
+CREATE POLICY "Authenticated users can delete own accounts" ON accounts
+  FOR DELETE TO authenticated
   USING (auth.uid()::text = owner_id);
+
+-- For anonymous users (demo mode): allow all operations
+CREATE POLICY "Anonymous users can read all accounts" ON accounts
+  FOR SELECT TO anon
+  USING (true);
+
+CREATE POLICY "Anonymous users can insert accounts" ON accounts
+  FOR INSERT TO anon
+  WITH CHECK (true);
+
+CREATE POLICY "Anonymous users can update accounts" ON accounts
+  FOR UPDATE TO anon
+  USING (true);
+
+CREATE POLICY "Anonymous users can delete accounts" ON accounts
+  FOR DELETE TO anon;
 
 -- ============================================
 -- VOUCHERS TABLE
 -- ============================================
 
+-- Drop existing policies
 DROP POLICY IF EXISTS "Allow public read access to vouchers" ON vouchers;
 DROP POLICY IF EXISTS "Allow public insert to vouchers" ON vouchers;
 DROP POLICY IF EXISTS "Allow public update to vouchers" ON vouchers;
 DROP POLICY IF EXISTS "Allow public delete from vouchers" ON vouchers;
 
-CREATE POLICY "Users can read own vouchers" ON vouchers
-  FOR SELECT TO anon, authenticated
+-- For authenticated users: strict owner-based access
+CREATE POLICY "Authenticated users can read own vouchers" ON vouchers
+  FOR SELECT TO authenticated
   USING (auth.uid()::text = owner_id);
 
-CREATE POLICY "Users can insert own vouchers" ON vouchers
-  FOR INSERT TO anon, authenticated
+CREATE POLICY "Authenticated users can insert own vouchers" ON vouchers
+  FOR INSERT TO authenticated
   WITH CHECK (auth.uid()::text = owner_id);
 
-CREATE POLICY "Users can update own vouchers" ON vouchers
-  FOR UPDATE TO anon, authenticated
+CREATE POLICY "Authenticated users can update own vouchers" ON vouchers
+  FOR UPDATE TO authenticated
   USING (auth.uid()::text = owner_id)
   WITH CHECK (auth.uid()::text = owner_id);
 
-CREATE POLICY "Users can delete own vouchers" ON vouchers
-  FOR DELETE TO anon, authenticated
+CREATE POLICY "Authenticated users can delete own vouchers" ON vouchers
+  FOR DELETE TO authenticated
   USING (auth.uid()::text = owner_id);
+
+-- For anonymous users (demo mode): allow all operations
+CREATE POLICY "Anonymous users can read all vouchers" ON vouchers
+  FOR SELECT TO anon
+  USING (true);
+
+CREATE POLICY "Anonymous users can insert vouchers" ON vouchers
+  FOR INSERT TO anon
+  WITH CHECK (true);
+
+CREATE POLICY "Anonymous users can update vouchers" ON vouchers
+  FOR UPDATE TO anon
+  USING (true);
+
+CREATE POLICY "Anonymous users can delete vouchers" ON vouchers
+  FOR DELETE TO anon;
 
 -- ============================================
 -- TRIAL_BALANCE TABLE
 -- ============================================
 
+-- Drop existing policies
 DROP POLICY IF EXISTS "Allow public read access to trial_balance" ON trial_balance;
 DROP POLICY IF EXISTS "Allow public insert to trial_balance" ON trial_balance;
 DROP POLICY IF EXISTS "Allow public update to trial_balance" ON trial_balance;
 DROP POLICY IF EXISTS "Allow public delete from trial_balance" ON trial_balance;
 
-CREATE POLICY "Users can read own trial_balance" ON trial_balance
-  FOR SELECT TO anon, authenticated
+-- For authenticated users: strict owner-based access
+CREATE POLICY "Authenticated users can read own trial_balance" ON trial_balance
+  FOR SELECT TO authenticated
   USING (auth.uid()::text = owner_id);
 
-CREATE POLICY "Users can insert own trial_balance" ON trial_balance
-  FOR INSERT TO anon, authenticated
+CREATE POLICY "Authenticated users can insert own trial_balance" ON trial_balance
+  FOR INSERT TO authenticated
   WITH CHECK (auth.uid()::text = owner_id);
 
-CREATE POLICY "Users can update own trial_balance" ON trial_balance
-  FOR UPDATE TO anon, authenticated
+CREATE POLICY "Authenticated users can update own trial_balance" ON trial_balance
+  FOR UPDATE TO authenticated
   USING (auth.uid()::text = owner_id)
   WITH CHECK (auth.uid()::text = owner_id);
 
-CREATE POLICY "Users can delete own trial_balance" ON trial_balance
-  FOR DELETE TO anon, authenticated
+CREATE POLICY "Authenticated users can delete own trial_balance" ON trial_balance
+  FOR DELETE TO authenticated
   USING (auth.uid()::text = owner_id);
+
+-- For anonymous users (demo mode): allow all operations
+CREATE POLICY "Anonymous users can read all trial_balance" ON trial_balance
+  FOR SELECT TO anon
+  USING (true);
+
+CREATE POLICY "Anonymous users can insert trial_balance" ON trial_balance
+  FOR INSERT TO anon
+  WITH CHECK (true);
+
+CREATE POLICY "Anonymous users can update trial_balance" ON trial_balance
+  FOR UPDATE TO anon
+  USING (true);
+
+CREATE POLICY "Anonymous users can delete trial_balance" ON trial_balance
+  FOR DELETE TO anon;
 
 -- ============================================
 -- TDS TABLES
