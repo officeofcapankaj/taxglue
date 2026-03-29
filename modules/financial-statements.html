@@ -696,14 +696,15 @@ function renderNotes(clientName, fy) {
 }
 
 function exportSingle(format) {
-  const clientName = getClientName() || 'Client'
+  const clientSelect = document.getElementById('clientSelect')
+  const clientId = clientSelect ? clientSelect.value : ''
+  let clientName = getClientName() || 'Financial Statement'
   const fy = getFY() || '2024-25'
   const reportType = currentReport === 'bs' ? 'Balance Sheet' : currentReport === 'pl' ? 'Profit and Loss' : currentReport === 'cf' ? 'Cash Flow' : 'Notes to Accounts'
   
-  // If no client selected, use default empty data
-  if (!clientName || clientName === 'Client') {
-    alert('Please select a client first to export the report.')
-    return
+  // Use default name if no client selected
+  if (!clientName || clientName === 'Select a Client') {
+    clientName = 'TaxGlue_Export'
   }
   
   // Initialize empty financial data structure if not available
@@ -1024,8 +1025,14 @@ function renderNotesData(clientName, fy) {
   const data = [[`NOTES TO ACCOUNTS - ${clientName}`], [`FY: ${fy}`], []]
   data.push(['Note', 'Description', 'Details'])
   
+  // Get data from financialData or use sample data
+  let tbData = financialData
+  if (!tbData || !Array.isArray(tbData) || tbData.length === 0) {
+    tbData = getSampleData()
+  }
+  
   // Add notes based on trial balance data
-  if (financialData && Array.isArray(financialData)) {
+  if (tbData && Array.isArray(tbData)) {
     data.push(['1', 'Share Capital', 'Details from trial balance'])
     data.push(['2', 'Reserves and Surplus', 'Details from trial balance'])
     data.push(['3', 'Property, Plant and Equipment', 'Details from trial balance'])
