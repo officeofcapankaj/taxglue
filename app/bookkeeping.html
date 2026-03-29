@@ -1,0 +1,3250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book-Keeping | TaxGlue</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%);
+  color: white;
+  padding: 0;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.sidebar-nav {
+  padding: 20px 12px;
+}
+
+.nav-section {
+  margin-bottom: 24px;
+}
+
+.nav-section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.4);
+  padding: 0 12px;
+  margin-bottom: 8px;
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.sidebar a:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.sidebar a.active {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+/* Main */
+.main {
+  flex: 1;
+  margin-left: 260px;
+}
+
+.topbar {
+  background: white;
+  padding: 16px 32px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.btn-back {
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  background: #e2e8f0;
+}
+
+/* Content */
+.content {
+  padding: 32px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #22c55e;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #16a34a;
+}
+
+.btn-secondary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #2563eb;
+}
+
+.btn-outline {
+  background: white;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-outline:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+/* Table */
+.table-container {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background: #f8fafc;
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+input, select {
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  width: 100%;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+input[type="number"] {
+  text-align: right;
+}
+
+/* Summary */
+.summary-row {
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+.summary-row td {
+  border-top: 2px solid #e2e8f0;
+}
+
+/* Footer */
+.footer-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.success-message {
+  background: #dcfce7;
+  color: #16a34a;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: none;
+}
+
+.success-message.show {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+  .main {
+    margin-left: 0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<nav class="sidebar">
+  <div class="sidebar-header"><div class="logo"><div class="logo-icon">📒</div>TaxGlue</div></div>
+  <div class="sidebar-nav">
+    <div class="nav-section"><div class="nav-section-title">Main</div>
+      <a href="/app/dashboard.html">🏠 Dashboard</a>
+      <a href="/app/clients.html">👥 Clients</a>
+      <a href="/app/ca-master.html">🎓 CA Master</a>
+    </div>
+    <div class="nav-section"><div class="nav-section-title">Accounting</div>
+      <a href="/modules/trial-balance.html">📊 Trial Balance</a>
+      <a href="/modules/financial-statements.html">⚖️ Financial Statements</a>
+      <a href="#" class="active">📒 Book-Keeping</a>
+    </div>
+  </div>
+</nav>
+<main class="main">
+  <header class="topbar">
+    <h1 class="page-title">📒 Book-Keeping</h1>
+    <a href="/app/dashboard.html" class="btn-back">← Back to Dashboard</a>
+  </header>
+  
+  <div class="content">
+    <div class="selection-bar">
+      <div class="form-group">
+        <label class="form-label">Select Client</label>
+        <select class="form-select" id="clientSelect" onchange="loadClientData()">
+          <option value="">-- Select Client --</option>
+          <option value="demo-1">Singla Steel Corporation</option>
+          <option value="demo-2">Rana Industries</option>
+          <option value="demo-3">Sharma Traders</option>
+          <option value="demo-4">Gupta Construction</option>
+          <option value="demo-5">Aggarwal Textiles</option>
+          <option value="demo-6">Jain Logistics</option>
+          <option value="demo-7">Patel Electronics</option>
+          <option value="demo-8">Reddy & Co</option>
+          <option value="demo-9">Kumar Medical Stores</option>
+          <option value="demo-10">Chowdhury Consultants</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Financial Year</label>
+        <select class="form-select" id="fySelect" onchange="loadClientData()">
+          <option value="2024-25">2024-25</option>
+          <option value="2023-24">2023-24</option>
+          <option value="2022-23">2022-23</option>
+          <option value="2021-22">2021-22</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="success-message" id="successMessage">Saved successfully!</div>
+    
+    <div class="tabs">
+      <button class="tab active" id="voucherTab" onclick="switchTab('voucher')">📝 Voucher Entry</button>
+      <button class="tab" id="ledgerTab" onclick="window.location.href='/modules/bookkeeping/ledger.html'">📒 Ledger</button>
+      <button class="tab" id="daybookTab" onclick="window.location.href='/modules/bookkeeping/daybook.html'">📖 Day Book</button>
+      <button class="tab" id="cashbookTab" onclick="window.location.href='/modules/bookkeeping/cashbook.html'">💰 Cash Book</button>
+      <button class="tab" id="bankReconTab" onclick="window.location.href='/modules/bookkeeping/bank-recon.html'">🏦 Bank Recon</button>
+      <button class="tab" id="stockTab" onclick="window.location.href='/modules/bookkeeping/stock.html'">📦 Stock</button>
+      <button class="tab" id="trialbalanceTab" onclick="window.location.href='/modules/bookkeeping/trial-balance.html'">📊 Trial Balance</button>
+    </div>
+    
+    <!-- Masters Section -->
+    <div id="mastersSection" class="active">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📋 Masters</h3>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px;">
+          
+          <!-- Groups & Ledgers -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">📁 Groups & Ledgers</h4>
+            <p style="font-size: 13px; color: #64748b;">Manage account groups and ledgers</p>
+            <button class="btn btn-primary" onclick="switchTab('accounts'); loadGroupsAndLedgers()">Open</button>
+          </div>
+          
+          <!-- Voucher Types -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">📝 Voucher Types</h4>
+            <p style="font-size: 13px; color: #64748b;">Configure voucher type templates</p>
+            <button class="btn btn-primary" onclick="showVoucherTypeModal()">Configure</button>
+          </div>
+          
+          <!-- Stock Items -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">📦 Stock Items</h4>
+            <p style="font-size: 13px; color: #64748b;">Manage inventory items</p>
+            <button class="btn btn-primary" onclick="switchTab('stock'); loadStockItems()">Open</button>
+          </div>
+          
+          <!-- Stock Groups -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">🏷️ Stock Groups</h4>
+            <p style="font-size: 13px; color: #64748b;">Categorize stock items</p>
+            <button class="btn btn-primary" onclick="showStockGroupModal()">Configure</button>
+          </div>
+          
+          <!-- Stock Godowns -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">🏭 Stock Godowns</h4>
+            <p style="font-size: 13px; color: #64748b;">Manage warehouse locations</p>
+            <button class="btn btn-primary" onclick="showGodownModal()">Configure</button>
+          </div>
+          
+          <!-- Stock Quantity -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">📊 Stock Quantity</h4>
+            <p style="font-size: 13px; color: #64748b;">Track inventory quantities</p>
+            <button class="btn btn-primary" onclick="switchTab('stock'); loadStockItems()">View</button>
+          </div>
+          
+          <!-- States -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">🗺️ States</h4>
+            <p style="font-size: 13px; color: #64748b;">Manage state master data</p>
+            <button class="btn btn-primary" onclick="showStateModal()">Configure</button>
+          </div>
+          
+          <!-- Countries -->
+          <div class="card" style="background: #f8fafc;">
+            <h4 style="margin: 0 0 12px 0; color: #1e293b;">🌍 Countries</h4>
+            <p style="font-size: 13px; color: #64748b;">Manage country master data</p>
+            <button class="btn btn-primary" onclick="showCountryModal()">Configure</button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    
+    <!-- Voucher Entry Section -->
+    <div id="voucherSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Create New Voucher</h3>
+          <button class="btn btn-primary" onclick="showVoucherForm()">➕ New Voucher</button>
+        </div>
+        
+        <!-- Voucher Type Selection -->
+        <div id="voucherTypeSelect" style="margin-bottom: 20px;">
+          <label class="form-label">Voucher Type</label>
+          <select class="form-select" id="voucherType" style="min-width: 250px;" onchange="showVoucherForm()">
+            <option value="sale">Sale</option>
+            <option value="salereturn">Sale Return</option>
+            <option value="creditnotesale">Credit Note against Sale</option>
+            <option value="debitnotesale">Debit Note against Sale</option>
+            <option value="purchase">Purchase</option>
+            <option value="purchasereturn">Purchase Return</option>
+            <option value="debitnotepurchase">Debit Note against Purchase</option>
+            <option value="creditnotepurchase">Credit Note against Purchase</option>
+            <option value="journal">Journal Voucher (JV)</option>
+            <option value="payment">Payment Voucher (PV)</option>
+            <option value="receipt">Receipt Voucher (RV)</option>
+            <option value="contra">Contra Voucher (CV)</option>
+          </select>
+        </div>
+        
+        <!-- Voucher Form -->
+        <div id="voucherForm" class="voucher-form">
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+            <div class="form-group">
+              <label class="form-label">Voucher Date</label>
+              <input type="date" class="form-input" id="voucherDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Voucher No.</label>
+              <input type="text" class="form-input" id="voucherNo" placeholder="Auto-generated">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Narration</label>
+              <input type="text" class="form-input" id="voucherNarration" placeholder="Enter narration">
+            </div>
+          </div>
+          
+          <div class="voucher-header voucher-row">
+            <div>Account</div>
+            <div>Party/Customer</div>
+            <div>Debit (₹)</div>
+            <div>Credit (₹)</div>
+            <div></div>
+          </div>
+          
+          <div id="voucherLines">
+            <!-- Voucher lines will be added here -->
+          </div>
+          
+          <button class="btn btn-outline" onclick="addVoucherLine()" style="margin: 10px 0;">➕ Add Line</button>
+          
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <button class="btn btn-outline" onclick="hideVoucherForm()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveVoucher()">💾 Save Voucher</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Recent Vouchers -->
+      <div class="card">
+        <h3 class="card-title" style="margin-bottom: 16px;">Recent Vouchers</h3>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Voucher No.</th>
+                <th>Type</th>
+                <th>Narration</th>
+                <th>Debit</th>
+                <th>Credit</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="voucherTable">
+              <!-- Vouchers will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Ledger Section -->
+    <div id="ledgerSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Ledger Report</h3>
+          <div style="display: flex; gap: 10px;">
+            <select class="form-select" id="ledgerAccount" onchange="loadLedger()">
+              <option value="">-- Select Account --</option>
+            </select>
+            <input type="date" class="form-input" id="ledgerFromDate" onchange="loadLedger()">
+            <input type="date" class="form-input" id="ledgerToDate" onchange="loadLedger()">
+          </div>
+        </div>
+        
+        <div id="ledgerContent">
+          <div class="empty-state">Select an account to view ledger</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Day Book Section -->
+    <div id="daybookSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Day Book - All Transactions</h3>
+          <div style="display: flex; gap: 10px;">
+            <input type="date" class="form-input" id="daybookFromDate" onchange="loadDayBook()">
+            <input type="date" class="form-input" id="daybookToDate" onchange="loadDayBook()">
+          </div>
+        </div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Voucher No.</th>
+                <th>Type</th>
+                <th>Account</th>
+                <th>Narration</th>
+                <th>Debit</th>
+                <th>Credit</th>
+              </tr>
+            </thead>
+            <tbody id="daybookTable">
+              <!-- Transactions will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Cash Book Section -->
+    <div id="cashbookSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Cash Book</h3>
+        </div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Voucher No.</th>
+                <th>Type</th>
+                <th>Particulars</th>
+                <th>Narration</th>
+                <th>Receipt</th>
+                <th>Payment</th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody id="cashbookTable">
+              <!-- Cash transactions will be loaded here -->
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td colspan="5"><strong>Total</strong></td>
+                <td class="amount" id="cashReceiptTotal">0.00</td>
+                <td class="amount" id="cashPaymentTotal">0.00</td>
+                <td class="amount" id="cashBalanceTotal">0.00</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Chart of Accounts Section -->
+    <div id="accountsSection">
+      <!-- Groups & Ledgers -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📁 Groups & Ledgers</h3>
+          <button class="btn btn-primary" onclick="showAddGroupModal()">➕ Add Group</button>
+        </div>
+        <div id="groupsContainer" class="groups-tree">
+          <!-- Groups and ledgers will be loaded here -->
+        </div>
+      </div>
+
+      <!-- Stock Items -->
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h3 class="card-title">📦 Stock Items</h3>
+          <button class="btn btn-primary" onclick="showAddStockItemModal()">➕ Add Stock Item</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Item Code</th>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Unit</th>
+                <th>Opening Qty</th>
+                <th>Rate</th>
+                <th>Value</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="stockItemsTable">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Stock Section -->
+    <div id="stockSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📦 Stock Items</h3>
+          <button class="btn btn-primary" onclick="showAddStockItemModal()">➕ Add Stock Item</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Item Code</th>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Unit</th>
+                <th>Opening Qty</th>
+                <th>Rate</th>
+                <th>Value</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="stockItemsTable">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Stock Report -->
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h3 class="card-title">📊 Stock Report</h3>
+        </div>
+        <div id="stockReport" class="stock-report">
+          <p style="color: #64748b;">Stock summary will appear here based on transactions.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trial Balance Section -->
+    <div id="trialbalanceSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📊 Trial Balance</h3>
+          <button class="btn btn-outline" onclick="generateTrialBalance()">🔄 Refresh</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Account</th>
+                <th>Group</th>
+                <th style="text-align: right;">Debit (₹)</th>
+                <th style="text-align: right;">Credit (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="trialBalanceTable">
+            </tbody>
+            <tfoot id="trialBalanceTotals">
+              <tr>
+                <th colspan="2" style="text-align: right;">Total</th>
+                <th style="text-align: right;" id="tbDebitTotal">0.00</th>
+                <th style="text-align: right;" id="tbCreditTotal">0.00</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial Statements Section -->
+    <div id="financialsSection">
+      <!-- Profit & Loss Account -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📈 Profit & Loss Account</h3>
+        </div>
+        <div id="profitLossReport">
+          <table style="width: 100%;">
+            <thead>
+              <tr>
+                <th style="width: 60%;">Particulars</th>
+                <th style="text-align: right;">Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="plTable">
+            </tbody>
+            <tfoot id="plTotals">
+              <tr>
+                <th>Net Profit</th>
+                <th style="text-align: right;" id="plNetProfit">0.00</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      <!-- Balance Sheet -->
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h3 class="card-title">⚖️ Balance Sheet</h3>
+        </div>
+        <div id="balanceSheet">
+          <div class="bs-section">
+            <h4>Liabilities</h4>
+            <table style="width: 100%;">
+              <tbody id="bsLiabilities">
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Total Liabilities</th>
+                  <th style="text-align: right;" id="bsLiabilitiesTotal">0.00</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div class="bs-section" style="margin-top: 20px;">
+            <h4>Assets</h4>
+            <table style="width: 100%;">
+              <tbody id="bsAssets">
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Total Assets</th>
+                  <th style="text-align: right;" id="bsAssetsTotal">0.00</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bank Reconciliation Section -->
+    <div id="bankReconciliationSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">🏦 Bank Reconciliation</h3>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-outline" onclick="connectBank()">🔗 Connect Bank</button>
+            <button class="btn btn-primary" onclick="reconcileSelected()">✓ Reconcile Selected</button>
+          </div>
+        </div>
+        <div class="filter-bar" style="margin-bottom: 16px;">
+          <span class="filter-chip active" onclick="filterBankFeed('all', this)">All</span>
+          <span class="filter-chip" onclick="filterBankFeed('matched', this)">Matched</span>
+          <span class="filter-chip" onclick="filterBankFeed('unmatched', this)">Unmatched</span>
+          <span class="filter-chip" onclick="filterBankFeed('suggested', this)">Suggestions</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
+          <div class="stat-card green">
+            <div class="stat-value" id="bankMatched">0</div>
+            <div class="stat-label">Matched</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-value" id="bankUnmatched">0</div>
+            <div class="stat-label">Unmatched</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-value" id="bankSuggested">0</div>
+            <div class="stat-label">Suggestions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="bankTotal">₹0</div>
+            <div class="stat-label">Total Amount</div>
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 40px;"><input type="checkbox" id="selectAllBank" onchange="toggleSelectAllBank()"></th>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Bank Amount</th>
+                <th>Matched Voucher</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="bankFeedTable">
+              <tr>
+                <td colspan="7" class="empty-state">
+                  <div class="empty-illustration">
+                    <div style="font-size: 48px; margin-bottom: 16px;">🏦</div>
+                    <h4>Connect Your Bank Account</h4>
+                    <p>Link your bank to automatically import transactions and reconcile them with your vouchers.</p>
+                    <button class="btn btn-primary" onclick="connectBank()" style="margin-top: 16px;">🔗 Connect Bank Account</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI/OCR Entry Section -->
+    <div id="ocrEntrySection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">🤖 AI-Powered Data Entry</h3>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-outline" onclick="scanDocument()">📷 Scan Document</button>
+            <button class="btn btn-outline" onclick="uploadInvoice()">📤 Upload Invoice</button>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <div>
+            <h4 style="margin-bottom: 12px;">Upload Document</h4>
+            <div class="ocr-upload-zone" onclick="document.getElementById('ocrFileInput').click()">
+              <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
+              <p style="font-size: 16px; font-weight: 500; margin-bottom: 8px;">Drop files here or click to upload</p>
+              <p style="font-size: 13px; color: #64748b;">Supports: PDF, JPG, PNG (Max 10MB)</p>
+              <input type="file" id="ocrFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="handleOCRUpload(event)">
+            </div>
+            <div id="ocrPreview" style="display: none;">
+              <img id="ocrPreviewImg" class="ocr-preview" src="" alt="Document preview">
+            </div>
+          </div>
+          <div>
+            <h4 style="margin-bottom: 12px;">Extracted Data</h4>
+            <div class="ocr-result" id="ocrResult">
+              <p style="color: #64748b;">Upload a document to extract data automatically using AI.</p>
+            </div>
+            <div id="ocrFields" style="display: none;">
+              <div class="form-group" style="margin-top: 16px;">
+                <label class="form-label">Party Name</label>
+                <input type="text" class="form-input" id="ocrPartyName" placeholder="Extracted party name">
+              </div>
+              <div class="form-group">
+                <label class="form-label">GSTIN</label>
+                <input type="text" class="form-input" id="ocrGSTIN" placeholder="Extracted GSTIN">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Invoice Number</label>
+                <input type="text" class="form-input" id="ocrInvoiceNum" placeholder="Extracted invoice number">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Invoice Date</label>
+                <input type="date" class="form-input" id="ocrInvoiceDate">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Total Amount (₹)</label>
+                <input type="number" class="form-input" id="ocrAmount" placeholder="Extracted amount">
+              </div>
+              <div class="form-group">
+                <label class="form-label">CGST (₹)</label>
+                <input type="number" class="form-input" id="ocrCGST" placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label class="form-label">SGST (₹)</label>
+                <input type="number" class="form-input" id="ocrSGST" placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label class="form-label">IGST (₹)</label>
+                <input type="number" class="form-input" id="ocrIGST" placeholder="0.00">
+              </div>
+              <div style="display: flex; gap: 12px; margin-top: 20px;">
+                <button class="btn btn-outline" onclick="clearOCRData()">Clear</button>
+                <button class="btn btn-primary" onclick="createVoucherFromOCR()">📝 Create Voucher</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h3 class="card-title">📊 Recent AI Extractions</h3>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Document</th>
+                <th>Party</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="ocrHistoryTable">
+              <tr>
+                <td colspan="6" class="empty-state">No recent extractions</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- E-Invoice Section -->
+    <div id="eInvoiceSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📄 GST E-Invoice</h3>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-outline" onclick="generateEInvoice()">➕ Generate E-Invoice</button>
+            <button class="btn btn-outline" onclick="bulkEInvoice()">📦 Bulk Generate</button>
+          </div>
+        </div>
+        <div class="pill-tabs" style="margin-bottom: 16px;">
+          <button class="pill-tab active" onclick="switchEInvoiceTab('create', this)">Create</button>
+          <button class="pill-tab" onclick="switchEInvoiceTab('generated', this)">Generated</button>
+          <button class="pill-tab" onclick="switchEInvoiceTab('ewaybill', this)">E-Way Bill</button>
+        </div>
+        <div id="eInvoiceCreate">
+          <div class="einvoice-form">
+            <div class="form-group">
+              <label class="form-label">Invoice Type</label>
+              <select class="form-select" id="einvType">
+                <option value="INV">Tax Invoice</option>
+                <option value="RET">Tax Invoice - Reg</option>
+                <option value="DEY">Tax Invoice - SEZ</option>
+                <option value="EXP">Export Invoice</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Seller GSTIN</label>
+              <input type="text" class="form-input" id="einvSellerGSTIN" placeholder="29AAAAA0000A1Z5">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Buyer GSTIN</label>
+              <input type="text" class="form-input" id="einvBuyerGSTIN" placeholder="29BBBBB0000B1Z5">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Invoice Number</label>
+              <input type="text" class="form-input" id="einvNum" placeholder="2024-25/001">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Invoice Date</label>
+              <input type="date" class="form-input" id="einvDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Place of Supply</label>
+              <input type="text" class="form-input" id="einvPOS" placeholder="Karnataka (29)">
+            </div>
+          </div>
+          <h4 style="margin: 20px 0 12px;">Line Items</h4>
+          <div class="einvoice-item-row voucher-header">
+            <div>Item Description</div>
+            <div>HSN Code</div>
+            <div>Qty</div>
+            <div>Rate (₹)</div>
+            <div>Amount (₹)</div>
+            <div></div>
+          </div>
+          <div id="einvItems">
+            <div class="einvoice-item-row">
+              <input type="text" class="voucher-input" placeholder="Item description">
+              <input type="text" class="voucher-input" placeholder="7214">
+              <input type="number" class="voucher-input" placeholder="1" min="0">
+              <input type="number" class="voucher-input" placeholder="0.00" min="0" step="0.01">
+              <input type="number" class="voucher-input" placeholder="0.00" readonly>
+              <button class="voucher-delete" onclick="this.parentElement.remove()">×</button>
+            </div>
+          </div>
+          <button class="btn btn-outline" onclick="addEINVItem()" style="margin-top: 12px;">➕ Add Item</button>
+          <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+            <div style="text-align: right; margin-right: 20px;">
+              <div>Subtotal: <strong id="einvSubtotal">₹0.00</strong></div>
+              <div>CGST (9%): <strong id="einvCGST">₹0.00</strong></div>
+              <div>SGST (9%): <strong id="einvSGST">₹0.00</strong></div>
+              <div>IGST (18%): <strong id="einvIGST">₹0.00</strong></div>
+              <div style="font-size: 18px; font-weight: 700; margin-top: 8px;">Total: <strong id="einvTotal">₹0.00</strong></div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;">
+            <button class="btn btn-outline" onclick="saveEINVDraft()">💾 Save Draft</button>
+            <button class="btn btn-primary" onclick="generateEINV()">📄 Generate E-Invoice</button>
+          </div>
+        </div>
+        <div id="eInvoiceGenerated" style="display: none;">
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Invoice No.</th>
+                  <th>Date</th>
+                  <th>Buyer</th>
+                  <th>Amount</th>
+                  <th>IRN</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="einvHistoryTable">
+                <tr>
+                  <td colspan="7" class="empty-state">No e-invoices generated yet</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div id="eWayBill" style="display: none;">
+          <div class="einvoice-form">
+            <div class="form-group">
+              <label class="form-label">Transaction Type</label>
+              <select class="form-select">
+                <option value="O">Outward</option>
+                <option value="I">Inward</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Document Type</label>
+              <select class="form-select">
+                <option value="INV">Invoice</option>
+                <option value="CHL">Delivery Challan</option>
+                <option value="BOE">Bill of Entry</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Transport Mode</label>
+              <select class="form-select">
+                <option value="1">Road</option>
+                <option value="2">Rail</option>
+                <option value="3">Air</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Vehicle Number</label>
+              <input type="text" class="form-input" placeholder="KA01AB1234">
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; margin-top: 20px;">
+            <button class="btn btn-primary" onclick="generateEWayBill()">🚚 Generate E-Way Bill</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workflows Section -->
+    <div id="workflowsSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">⚡ Automated Workflows</h3>
+          <button class="btn btn-primary" onclick="createWorkflow()">➕ Create Workflow</button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
+          <div class="workflow-card active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h4>🔄 Recurring Vouchers</h4>
+              <label class="workflow-toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Automatically create recurring vouchers (rent, EMIs, subscriptions)</p>
+            <div style="font-size: 12px; color: #16a34a;">✓ Active - Next: Rent on 01-Apr-2025</div>
+          </div>
+          <div class="workflow-card active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h4>🏦 Bank Auto-Match</h4>
+              <label class="workflow-toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Automatically match bank transactions with vouchers</p>
+            <div style="font-size: 12px; color: #16a34a;">✓ Active - 156 transactions matched</div>
+          </div>
+          <div class="workflow-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h4>📊 Monthly Reports</h4>
+              <label class="workflow-toggle">
+                <input type="checkbox">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Generate and email monthly financial reports</p>
+            <div style="font-size: 12px; color: #64748b;">○ Disabled</div>
+          </div>
+          <div class="workflow-card active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h4>🔔 Payment Reminders</h4>
+              <label class="workflow-toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Send automatic payment reminders to debtors</p>
+            <div style="font-size: 12px; color: #16a34a;">✓ Active - 23 reminders sent</div>
+          </div>
+          <div class="workflow-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h4>📈 Auto Depreciation</h4>
+              <label class="workflow-toggle">
+                <input type="checkbox">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Automatically post depreciation entries at year-end</p>
+            <div style="font-size: 12px; color: #64748b;">○ Disabled</div>
+          </div>
+          <div class="workflow-card active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h4>✅ Auto GST Reconciliation</h4>
+              <label class="workflow-toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Compare GSTR-1 with GSTR-3B automatically</p>
+            <div style="font-size: 12px; color: #16a34a;">✓ Active - Last run: Today</div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h3 class="card-title">📅 Recurring Templates</h3>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Template Name</th>
+                <th>Frequency</th>
+                <th>Next Due</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="recurringTable">
+              <tr>
+                <td>Office Rent</td>
+                <td>Monthly</td>
+                <td>01-Apr-2025</td>
+                <td>₹50,000</td>
+                <td><span class="tag tag-success">Active</span></td>
+                <td><button class="btn btn-outline" style="padding: 6px 12px;">Edit</button></td>
+              </tr>
+              <tr>
+                <td>EMI - HDFC Bank</td>
+                <td>Monthly</td>
+                <td>05-Apr-2025</td>
+                <td>₹1,25,000</td>
+                <td><span class="tag tag-success">Active</span></td>
+                <td><button class="btn btn-outline" style="padding: 6px 12px;">Edit</button></td>
+              </tr>
+              <tr>
+                <td>Internet - Airtel</td>
+                <td>Monthly</td>
+                <td>02-Apr-2025</td>
+                <td>₹1,499</td>
+                <td><span class="tag tag-success">Active</span></td>
+                <td><button class="btn btn-outline" style="padding: 6px 12px;">Edit</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced Reports Section -->
+    <div id="reportsAdvancedSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📈 Advanced Reports</h3>
+          <div class="search-box">
+            <input type="text" class="form-input" placeholder="Search reports..." style="min-width: 250px;">
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+          <div class="stat-card" onclick="showReport('cashflow')" style="cursor: pointer;">
+            <div style="font-size: 32px; margin-bottom: 8px;">💵</div>
+            <div class="stat-label">Cash Flow</div>
+          </div>
+          <div class="stat-card" onclick="showReport('ratio')" style="cursor: pointer;">
+            <div style="font-size: 32px; margin-bottom: 8px;">📊</div>
+            <div class="stat-label">Ratio Analysis</div>
+          </div>
+          <div class="stat-card" onclick="showReport('budget')" style="cursor: pointer;">
+            <div style="font-size: 32px; margin-bottom: 8px;">📋</div>
+            <div class="stat-label">Budget vs Actual</div>
+          </div>
+          <div class="stat-card" onclick="showReport('gstr')" style="cursor: pointer;">
+            <div style="font-size: 32px; margin-bottom: 8px;">🧾</div>
+            <div class="stat-label">GST Summary</div>
+          </div>
+        </div>
+        <div id="reportCashFlow" class="report-section">
+          <h4 style="margin-bottom: 16px;">💵 Cash Flow Statement</h4>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Particulars</th>
+                  <th style="text-align: right;">Amount (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="2" style="text-align: center; color: #64748b;">Opening Cash Balance</td></tr>
+                <tr><td style="padding-left: 24px;">- Opening Balance</td><td style="text-align: right;">2,50,000.00</td></tr>
+                <tr><td colspan="2" style="text-align: center; color: #64748b; padding-top: 16px;">Cash Inflows</td></tr>
+                <tr><td style="padding-left: 24px;">- Receipts from Customers</td><td style="text-align: right;">45,00,000.00</td></tr>
+                <tr><td style="padding-left: 24px;">- Other Income</td><td style="text-align: right;">1,25,000.00</td></tr>
+                <tr><td style="padding-left: 24px;">- Sales Returns</td><td style="text-align: right;">-50,000.00</td></tr>
+                <tr style="font-weight: 600;"><td>Total Inflows</td><td style="text-align: right;">45,75,000.00</td></tr>
+                <tr><td colspan="2" style="text-align: center; color: #64748b; padding-top: 16px;">Cash Outflows</td></tr>
+                <tr><td style="padding-left: 24px;">- Payments to Suppliers</td><td style="text-align: right;">32,00,000.00</td></tr>
+                <tr><td style="padding-left: 24px;">- Operating Expenses</td><td style="text-align: right;">8,50,000.00</td></tr>
+                <tr><td style="padding-left: 24px;">- Taxes Paid</td><td style="text-align: right;">2,75,000.00</td></tr>
+                <tr style="font-weight: 600;"><td>Total Outflows</td><td style="text-align: right;">43,25,000.00</td></tr>
+                <tr class="total-row"><td>Net Cash Flow</td><td style="text-align: right;">5,00,000.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div id="reportRatio" class="report-section" style="display: none;">
+          <h4 style="margin-bottom: 16px;">📊 Ratio Analysis</h4>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
+            <div class="report-card">
+              <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Current Ratio</div>
+              <div style="font-size: 28px; font-weight: 700; color: #22c55e;">2.45</div>
+              <div style="font-size: 12px; color: #16a34a;">✓ Healthy (> 1.5)</div>
+            </div>
+            <div class="report-card">
+              <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Quick Ratio</div>
+              <div style="font-size: 28px; font-weight: 700; color: #22c55e;">1.82</div>
+              <div style="font-size: 12px; color: #16a34a;">✓ Good (> 1.0)</div>
+            </div>
+            <div class="report-card">
+              <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Debt-to-Equity</div>
+              <div style="font-size: 28px; font-weight: 700; color: #dc2626;">0.65</div>
+              <div style="font-size: 12px; color: #b45309;">⚠ Moderate (< 0.5 ideal)</div>
+            </div>
+            <div class="report-card">
+              <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Gross Margin</div>
+              <div style="font-size: 28px; font-weight: 700; color: #22c55e;">28.5%</div>
+              <div style="font-size: 12px; color: #16a34a;">✓ Good</div>
+            </div>
+            <div class="report-card">
+              <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Net Profit Margin</div>
+              <div style="font-size: 28px; font-weight: 700; color: #22c55e;">12.3%</div>
+              <div style="font-size: 12px; color: #16a34a;">✓ Healthy</div>
+            </div>
+            <div class="report-card">
+              <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Return on Equity</div>
+              <div style="font-size: 28px; font-weight: 700; color: #3b82f6;">18.7%</div>
+              <div style="font-size: 12px; color: #1d4ed8;">Good</div>
+            </div>
+          </div>
+        </div>
+        <div id="reportBudget" class="report-section" style="display: none;">
+          <h4 style="margin-bottom: 16px;">📋 Budget vs Actual</h4>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Head</th>
+                  <th style="text-align: right;">Budget (₹)</th>
+                  <th style="text-align: right;">Actual (₹)</th>
+                  <th style="text-align: right;">Variance</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Sales Revenue</td>
+                  <td style="text-align: right;">50,00,000</td>
+                  <td style="text-align: right;">48,50,000</td>
+                  <td style="text-align: right; color: #dc2626;">-1,50,000</td>
+                  <td><span class="tag tag-warning">Under</span></td>
+                </tr>
+                <tr>
+                  <td>Purchase - Direct</td>
+                  <td style="text-align: right;">30,00,000</td>
+                  <td style="text-align: right;">32,50,000</td>
+                  <td style="text-align: right; color: #dc2626;">+2,50,000</td>
+                  <td><span class="tag tag-error">Over</span></td>
+                </tr>
+                <tr>
+                  <td>Employee Cost</td>
+                  <td style="text-align: right;">6,00,000</td>
+                  <td style="text-align: right;">5,80,000</td>
+                  <td style="text-align: right; color: #16a34a;">-20,000</td>
+                  <td><span class="tag tag-success">Under</span></td>
+                </tr>
+                <tr>
+                  <td>Rent</td>
+                  <td style="text-align: right;">3,00,000</td>
+                  <td style="text-align: right;">3,00,000</td>
+                  <td style="text-align: right;">0</td>
+                  <td><span class="tag tag-info">On Track</span></td>
+                </tr>
+                <tr>
+                  <td>Marketing</td>
+                  <td style="text-align: right;">2,00,000</td>
+                  <td style="text-align: right;">2,25,000</td>
+                  <td style="text-align: right; color: #dc2626;">+25,000</td>
+                  <td><span class="tag tag-warning">Over</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div id="reportGSTR" class="report-section" style="display: none;">
+          <h4 style="margin-bottom: 16px;">🧾 GST Summary</h4>
+          <div class="pill-tabs" style="margin-bottom: 16px;">
+            <button class="pill-tab active" onclick="switchGSTRTab('gstr1', this)">GSTR-1</button>
+            <button class="pill-tab" onclick="switchGSTRTab('gstr3b', this)">GSTR-3B</button>
+            <button class="pill-tab" onclick="switchGSTRTab('summary', this)">Summary</button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Outward Supply</th>
+                  <th>Taxable Value</th>
+                  <th>CGST</th>
+                  <th>SGST</th>
+                  <th>IGST</th>
+                  <th>Total Tax</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Mar 2025</td>
+                  <td style="text-align: right;">45</td>
+                  <td style="text-align: right;">₹12,50,000</td>
+                  <td style="text-align: right;">₹1,12,500</td>
+                  <td style="text-align: right;">₹1,12,500</td>
+                  <td style="text-align: right;">₹50,000</td>
+                  <td style="text-align: right;">₹2,75,000</td>
+                </tr>
+                <tr>
+                  <td>Feb 2025</td>
+                  <td style="text-align: right;">38</td>
+                  <td style="text-align: right;">₹10,80,000</td>
+                  <td style="text-align: right;">₹97,200</td>
+                  <td style="text-align: right;">₹97,200</td>
+                  <td style="text-align: right;">₹45,000</td>
+                  <td style="text-align: right;">₹2,39,400</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Section -->
+    <div id="settingsSection">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">⚙️ Settings</h3>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <div>
+            <h4 style="margin-bottom: 16px;">📋 Voucher Settings</h4>
+            <div class="form-group">
+              <label class="form-label">Voucher Numbering Prefix</label>
+              <input type="text" class="form-input" id="voucherPrefix" value="VG" placeholder="VG">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Starting Number</label>
+              <input type="number" class="form-input" id="voucherStartNum" value="1" placeholder="1">
+            </div>
+            <div class="form-group">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="voucherAutoNum" checked>
+                <span>Auto-number vouchers</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="voucherPrint">
+                <span>Show print preview after save</span>
+              </label>
+            </div>
+          </div>
+          <div>
+            <h4 style="margin-bottom: 16px;">👥 User Management</h4>
+            <div class="form-group">
+              <label class="form-label">Current User Role</label>
+              <select class="form-select">
+                <option value="admin">Administrator</option>
+                <option value="ca">Chartered Accountant</option>
+                <option value="clerk">Data Entry Operator</option>
+                <option value="viewer">View Only</option>
+              </select>
+            </div>
+            <button class="btn btn-outline" onclick="showAddUserModal()" style="margin-top: 8px;">➕ Add User</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h3 class="card-title">🔐 Roles & Permissions</h3>
+        </div>
+        <div class="permission-group">
+          <h4 style="margin-bottom: 12px; font-size: 14px; color: #64748b;">Administrator</h4>
+          <div class="permission-row">
+            <span class="permission-label">Create Vouchers</span>
+            <input type="checkbox" checked disabled>
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Edit Vouchers</span>
+            <input type="checkbox" checked disabled>
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Delete Vouchers</span>
+            <input type="checkbox" checked disabled>
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Generate Reports</span>
+            <input type="checkbox" checked disabled>
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Manage Users</span>
+            <input type="checkbox" checked disabled>
+          </div>
+        </div>
+        <div class="permission-group">
+          <h4 style="margin-bottom: 12px; font-size: 14px; color: #64748b;">Data Entry Operator</h4>
+          <div class="permission-row">
+            <span class="permission-label">Create Vouchers</span>
+            <input type="checkbox" checked>
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Edit Vouchers</span>
+            <input type="checkbox">
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Delete Vouchers</span>
+            <input type="checkbox">
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Generate Reports</span>
+            <input type="checkbox">
+          </div>
+          <div class="permission-row">
+            <span class="permission-label">Manage Users</span>
+            <input type="checkbox">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- Add Account Modal -->
+<div id="addAccountModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Add New Account</h3>
+      <button class="modal-close" onclick="hideAddAccountModal()">&times;</button>
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Account Name</label>
+      <input type="text" class="form-input" id="newAccountName" placeholder="Enter account name">
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Nature</label>
+      <select class="form-select" id="newAccountNature">
+        <option value="Assets">Assets</option>
+        <option value="Liabilities">Liabilities</option>
+        <option value="Income">Income</option>
+        <option value="Expense">Expense</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Account Type</label>
+      <select class="form-select" id="newAccountType">
+        <option value="Direct">Direct</option>
+        <option value="Indirect">Indirect</option>
+        <option value="Capital">Capital</option>
+        <option value="Revenue">Revenue</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom: 20px;">
+      <label class="form-label">Opening Balance</label>
+      <input type="number" class="form-input" id="newAccountOpening" placeholder="0.00">
+    </div>
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button class="btn btn-outline" onclick="hideAddAccountModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAccount()">💾 Save Account</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// API Configuration - use backend REST API
+const API_BASE = '/api'
+
+// Simple API client for backend
+const api = {
+  async request(endpoint, options = {}) {
+    const url = `${API_BASE}${endpoint}`
+    const token = localStorage.getItem('auth_token') || ''
+    
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+        ...options.headers
+      },
+      ...options
+    }
+    
+    const response = await fetch(url, config)
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Request failed' }))
+      throw new Error(error.error || 'Request failed')
+    }
+    return response.json()
+  },
+  
+  get(endpoint) {
+    return this.request(endpoint, { method: 'GET' })
+  },
+  
+  post(endpoint, data) {
+    return this.request(endpoint, { method: 'POST', body: JSON.stringify(data) })
+  },
+  
+  put(endpoint, data) {
+    return this.request(endpoint, { method: 'PUT', body: JSON.stringify(data) })
+  },
+  
+  delete(endpoint) {
+    return this.request(endpoint, { method: 'DELETE' })
+  }
+}
+
+// Demo mode - simulate logged in user
+let demoUser = { id: 'demo-user', email: 'demo@taxglue.com', name: 'Demo User' }
+
+// Initialize app
+function initApp() {
+  console.log('App initializing...')
+  loadClients()
+  setDefaultDates()
+  loadDemoClients()
+}
+
+document.addEventListener('DOMContentLoaded', initApp)
+
+let clients = []
+let vouchers = []
+let accounts = []
+let currentClientId = ''
+let currentFY = ''
+
+// Set default dates
+function setDefaultDates() {
+  const today = new Date().toISOString().split('T')[0]
+  document.getElementById('voucherDate').value = today
+  document.getElementById('ledgerFromDate').value = today
+  document.getElementById('ledgerToDate').value = today
+  document.getElementById('daybookFromDate').value = today
+  document.getElementById('daybookToDate').value = today
+}
+
+// Load demo clients
+function loadDemoClients() {
+  const demoClients = [
+    { id: 'demo-1', name: 'Singla Steel Corporation' },
+    { id: 'demo-2', name: 'Rana Industries' },
+    { id: 'demo-3', name: 'Sharma Traders' },
+    { id: 'demo-4', name: 'Gupta Construction' },
+    { id: 'demo-5', name: 'Aggarwal Textiles' },
+    { id: 'demo-6', name: 'Jain Logistics' },
+    { id: 'demo-7', name: 'Patel Electronics' },
+    { id: 'demo-8', name: 'Reddy & Co' },
+    { id: 'demo-9', name: 'Kumar Medical Stores' },
+    { id: 'demo-10', name: 'Chowdhury Consultants' }
+  ]
+  
+  const select = document.getElementById('clientSelect')
+  if (select) {
+    demoClients.forEach(c => {
+      const opt = document.createElement('option')
+      opt.value = c.id
+      opt.textContent = c.name
+      select.appendChild(opt)
+    })
+  }
+  
+  // Try to load from Supabase in background
+  if (window.supabase) {
+    setTimeout(async () => {
+      try {
+        const { data } = await window.supabase.from('clients').select('id, name')
+        if (data && data.length > 0) {
+          const sel = document.getElementById('clientSelect')
+          if (sel) {
+            sel.innerHTML = ''
+            data.forEach(c => {
+              const opt = document.createElement('option')
+              opt.value = c.id
+              opt.textContent = c.name
+              sel.appendChild(opt)
+            })
+          }
+        }
+      } catch (e) {
+        console.log('Using demo clients (Supabase not available)')
+      }
+    }, 1000)
+  }
+}
+
+// Load client data
+async function loadClientData() {
+  currentClientId = document.getElementById('clientSelect').value
+  currentFY = document.getElementById('fySelect').value
+  
+  if (!currentClientId) {
+    return
+  }
+  
+  await loadAccounts()
+  await loadVouchers()
+  updateAccountDropdowns()
+}
+
+// Switch tabs
+function switchTab(tab) {
+  // Get all tab buttons
+  const allTabs = document.querySelectorAll('.tabs .tab')
+  
+  // Remove active class from all tabs
+  allTabs.forEach(t => {
+    t.classList.remove('active')
+  })
+  
+  // Add active class to the clicked tab
+  const tabButton = document.getElementById(tab + 'Tab')
+  if (tabButton) {
+    tabButton.classList.add('active')
+  } else {
+    console.error('Tab button not found:', tab + 'Tab')
+  }
+  
+  // Toggle section active class
+  const sections = ['voucher']
+  sections.forEach(section => {
+    const el = document.getElementById(section + 'Section')
+    if (el) {
+      if (section === tab) {
+        el.classList.add('active')
+      } else {
+        el.classList.remove('active')
+      }
+    }
+  })
+  
+  if (tab === 'masters') loadMastersData()
+  if (tab === 'ledger') loadLedger()
+  if (tab === 'daybook') loadDayBook()
+  if (tab === 'cashbook') loadCashBook()
+  if (tab === 'bankReconciliation') loadBankFeed()
+  if (tab === 'ocrEntry') loadOCRHistory()
+  if (tab === 'workflows') loadWorkflows()
+  if (tab === 'stock') loadStockItems()
+  if (tab === 'trialbalance') generateTrialBalance()
+  if (tab === 'reportsAdvanced') loadReports()
+  if (tab === 'settings') loadSettings()
+}
+
+// ==================== MASTERS ====================
+function loadMastersData() {
+  console.log('Loading Masters data...')
+}
+
+// Voucher Type Modal
+function showVoucherTypeModal() {
+  const modal = document.createElement('div')
+  modal.id = 'voucherTypeModal'
+  modal.className = 'modal'
+  modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;'
+  modal.innerHTML = `
+    <div style="background: white; padding: 24px; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">📝 Voucher Types</h3>
+        <button onclick="this.closest('.modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+      </div>
+      <div id="voucherTypeList">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: #f1f5f9;">
+              <th style="padding: 10px; text-align: left;">Type</th>
+              <th style="padding: 10px; text-align: left;">Prefix</th>
+              <th style="padding: 10px; text-align: center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding: 10px;">Sale</td><td style="padding: 10px;">SAL</td><td style="padding: 10px; text-align: center;"><button onclick="alert('Edit functionality')" style="background: #22c55e; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Edit</button></td></tr>
+            <tr><td style="padding: 10px;">Purchase</td><td style="padding: 10px;">PUR</td><td style="padding: 10px; text-align: center;"><button onclick="alert('Edit functionality')" style="background: #22c55e; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Edit</button></td></tr>
+            <tr><td style="padding: 10px;">Journal Voucher (JV)</td><td style="padding: 10px;">JV</td><td style="padding: 10px; text-align: center;"><button onclick="alert('Edit functionality')" style="background: #22c55e; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Edit</button></td></tr>
+            <tr><td style="padding: 10px;">Payment Voucher (PV)</td><td style="padding: 10px;">PV</td><td style="padding: 10px; text-align: center;"><button onclick="alert('Edit functionality')" style="background: #22c55e; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Edit</button></td></tr>
+            <tr><td style="padding: 10px;">Receipt Voucher (RV)</td><td style="padding: 10px;">RV</td><td style="padding: 10px; text-align: center;"><button onclick="alert('Edit functionality')" style="background: #22c55e; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Edit</button></td></tr>
+            <tr><td style="padding: 10px;">Contra Voucher (CV)</td><td style="padding: 10px;">CV</td><td style="padding: 10px; text-align: center;"><button onclick="alert('Edit functionality')" style="background: #22c55e; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Edit</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <button onclick="this.closest('.modal').remove()" class="btn btn-outline" style="margin-top: 16px;">Close</button>
+    </div>
+  `
+  document.body.appendChild(modal)
+}
+
+// Stock Group Modal
+function showStockGroupModal() {
+  const modal = document.createElement('div')
+  modal.id = 'stockGroupModal'
+  modal.className = 'modal'
+  modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;'
+  modal.innerHTML = `
+    <div style="background: white; padding: 24px; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">🏷️ Stock Groups</h3>
+        <button onclick="this.closest('.modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <input type="text" id="newStockGroup" placeholder="New Stock Group Name" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; width: 70%;">
+        <button onclick="alert('Add stock group functionality')" class="btn btn-primary" style="padding: 10px 16px;">Add</button>
+      </div>
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f1f5f9;">
+            <th style="padding: 10px; text-align: left;">Group Name</th>
+            <th style="padding: 10px; text-align: center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding: 10px;">Raw Material</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Finished Goods</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Trading Goods</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Packing Material</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+        </tbody>
+      </table>
+      <button onclick="this.closest('.modal').remove()" class="btn btn-outline" style="margin-top: 16px;">Close</button>
+    </div>
+  `
+  document.body.appendChild(modal)
+}
+
+// Godown Modal
+function showGodownModal() {
+  const modal = document.createElement('div')
+  modal.id = 'godownModal'
+  modal.className = 'modal'
+  modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;'
+  modal.innerHTML = `
+    <div style="background: white; padding: 24px; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">🏭 Stock Godowns</h3>
+        <button onclick="this.closest('.modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <input type="text" id="newGodown" placeholder="New Godown Name" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; width: 70%;">
+        <button onclick="alert('Add godown functionality')" class="btn btn-primary" style="padding: 10px 16px;">Add</button>
+      </div>
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f1f5f9;">
+            <th style="padding: 10px; text-align: left;">Godown Name</th>
+            <th style="padding: 10px; text-align: center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding: 10px;">Main Warehouse</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Godown A</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Godown B</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+        </tbody>
+      </table>
+      <button onclick="this.closest('.modal').remove()" class="btn btn-outline" style="margin-top: 16px;">Close</button>
+    </div>
+  `
+  document.body.appendChild(modal)
+}
+
+// State Modal
+function showStateModal() {
+  const modal = document.createElement('div')
+  modal.id = 'stateModal'
+  modal.className = 'modal'
+  modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;'
+  modal.innerHTML = `
+    <div style="background: white; padding: 24px; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">🗺️ States</h3>
+        <button onclick="this.closest('.modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <input type="text" id="newState" placeholder="New State Name" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; width: 70%;">
+        <button onclick="alert('Add state functionality')" class="btn btn-primary" style="padding: 10px 16px;">Add</button>
+      </div>
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f1f5f9;">
+            <th style="padding: 10px; text-align: left;">State Name</th>
+            <th style="padding: 10px; text-align: center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding: 10px;">Delhi</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Maharashtra</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Karnataka</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Tamil Nadu</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">Uttar Pradesh</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+        </tbody>
+      </table>
+      <button onclick="this.closest('.modal').remove()" class="btn btn-outline" style="margin-top: 16px;">Close</button>
+    </div>
+  `
+  document.body.appendChild(modal)
+}
+
+// Country Modal
+function showCountryModal() {
+  const modal = document.createElement('div')
+  modal.id = 'countryModal'
+  modal.className = 'modal'
+  modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;'
+  modal.innerHTML = `
+    <div style="background: white; padding: 24px; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">🌍 Countries</h3>
+        <button onclick="this.closest('.modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <input type="text" id="newCountry" placeholder="New Country Name" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; width: 70%;">
+        <button onclick="alert('Add country functionality')" class="btn btn-primary" style="padding: 10px 16px;">Add</button>
+      </div>
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f1f5f9;">
+            <th style="padding: 10px; text-align: left;">Country Name</th>
+            <th style="padding: 10px; text-align: center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding: 10px;">India</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">USA</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">UK</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+          <tr><td style="padding: 10px;">UAE</td><td style="padding: 10px; text-align: center;"><button style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Delete</button></td></tr>
+        </tbody>
+      </table>
+      <button onclick="this.closest('.modal').remove()" class="btn btn-outline" style="margin-top: 16px;">Close</button>
+    </div>
+  `
+  document.body.appendChild(modal)
+}
+// ==================== ACCOUNTS ====================
+async function loadAccounts() {
+  try {
+    const { data } = await supabase
+      .from('accounts')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+    
+    if (data) {
+      accounts = data
+      
+      // If no accounts exist, create default ones
+      if (accounts.length === 0) {
+        await createDefaultAccounts()
+      }
+      
+      renderAccountsTable()
+    }
+  } catch (e) {
+    console.log('Error loading accounts:', e)
+  }
+}
+
+async function createDefaultAccounts() {
+  const defaultAccounts = [
+    { name: 'Capital Account', nature: 'Liabilities', account_type: 'Capital', opening_balance: 0 },
+    { name: 'Cash in Hand', nature: 'Assets', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Cash at Bank', nature: 'Assets', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Sundry Debtors', nature: 'Assets', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Sundry Creditors', nature: 'Liabilities', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Sales', nature: 'Income', account_type: 'Revenue', opening_balance: 0 },
+    { name: 'Purchase', nature: 'Expense', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Salaries', nature: 'Expense', account_type: 'Direct', opening_balance: 0 },
+    { name: 'Rent', nature: 'Expense', account_type: 'Indirect', opening_balance: 0 },
+    { name: 'Interest Received', nature: 'Income', account_type: 'Revenue', opening_balance: 0 }
+  ]
+  
+  for (let i = 0; i < defaultAccounts.length; i++) {
+    try {
+      await supabase.from('accounts').insert({
+        client_id: currentClientId,
+        fy: currentFY,
+        code: String(i + 1).padStart(3, '0'),
+        ...defaultAccounts[i]
+      })
+    } catch (e) {
+      // Ignore duplicates
+    }
+  }
+  
+  // Reload accounts after creation
+  const { data } = await supabase
+    .from('accounts')
+    .select('*')
+    .eq('client_id', currentClientId)
+    .eq('fy', currentFY)
+  
+  if (data) {
+    accounts = data
+  }
+}
+
+function renderAccountsTable() {
+  const tbody = document.getElementById('accountsTable')
+  tbody.innerHTML = accounts.map(a => `
+    <tr>
+      <td>${a.code || '-'}</td>
+      <td>${a.name}</td>
+      <td>${a.nature}</td>
+      <td>${a.account_type}</td>
+      <td class="amount">${formatCurrency(a.opening_balance || 0)}</td>
+      <td>
+        <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="deleteAccount('${a.id}')">Delete</button>
+      </td>
+    </tr>
+  `).join('')
+}
+
+function showAddAccountModal() {
+  document.getElementById('addAccountModal').classList.add('active')
+}
+
+function hideAddAccountModal() {
+  document.getElementById('addAccountModal').classList.remove('active')
+}
+
+async function saveAccount() {
+  const name = document.getElementById('newAccountName').value
+  const nature = document.getElementById('newAccountNature').value
+  const accountType = document.getElementById('newAccountType').value
+  const openingBalance = parseFloat(document.getElementById('newAccountOpening').value) || 0
+  
+  if (!name) {
+    alert('Please enter account name')
+    return
+  }
+  
+  try {
+    await supabase.from('accounts').insert({
+      client_id: currentClientId,
+      fy: currentFY,
+      name: name,
+      nature: nature,
+      account_type: accountType,
+      opening_balance: openingBalance
+    })
+    
+    hideAddAccountModal()
+    loadAccounts()
+    showSuccess('Account saved successfully!')
+  } catch (e) {
+    console.error('Error saving account:', e)
+    alert('Error saving account')
+  }
+}
+
+async function deleteAccount(id) {
+  if (!confirm('Are you sure you want to delete this account?')) return
+  
+  await supabase.from('accounts').delete().eq('id', id)
+  loadAccounts()
+}
+
+// ==================== GROUPS & LEDGERS ====================
+async function loadGroupsAndLedgers() {
+  try {
+    const { data: groups } = await supabase.from('account_groups')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+      .order('name')
+    
+    const { data: ledgers } = await supabase.from('accounts')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+      .order('name')
+    
+    renderGroupsTree(groups || [], ledgers || [])
+  } catch (e) {
+    console.warn('account_groups table may not exist yet, using defaults')
+    // Load just ledgers (accounts) as fallback
+    const { data: ledgers } = await supabase.from('accounts')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+    renderGroupsTree([], ledgers || [])
+  }
+}
+
+function renderGroupsTree(groups, ledgers) {
+  const container = document.getElementById('groupsContainer')
+  if (!container) return
+  
+  const ledgersByGroup = {}
+  ledgers.forEach(l => {
+    const gid = l.group_id || 'ungrouped'
+    if (!ledgersByGroup[gid]) ledgersByGroup[gid] = []
+    ledgersByGroup[gid].push(l)
+  })
+  
+  const defaultGroups = [
+    { id: 'sundry_debtors', name: 'Sundry Debtors', nature: 'Assets' },
+    { id: 'sundry_creditors', name: 'Sundry Creditors', nature: 'Liabilities' },
+    { id: 'cash', name: 'Cash', nature: 'Assets' },
+    { id: 'bank', name: 'Bank', nature: 'Assets' },
+    { id: 'sales', name: 'Sales', nature: 'Income' },
+    { id: 'purchases', name: 'Purchases', nature: 'Expense' }
+  ]
+  
+  const allGroups = groups.length ? groups : defaultGroups
+  
+  container.innerHTML = allGroups.map(g => `
+    <div class="group-item">
+      <div class="group-header" onclick="toggleGroup('${g.id}')">
+        <span class="group-toggle">▶</span>
+        <strong>📁 ${g.name}</strong>
+        <span class="group-nature">${g.nature || ''}</span>
+      </div>
+      <div class="group-ledgers" id="group-${g.id}">
+        ${(ledgersByGroup[g.id] || []).map(l => `
+          <div class="ledger-row">
+            <span>📓 ${l.name}</span>
+            <span class="amount">${formatCurrency(l.opening_balance || 0)}</span>
+          </div>
+        `).join('')}
+        <button class="btn btn-outline" style="margin: 8px 0; font-size: 12px;" onclick="showAddLedgerModal('${g.id}')">+ Add Ledger</button>
+      </div>
+    </div>
+  `).join('')
+}
+
+function toggleGroup(groupId) {
+  const el = document.getElementById(`group-${groupId}`)
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none'
+}
+
+function showAddGroupModal() {
+  document.getElementById('addGroupModal').classList.add('active')
+}
+
+function showAddLedgerModal(groupId) {
+  document.getElementById('ledgerGroupId').value = groupId
+  document.getElementById('addLedgerModal').classList.add('active')
+}
+
+async function saveGroup() {
+  const name = document.getElementById('newGroupName').value
+  const nature = document.getElementById('newGroupNature').value
+  
+  if (!name) { alert('Please enter group name'); return }
+  
+  try {
+    await supabase.from('account_groups').insert({
+      client_id: currentClientId,
+      fy: currentFY,
+      name: name,
+      nature: nature
+    })
+    document.getElementById('addGroupModal').classList.remove('active')
+    loadGroupsAndLedgers()
+    showSuccess('Group created!')
+  } catch (e) {
+    console.error('Error:', e)
+    alert('Error creating group')
+  }
+}
+
+async function saveLedger() {
+  const name = document.getElementById('newLedgerName').value
+  const groupId = document.getElementById('ledgerGroupId').value
+  const openingBalance = parseFloat(document.getElementById('ledgerOpeningBalance')?.value) || 0
+  
+  if (!name) { alert('Please enter ledger name'); return }
+  
+  try {
+    await supabase.from('accounts').insert({
+      client_id: currentClientId,
+      fy: currentFY,
+      name: name,
+      group_id: groupId,
+      opening_balance: openingBalance
+    })
+    document.getElementById('addLedgerModal').classList.remove('active')
+    loadGroupsAndLedgers()
+    showSuccess('Ledger created!')
+  } catch (e) {
+    console.error('Error:', e)
+    alert('Error creating ledger')
+  }
+}
+
+// ==================== STOCK ITEMS ====================
+async function loadStockItems() {
+  try {
+    const { data } = await supabase.from('stock_items')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+      .order('name')
+    
+    renderStockItems(data || [])
+  } catch (e) {
+    console.warn('stock_items table may not exist yet')
+    renderStockItems([])
+  }
+}
+
+function renderStockItems(items) {
+  const tbody = document.getElementById('stockItemsTable')
+  if (!tbody) return
+  
+  tbody.innerHTML = items.map(item => `
+    <tr>
+      <td>${item.code || ''}</td>
+      <td>${item.name}</td>
+      <td>${item.category || ''}</td>
+      <td>${item.unit || ''}</td>
+      <td>${item.opening_qty || 0}</td>
+      <td class="amount">${formatCurrency(item.rate || 0)}</td>
+      <td class="amount">${formatCurrency((item.opening_qty || 0) * (item.rate || 0))}</td>
+      <td>
+        <button class="btn btn-outline" style="padding: 4px 8px; font-size: 11px;" onclick="deleteStockItem('${item.id}')">Delete</button>
+      </td>
+    </tr>
+  `).join('')
+}
+
+function showAddStockItemModal() {
+  document.getElementById('addStockItemModal').classList.add('active')
+}
+
+async function saveStockItem() {
+  const name = document.getElementById('stockItemName').value
+  const code = document.getElementById('stockItemCode').value
+  const category = document.getElementById('stockItemCategory').value
+  const unit = document.getElementById('stockItemUnit').value
+  const qty = parseFloat(document.getElementById('stockItemQty').value) || 0
+  const rate = parseFloat(document.getElementById('stockItemRate').value) || 0
+  
+  if (!name) { alert('Please enter item name'); return }
+  
+  try {
+    await supabase.from('stock_items').insert({
+      client_id: currentClientId,
+      fy: currentFY,
+      name: name,
+      code: code,
+      category: category,
+      unit: unit,
+      opening_qty: qty,
+      rate: rate
+    })
+    document.getElementById('addStockItemModal').classList.remove('active')
+    loadStockItems()
+    showSuccess('Stock item added!')
+  } catch (e) {
+    console.error('Error:', e)
+    alert('Error adding stock item')
+  }
+}
+
+async function deleteStockItem(id) {
+  if (!confirm('Delete this stock item?')) return
+  try {
+    await supabase.from('stock_items').delete().eq('id', id)
+    loadStockItems()
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+// ==================== TRIAL BALANCE ====================
+async function generateTrialBalance() {
+  try {
+    const { data: accounts } = await supabase.from('accounts')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+    
+    const { data: vouchers } = await supabase.from('vouchers')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+    
+    const accountBalances = {}
+    accounts.forEach(a => {
+      accountBalances[a.id] = {
+        name: a.name,
+        nature: a.nature,
+        group: a.group_id || 'Primary',
+        debit: 0,
+        credit: a.opening_balance || 0
+      }
+    })
+    
+    vouchers.forEach(v => {
+      if (v.debit_account_id && accountBalances[v.debit_account_id]) {
+        accountBalances[v.debit_account_id].debit += v.debit_amount || 0
+      }
+      if (v.credit_account_id && accountBalances[v.credit_account_id]) {
+        accountBalances[v.credit_account_id].credit += v.credit_amount || 0
+      }
+    })
+    
+    let totalDebit = 0, totalCredit = 0
+    const rows = Object.values(accountBalances).map(ab => {
+      let debit = ab.debit, credit = ab.credit
+      
+      if (ab.nature === 'Expense' || ab.nature === 'Assets') {
+        const balance = debit - credit
+        if (balance > 0) {
+          totalDebit += balance
+          return { ...ab, netDebit: balance, netCredit: 0 }
+        } else {
+          totalCredit += Math.abs(balance)
+          return { ...ab, netDebit: 0, netCredit: Math.abs(balance) }
+        }
+      } else {
+        const balance = credit - debit
+        if (balance > 0) {
+          totalCredit += balance
+          return { ...ab, netDebit: 0, netCredit: balance }
+        } else {
+          totalDebit += Math.abs(balance)
+          return { ...ab, netDebit: Math.abs(balance), netCredit: 0 }
+        }
+      }
+    })
+    
+    const tbody = document.getElementById('trialBalanceTable')
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td>${r.name}</td>
+        <td>${r.group}</td>
+        <td style="text-align: right;">${r.netDebit ? formatCurrency(r.netDebit) : '-'}</td>
+        <td style="text-align: right;">${r.netCredit ? formatCurrency(r.netCredit) : '-'}</td>
+      </tr>
+    `).join('')
+    
+    document.getElementById('tbDebitTotal').textContent = formatCurrency(totalDebit)
+    document.getElementById('tbCreditTotal').textContent = formatCurrency(totalCredit)
+  } catch (e) {
+    console.error('Error generating TB:', e)
+  }
+}
+
+// ==================== FINANCIAL STATEMENTS ====================
+async function generateFinancialStatements() {
+  try {
+    const { data: accounts } = await supabase.from('accounts')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+    
+    const { data: vouchers } = await supabase.from('vouchers')
+      .select('*')
+      .eq('client_id', currentClientId)
+      .eq('fy', currentFY)
+    
+    const balances = {}
+    accounts.forEach(a => balances[a.id] = { name: a.name, nature: a.nature, debit: 0, credit: a.opening_balance || 0 })
+    
+    vouchers.forEach(v => {
+      if (v.debit_account_id && balances[v.debit_account_id]) balances[v.debit_account_id].debit += v.debit_amount || 0
+      if (v.credit_account_id && balances[v.credit_account_id]) balances[v.credit_account_id].credit += v.credit_amount || 0
+    })
+    
+    let totalIncome = 0, totalExpense = 0
+    const plRows = []
+    
+    Object.values(balances).forEach(b => {
+      const net = b.credit - b.debit
+      if (b.nature === 'Income') {
+        totalIncome += net > 0 ? net : 0
+        if (net > 0) plRows.push({ name: b.name, amount: net, type: 'income' })
+      } else if (b.nature === 'Expense') {
+        const exp = b.debit - b.credit
+        totalExpense += exp > 0 ? exp : 0
+        if (exp > 0) plRows.push({ name: b.name, amount: exp, type: 'expense' })
+      }
+    })
+    
+    const netProfit = totalIncome - totalExpense
+    
+    document.getElementById('plTable').innerHTML = plRows.map(r => `
+      <tr><td>${r.name}</td><td style="text-align: right;">${formatCurrency(r.amount)}</td></tr>
+    `).join('')
+    document.getElementById('plNetProfit').textContent = formatCurrency(netProfit)
+    
+    let totalAssets = 0, totalLiabilities = 0
+    const bsLiabilities = []
+    const bsAssets = []
+    
+    Object.values(balances).forEach(b => {
+      if (b.nature === 'Liabilities' || b.nature === 'Capital') {
+        const amt = b.credit - b.debit
+        if (amt > 0) {
+          totalLiabilities += amt
+          bsLiabilities.push({ name: b.name, amount: amt })
+        }
+      } else if (b.nature === 'Assets') {
+        const amt = b.debit - b.credit
+        if (amt > 0) {
+          totalAssets += amt
+          bsAssets.push({ name: b.name, amount: amt })
+        }
+      }
+    })
+    
+    if (netProfit > 0) {
+      totalLiabilities += netProfit
+      bsLiabilities.push({ name: 'Profit & Loss A/c', amount: netProfit })
+    }
+    
+    document.getElementById('bsLiabilities').innerHTML = bsLiabilities.map(b => `
+      <tr><td>${b.name}</td><td style="text-align: right;">${formatCurrency(b.amount)}</td></tr>
+    `).join('') || '<tr><td>No data</td><td>0.00</td></tr>'
+    document.getElementById('bsLiabilitiesTotal').textContent = formatCurrency(totalLiabilities)
+    
+    document.getElementById('bsAssets').innerHTML = bsAssets.map(b => `
+      <tr><td>${b.name}</td><td style="text-align: right;">${formatCurrency(b.amount)}</td></tr>
+    `).join('') || '<tr><td>No data</td><td>0.00</td></tr>'
+    document.getElementById('bsAssetsTotal').textContent = formatCurrency(totalAssets)
+    
+  } catch (e) {
+    console.error('Error generating financials:', e)
+  }
+}
+
+function updateAccountDropdowns() {
+  const dropdowns = ['ledgerAccount']
+  dropdowns.forEach(id => {
+    const select = document.getElementById(id)
+    const currentValue = select.value
+    select.innerHTML = '<option value="">-- Select Account --</option>'
+    accounts.forEach(a => {
+      const opt = document.createElement('option')
+      opt.value = a.id
+      opt.textContent = a.name
+      select.appendChild(opt)
+    })
+    select.value = currentValue
+  })
+}
+
+// ==================== VOUCHERS ====================
+function showVoucherForm() {
+  const form = document.getElementById('voucherForm')
+  if (!form) {
+    console.error('voucherForm element not found')
+    return
+  }
+  form.style.display = 'block'
+  document.getElementById('voucherLines').innerHTML = ''
+  addVoucherLine()
+  addVoucherLine()
+  generateVoucherNo()
+}
+
+function hideVoucherForm() {
+  document.getElementById('voucherForm').style.display = 'none'
+}
+
+function generateVoucherNo() {
+  const type = document.getElementById('voucherType').value
+  const prefixes = {
+    'sale': 'SA', 'salereturn': 'SR', 'creditnotesale': 'CNS', 'debitnotesale': 'DNS',
+    'purchase': 'PU', 'purchasereturn': 'PR', 'debitnotepurchase': 'DNP', 'creditnotepurchase': 'CNP',
+    'journal': 'JV', 'payment': 'PV', 'receipt': 'RV', 'contra': 'CV'
+  }
+  const prefix = prefixes[type] || type.charAt(0).toUpperCase()
+  const num = String(vouchers.length + 1).padStart(4, '0')
+  document.getElementById('voucherNo').value = `${prefix}/${num}`
+}
+
+function addVoucherLine() {
+  const container = document.getElementById('voucherLines')
+  const line = document.createElement('div')
+  line.className = 'voucher-row'
+  line.innerHTML = `
+    <select class="voucher-input account-select">
+      <option value="">-- Select Account --</option>
+      ${accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('')}
+    </select>
+    <input type="text" class="voucher-input" placeholder="Party Name">
+    <input type="number" class="voucher-input debit-input" placeholder="0.00" oninput="updateLineTotal(this)">
+    <input type="number" class="voucher-input credit-input" placeholder="0.00" oninput="updateLineTotal(this)">
+    <button class="voucher-delete" onclick="this.parentElement.remove()">✕</button>
+  `
+  container.appendChild(line)
+}
+
+function updateLineTotal(input) {
+  const line = input.parentElement
+  const debit = line.querySelector('.debit-input')
+  const credit = line.querySelector('.credit-input')
+  
+  if (input === debit && input.value) {
+    credit.value = ''
+  } else if (input === credit && input.value) {
+    debit.value = ''
+  }
+}
+
+async function saveVoucher() {
+  const lines = document.querySelectorAll('#voucherLines .voucher-row')
+  const voucherData = {
+    client_id: currentClientId,
+    fy: currentFY,
+    date: document.getElementById('voucherDate').value,
+    voucher_no: document.getElementById('voucherNo').value,
+    voucher_type: document.getElementById('voucherType').value,
+    narration: document.getElementById('voucherNarration').value,
+    lines: []
+  }
+  
+  let totalDebit = 0, totalCredit = 0
+  
+  lines.forEach(line => {
+    const accountId = line.querySelector('.account-select').value
+    const party = line.querySelector('input[placeholder="Party Name"]').value
+    const debit = parseFloat(line.querySelector('.debit-input').value) || 0
+    const credit = parseFloat(line.querySelector('.credit-input').value) || 0
+    
+    if (accountId || debit || credit) {
+      voucherData.lines.push({ account_id: accountId, party, debit, credit })
+      totalDebit += debit
+      totalCredit += credit
+    }
+  })
+  
+  if (Math.abs(totalDebit - totalCredit) > 0.01) {
+    alert('Debit and Credit must be equal')
+    return
+  }
+  
+  if (voucherData.lines.length === 0) {
+    alert('Please add at least one entry')
+    return
+  }
+  
+  try {
+    // Use backend API instead of Supabase
+    await api.post('/vouchers', voucherData)
+    hideVoucherForm()
+    loadVouchers()
+    showSuccess('Voucher saved successfully!')
+  } catch (e) {
+    console.error('Error saving voucher:', e)
+    alert('Error saving voucher: ' + e.message)
+  }
+}
+
+async function loadVouchers() {
+  if (!currentClientId) return
+  
+  try {
+    // Use backend API instead of Supabase
+    const data = await api.get(`/vouchers/${currentClientId}?fy=${currentFY}`)
+    vouchers = data || []
+    renderVoucherTable()
+  } catch (e) {
+    console.log('Error loading vouchers:', e)
+    vouchers = []
+    renderVoucherTable()
+  }
+}
+
+function renderVoucherTable() {
+  const tbody = document.getElementById('voucherTable')
+  
+  if (vouchers.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No vouchers found</td></tr>'
+    return
+  }
+  
+  tbody.innerHTML = vouchers.map(v => {
+    const totalDebit = v.lines ? v.lines.reduce((sum, l) => sum + (l.debit || 0), 0) : 0
+    const totalCredit = v.lines ? v.lines.reduce((sum, l) => sum + (l.credit || 0), 0) : 0
+    return `
+      <tr>
+        <td>${v.date}</td>
+        <td>${v.voucher_no}</td>
+        <td>${v.voucher_type}</td>
+        <td>${v.narration || '-'}</td>
+        <td class="amount">${formatCurrency(totalDebit)}</td>
+        <td class="amount">${formatCurrency(totalCredit)}</td>
+        <td>
+          <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="deleteVoucher('${v.id}')">Delete</button>
+        </td>
+      </tr>
+    `
+  }).join('')
+}
+
+async function deleteVoucher(id) {
+  if (!confirm('Are you sure you want to delete this voucher?')) return
+  
+  await supabase.from('vouchers').delete().eq('id', id)
+  loadVouchers()
+}
+
+// ==================== LEDGER ====================
+async function loadLedger() {
+  const accountId = document.getElementById('ledgerAccount').value
+  const fromDate = document.getElementById('ledgerFromDate').value
+  const toDate = document.getElementById('ledgerToDate').value
+  
+  if (!accountId) {
+    document.getElementById('ledgerContent').innerHTML = '<div class="empty-state">Select an account to view ledger</div>'
+    return
+  }
+  
+  const account = accounts.find(a => a.id === accountId)
+  let balance = account?.opening_balance || 0
+  
+  // Get voucher lines for this account
+  const accountVouchers = []
+  vouchers.forEach(v => {
+    if (v.lines) {
+      v.lines.forEach(line => {
+        if (line.account_id === accountId) {
+          accountVouchers.push({
+            date: v.date,
+            voucherNo: v.voucher_no,
+            type: v.voucher_type,
+            narration: v.narration,
+            debit: line.debit || 0,
+            credit: line.credit || 0
+          })
+        }
+      })
+    }
+  })
+}
+
+// ==================== BANK RECONCILIATION ====================
+let bankFeedData = []
+
+function loadBankFeed() {
+  console.log('Loading bank feed...')
+  // Demo data for demonstration
+  bankFeedData = [
+    { id: 1, date: '2025-03-28', description: 'Received from ABC Corp', amount: 50000, type: 'credit', matched: true, voucher: 'PV-001' },
+    { id: 2, date: '2025-03-27', description: 'Payment to XYZ Suppliers', amount: 25000, type: 'debit', matched: true, voucher: 'PP-002' },
+    { id: 3, date: '2025-03-26', description: 'Bank Charges', amount: 500, type: 'debit', matched: false, voucher: null },
+    { id: 4, date: '2025-03-25', description: 'Received from Customer - Sharma', amount: 75000, type: 'credit', matched: false, voucher: null },
+    { id: 5, date: '2025-03-24', description: 'EMI - HDFC Bank', amount: 125000, type: 'debit', matched: true, voucher: 'JV-005' }
+  ]
+  renderBankFeed(bankFeedData)
+  updateBankStats()
+}
+
+function renderBankFeed(data) {
+  const tbody = document.getElementById('bankFeedTable')
+  if (!tbody) return
+  
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No bank transactions found</td></tr>'
+    return
+  }
+  
+  tbody.innerHTML = data.map(item => `
+    <tr class="${item.matched ? 'bank-matched' : 'bank-unmatched'}">
+      <td><input type="checkbox" class="bank-checkbox" ${item.matched ? 'checked' : ''}></td>
+      <td>${item.date}</td>
+      <td>${item.description}</td>
+      <td class="bank-feed-amount ${item.type}">${item.type === 'debit' ? '-' : ''}₹${item.amount.toLocaleString()}</td>
+      <td>${item.voucher || '-'}</td>
+      <td>${item.matched ? '<span class="tag tag-success">Matched</span>' : '<span class="tag tag-warning">Pending</span>'}</td>
+      <td>${item.matched ? '<button class="btn btn-outline" style="padding: 4px 8px;">Unmatch</button>' : '<button class="btn btn-primary" style="padding: 4px 8px;">Match</button>'}</td>
+    </tr>
+  `).join('')
+}
+
+function updateBankStats() {
+  const matched = bankFeedData.filter(d => d.matched).length
+  const unmatched = bankFeedData.filter(d => !d.matched).length
+  const suggested = 2 // Demo value
+  
+  document.getElementById('bankMatched').textContent = matched
+  document.getElementById('bankUnmatched').textContent = unmatched
+  document.getElementById('bankSuggested').textContent = suggested
+  
+  const total = bankFeedData.reduce((sum, d) => sum + d.amount, 0)
+  document.getElementById('bankTotal').textContent = '₹' + total.toLocaleString()
+}
+
+function filterBankFeed(filter, element) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'))
+  element.classList.add('active')
+  
+  let filtered = bankFeedData
+  if (filter === 'matched') filtered = bankFeedData.filter(d => d.matched)
+  if (filter === 'unmatched') filtered = bankFeedData.filter(d => !d.matched)
+  if (filter === 'suggested') filtered = bankFeedData.slice(0, 2)
+  
+  renderBankFeed(filtered)
+}
+
+function connectBank() {
+  alert('🏦 Bank Integration\n\nThis would connect to your bank via APIs like Yodlee or Perfios to automatically import transactions.\n\nIntegration required: Bank API setup')
+}
+
+function reconcileSelected() {
+  alert('✓ Bank Reconciliation\n\nSelected transactions would be matched with existing vouchers automatically.')
+}
+
+// ==================== AI/OCR ENTRY ====================
+function handleOCRUpload(event) {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  // Show preview
+  const reader = new FileReader()
+  reader.onload = function(e) {
+    document.getElementById('ocrPreviewImg').src = e.target.result
+    document.getElementById('ocrPreview').style.display = 'block'
+  }
+  reader.readAsDataURL(file)
+  
+  // Simulate OCR extraction
+  setTimeout(() => {
+    document.getElementById('ocrResult').innerHTML = '<p style="color: #22c55e;">✓ Document processed! Data extracted successfully.</p>'
+    document.getElementById('ocrFields').style.display = 'block'
+    
+    // Pre-fill with demo extracted data
+    document.getElementById('ocrPartyName').value = 'Singla Steel Corporation'
+    document.getElementById('ocrGSTIN').value = '29AAECS1234A1Z5'
+    document.getElementById('ocrInvoiceNum').value = 'INV-2025-0042'
+    document.getElementById('ocrInvoiceDate').value = '2025-03-25'
+    document.getElementById('ocrAmount').value = '118000'
+    document.getElementById('ocrCGST').value = '9000'
+    document.getElementById('ocrSGST').value = '9000'
+  }, 1500)
+}
+
+function clearOCRData() {
+  document.getElementById('ocrPreview').style.display = 'none'
+  document.getElementById('ocrFields').style.display = 'none'
+  document.getElementById('ocrResult').innerHTML = '<p style="color: #64748b;">Upload a document to extract data automatically using AI.</p>'
+  document.getElementById('ocrFileInput').value = ''
+}
+
+function createVoucherFromOCR() {
+  alert('🤖 Creating voucher from extracted data...\n\nThis would automatically create a purchase voucher with the extracted invoice data.')
+}
+
+function scanDocument() {
+  if ('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices) {
+    alert('📷 Camera Access\n\nThis would open the camera to scan documents for OCR processing.')
+  } else {
+    alert('Camera not supported in this browser')
+  }
+}
+
+function uploadInvoice() {
+  document.getElementById('ocrFileInput').click()
+}
+
+function loadOCRHistory() {
+  // Demo history data would be loaded here
+}
+
+// ==================== E-INVOICE ====================
+function switchEInvoiceTab(tab, element) {
+  document.querySelectorAll('#eInvoiceSection .pill-tab').forEach(t => t.classList.remove('active'))
+  element.classList.add('active')
+  
+  document.getElementById('eInvoiceCreate').style.display = tab === 'create' ? 'block' : 'none'
+  document.getElementById('eInvoiceGenerated').style.display = tab === 'generated' ? 'block' : 'none'
+  document.getElementById('eWayBill').style.display = tab === 'ewaybill' ? 'block' : 'none'
+}
+
+function addEINVItem() {
+  const container = document.getElementById('einvItems')
+  const row = document.createElement('div')
+  row.className = 'einvoice-item-row'
+  row.innerHTML = `
+    <input type="text" class="voucher-input" placeholder="Item description">
+    <input type="text" class="voucher-input" placeholder="7214">
+    <input type="number" class="voucher-input" placeholder="1" min="0">
+    <input type="number" class="voucher-input" placeholder="0.00" min="0" step="0.01">
+    <input type="number" class="voucher-input" placeholder="0.00" readonly>
+    <button class="voucher-delete" onclick="this.parentElement.remove()">×</button>
+  `
+  container.appendChild(row)
+}
+
+function generateEINV() {
+  alert('📄 Generating E-Invoice...\n\nThis would connect to the GSTN portal to generate a legally valid e-invoice with IRN.')
+}
+
+function saveEINVDraft() {
+  alert('💾 Draft saved successfully!')
+}
+
+function bulkEInvoice() {
+  alert('📦 Bulk E-Invoice Generation\n\nThis would generate e-invoices for multiple invoices at once.')
+}
+
+function generateEWayBill() {
+  alert('🚚 Generating E-Way Bill...\n\nThis would create an e-way bill for transportation of goods.')
+}
+
+// ==================== WORKFLOWS ====================
+function loadWorkflows() {
+  console.log('Loading workflows...')
+}
+
+function createWorkflow() {
+  alert('➕ Create Workflow\n\nThis would open a modal to create custom automated workflows.')
+}
+
+// ==================== REPORTS ====================
+function showReport(type) {
+  document.querySelectorAll('.report-section').forEach(r => r.style.display = 'none')
+  document.getElementById('report' + type.charAt(0).toUpperCase() + type.slice(1)).style.display = 'block'
+}
+
+function switchGSTRTab(tab, element) {
+  // GSTR tab switching logic
+  alert('This would show detailed ' + tab + ' reports')
+}
+
+function loadReports() {
+  console.log('Loading reports...')
+}
+
+// ==================== SETTINGS ====================
+function loadSettings() {
+  console.log('Loading settings...')
+}
+
+function showAddUserModal() {
+  alert('➕ Add User\n\nThis would open a modal to add new users with specific roles and permissions.')
+}
+          })
+        }
+      })
+    }
+  })
+  
+  // Filter by date
+  const filtered = accountVouchers.filter(v => 
+    (!fromDate || v.date >= fromDate) && (!toDate || v.date <= toDate)
+  ).sort((a, b) => a.date.localeCompare(b.date))
+  
+  let runningBalance = balance
+  let totalDebit = 0
+  let totalCredit = 0
+  
+  const rows = filtered.map(v => {
+    runningBalance += v.debit - v.credit
+    totalDebit += v.debit
+    totalCredit += v.credit
+    
+    return `
+      <tr>
+        <td>${v.date}</td>
+        <td>${v.voucherNo}</td>
+        <td>${v.type}</td>
+        <td>${v.narration || '-'}</td>
+        <td class="amount">${formatCurrency(v.debit)}</td>
+        <td class="amount">${formatCurrency(v.credit)}</td>
+        <td class="amount">${formatCurrency(runningBalance)}</td>
+      </tr>
+    `
+  }).join('')
+  
+  const balanceClass = runningBalance >= 0 ? 'debit' : 'credit'
+  const balanceType = runningBalance >= 0 ? 'Dr' : 'Cr'
+  
+  document.getElementById('ledgerContent').innerHTML = `
+    <div class="ledger-header">
+      <h4>${account?.name || 'Account'}</h4>
+      <div class="ledger-balance ${balanceClass}">
+        Closing Balance: ${formatCurrency(Math.abs(runningBalance))} ${balanceType}
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Voucher No.</th>
+          <th>Type</th>
+          <th>Narration</th>
+          <th>Debit</th>
+          <th>Credit</th>
+          <th>Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Opening</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Opening Balance</td>
+          <td class="amount">-</td>
+          <td class="amount">-</td>
+          <td class="amount">${formatCurrency(balance)}</td>
+        </tr>
+        ${rows}
+      </tbody>
+    </table>
+  `
+}
+
+// ==================== DAY BOOK ====================
+async function loadDayBook() {
+  const fromDate = document.getElementById('daybookFromDate').value
+  const toDate = document.getElementById('daybookToDate').value
+  
+  const allTransactions = []
+  
+  vouchers.forEach(v => {
+    if (v.lines) {
+      v.lines.forEach(line => {
+        if (line.account_id) {
+          const account = accounts.find(a => a.id === line.account_id)
+          allTransactions.push({
+            date: v.date,
+            voucherNo: v.voucher_no,
+            type: v.voucher_type,
+            account: account?.name || 'Unknown',
+            narration: v.narration,
+            debit: line.debit || 0,
+            credit: line.credit || 0
+          })
+        }
+      })
+    }
+  })
+  
+  const filtered = allTransactions.filter(t => 
+    (!fromDate || t.date >= fromDate) && (!toDate || t.date <= toDate)
+  ).sort((a, b) => b.date.localeCompare(a.date))
+  
+  const tbody = document.getElementById('daybookTable')
+  tbody.innerHTML = filtered.map(t => `
+    <tr>
+      <td>${t.date}</td>
+      <td>${t.voucherNo}</td>
+      <td>${t.type}</td>
+      <td>${t.account}</td>
+      <td>${t.narration || '-'}</td>
+      <td class="amount">${formatCurrency(t.debit)}</td>
+      <td class="amount">${formatCurrency(t.credit)}</td>
+    </tr>
+  `).join('')
+}
+
+// ==================== CASH BOOK ====================
+async function loadCashBook() {
+  const cashAccount = accounts.find(a => a.name.toLowerCase().includes('cash'))
+  
+  let cashBalance = cashAccount?.opening_balance || 0
+  let totalReceipt = 0
+  let totalPayment = 0
+  
+  const cashTransactions = []
+  
+  vouchers.forEach(v => {
+    if (v.lines) {
+      v.lines.forEach(line => {
+        const accountName = accounts.find(a => a.id === line.account_id)?.name || ''
+        if (accountName.toLowerCase().includes('cash')) {
+          cashTransactions.push({
+            date: v.date,
+            voucherNo: v.voucher_no,
+            type: v.voucher_type,
+            particulars: v.narration,
+            narration: v.narration,
+            isReceipt: line.credit > 0,
+            amount: line.credit || line.debit || 0
+          })
+        }
+      })
+    }
+  })
+  
+  const rows = cashTransactions.sort((a, b) => a.date.localeCompare(b.date)).map(t => {
+    if (t.isReceipt) {
+      cashBalance += t.amount
+      totalReceipt += t.amount
+    } else {
+      cashBalance -= t.amount
+      totalPayment += t.amount
+    }
+    
+    return `
+      <tr>
+        <td>${t.date}</td>
+        <td>${t.voucherNo}</td>
+        <td>${t.type}</td>
+        <td>${t.particulars}</td>
+        <td>${t.narration || '-'}</td>
+        <td class="amount">${t.isReceipt ? formatCurrency(t.amount) : '-'}</td>
+        <td class="amount">${!t.isReceipt ? formatCurrency(t.amount) : '-'}</td>
+        <td class="amount">${formatCurrency(cashBalance)}</td>
+      </tr>
+    `
+  }).join('')
+  
+  document.getElementById('cashbookTable').innerHTML = rows || '<tr><td colspan="8" class="empty-state">No cash transactions found</td></tr>'
+  document.getElementById('cashReceiptTotal').textContent = formatCurrency(totalReceipt)
+  document.getElementById('cashPaymentTotal').textContent = formatCurrency(totalPayment)
+  document.getElementById('cashBalanceTotal').textContent = formatCurrency(cashBalance)
+}
+
+// Utility functions
+function formatCurrency(amount) {
+  if (amount === undefined || amount === null) return '0.00'
+  return new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)
+}
+
+function showSuccess(message) {
+  const msg = document.getElementById('successMessage')
+  msg.textContent = message
+  msg.classList.add('show')
+  setTimeout(() => msg.classList.remove('show'), 3000)
+}
+
+// Add Group Modal
+function hideAddGroupModal() {
+  document.getElementById('addGroupModal').classList.remove('active')
+}
+
+// Add Ledger Modal
+function hideAddLedgerModal() {
+  document.getElementById('addLedgerModal').classList.remove('active')
+}
+
+// Add Stock Item Modal
+function hideAddStockItemModal() {
+  document.getElementById('addStockItemModal').classList.remove('active')
+}
+</script>
+
+<!-- Add Group Modal -->
+<div id="addGroupModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Add New Group</h3>
+      <button class="modal-close" onclick="hideAddGroupModal()">&times;</button>
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Group Name</label>
+      <input type="text" class="form-input" id="newGroupName" placeholder="Enter group name">
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Nature</label>
+      <select class="form-select" id="newGroupNature">
+        <option value="Assets">Assets</option>
+        <option value="Liabilities">Liabilities</option>
+        <option value="Income">Income</option>
+        <option value="Expense">Expense</option>
+      </select>
+    </div>
+    <div style="display: flex; gap: 12px;">
+      <button class="btn btn-outline" onclick="hideAddGroupModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGroup()">Save Group</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Ledger Modal -->
+<div id="addLedgerModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Add New Ledger</h3>
+      <button class="modal-close" onclick="hideAddLedgerModal()">&times;</button>
+    </div>
+    <input type="hidden" id="ledgerGroupId">
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Ledger Name</label>
+      <input type="text" class="form-input" id="newLedgerName" placeholder="Enter ledger name">
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Opening Balance</label>
+      <input type="number" class="form-input" id="ledgerOpeningBalance" value="0" step="0.01">
+    </div>
+    <div style="display: flex; gap: 12px;">
+      <button class="btn btn-outline" onclick="hideAddLedgerModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLedger()">Save Ledger</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Stock Item Modal -->
+<div id="addStockItemModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Add Stock Item</h3>
+      <button class="modal-close" onclick="hideAddStockItemModal()">&times;</button>
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Item Name</label>
+      <input type="text" class="form-input" id="stockItemName" placeholder="Enter item name">
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Item Code</label>
+      <input type="text" class="form-input" id="stockItemCode" placeholder="Enter item code">
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Category</label>
+      <select class="form-select" id="stockItemCategory">
+        <option value="Raw Material">Raw Material</option>
+        <option value="Finished Goods">Finished Goods</option>
+        <option value="Trading Goods">Trading Goods</option>
+        <option value="Packing Material">Packing Material</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Unit</label>
+      <select class="form-select" id="stockItemUnit">
+        <option value="PCS">PCS</option>
+        <option value="KG">KG</option>
+        <option value="LTR">LTR</option>
+        <option value="MTR">MTR</option>
+        <option value="BOX">BOX</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Opening Qty</label>
+      <input type="number" class="form-input" id="stockItemQty" value="0" step="0.01">
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label">Rate (₹)</label>
+      <input type="number" class="form-input" id="stockItemRate" value="0" step="0.01">
+    </div>
+    <div style="display: flex; gap: 12px;">
+      <button class="btn btn-outline" onclick="hideAddStockItemModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveStockItem()">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.groups-tree { margin-top: 10px; }
+.group-item { margin-bottom: 8px; }
+.group-header { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  padding: 10px; 
+  background: #f1f5f9; 
+  border-radius: 6px; 
+  cursor: pointer;
+}
+.group-toggle { font-size: 10px; }
+.group-nature { font-size: 12px; color: #64748b; margin-left: auto; }
+.group-ledgers { margin-left: 24px; padding: 8px; border-left: 2px solid #e2e8f0; }
+.ledger-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
+.stock-report { padding: 16px; background: #f8fafc; border-radius: 8px; margin-top: 16px; }
+.bs-section h4 { color: #1e293b; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+</style>
+    <!-- AI Assistant Chat Widget -->
+    <div id="aiAssistant" style="position: fixed; bottom: 20px; right: 20px; z-index: 10000;">
+      <!-- Chat Button -->
+      <button id="aiChatBtn" onclick="toggleAIChat()" style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6366f1); border: none; color: white; font-size: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); display: flex; align-items: center; justify-content: center;">
+        <span style="font-size: 28px;">🤖</span>
+      </button>
+      <!-- Chat Window -->
+      <div id="aiChatWindow" style="display: none; position: absolute; bottom: 70px; right: 0; width: 380px; height: 500px; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; flex-direction: column;">
+        <div style="background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 24px;">🤖</span>
+            <div>
+              <div style="font-weight: 600;">TaxGlue Assistant</div>
+              <div style="font-size: 11px; opacity: 0.8;">AI Powered Helper</div>
+            </div>
+          </div>
+          <button onclick="toggleAIChat()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">&times;</button>
+        </div>
+        <div id="aiChatMessages" style="flex: 1; padding: 16px; overflow-y: auto; background: #f8fafc;">
+          <div style="background: white; padding: 12px 16px; border-radius: 12px 12px 12px 0; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+            <div style="font-weight: 600; color: #8b5cf6; margin-bottom: 4px;">Assistant</div>
+            <div>Hello! I'm your TaxGlue AI Assistant. I can help you with:</div>
+            <ul style="margin: 8px 0; padding-left: 20px; font-size: 13px; color: #475569;">
+              <li>Creating vouchers and entries</li>
+              <li>Managing clients and data</li>
+              <li>Generating reports</li>
+              <li>Navigating the application</li>
+            </ul>
+            <div style="font-size: 13px; color: #64748b;">Type your request or click the microphone to speak!</div>
+          </div>
+        </div>
+        <div style="padding: 12px; border-top: 1px solid #e2e8f0; background: white;">
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button onclick="startVoiceInput()" id="voiceBtn" style="width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px;">🎤</button>
+            <input type="text" id="aiInput" placeholder="Ask me anything..." style="flex: 1; padding: 12px; border: 1px solid #e2e8f0; border-radius: 24px; outline: none; font-size: 14px;" onkeypress="if(event.key==='Enter')sendAIChat()">
+            <button onclick="sendAIChat()" style="width: 40px; height: 40px; border-radius: 50%; background: #8b5cf6; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+    // AI Chat Functions
+    function toggleAIChat() {
+      const chatWindow = document.getElementById('aiChatWindow');
+      chatWindow.style.display = chatWindow.style.display === 'none' ? 'flex' : 'none';
+    }
+    
+    function sendAIChat() {
+      const input = document.getElementById('aiInput');
+      const message = input.value.trim();
+      if (!message) return;
+      
+      const messagesDiv = document.getElementById('aiChatMessages');
+      
+      // Add user message
+      const userMsg = document.createElement('div');
+      userMsg.style.cssText = 'background: #8b5cf6; color: white; padding: 12px 16px; border-radius: 12px 12px 0 12px; margin-bottom: 12px; margin-left: 40px;';
+      userMsg.innerHTML = '<div style="font-weight: 600; margin-bottom: 4px;">You</div>' + message;
+      messagesDiv.appendChild(userMsg);
+      
+      input.value = '';
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      
+      // Process command and respond
+      setTimeout(() => {
+        const response = processAICommand(message);
+        const botMsg = document.createElement('div');
+        botMsg.style.cssText = 'background: white; padding: 12px 16px; border-radius: 12px 12px 12px 0; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);';
+        botMsg.innerHTML = '<div style="font-weight: 600; color: #8b5cf6; margin-bottom: 4px;">Assistant</div>' + response;
+        messagesDiv.appendChild(botMsg);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }, 500);
+    }
+    
+    function processAICommand(command) {
+      const cmd = command.toLowerCase();
+      
+      if (cmd.includes('voucher') || cmd.includes('entry') || cmd.includes('create')) {
+        return 'I can help you create a voucher! Let me open the voucher entry form. <br><br><button onclick="switchTab(\'voucher\'); document.getElementById(\'aiChatWindow\').style.display=\'none\'" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Open Voucher Entry</button>';
+      }
+      if (cmd.includes('client') || cmd.includes('customer')) {
+        return 'I can show you the clients page. <br><br><button onclick="window.location.href=\'/app/clients.html\'" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Go to Clients</button>';
+      }
+      if (cmd.includes('ledger') || cmd.includes('account')) {
+        return 'Opening the Accounts/Ledger section... <br><br><button onclick="switchTab(\'accounts\'); loadGroupsAndLedgers();" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Open Accounts</button>';
+      }
+      if (cmd.includes('report') || cmd.includes('trial balance') || cmd.includes('financial')) {
+        return 'I can open the reports section for you. <br><br><button onclick="switchTab(\'trialbalance\'); generateTrialBalance();" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Open Trial Balance</button>';
+      }
+      if (cmd.includes('stock') || cmd.includes('inventory')) {
+        return 'Opening the Stock section... <br><br><button onclick="switchTab(\'stock\'); loadStockItems();" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Open Stock</button>';
+      }
+      if (cmd.includes('master')) {
+        return 'Opening the Masters section... <br><br><button onclick="switchTab(\'masters\');" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Open Masters</button>';
+      }
+      if (cmd.includes('hello') || cmd.includes('hi') || cmd.includes('hey')) {
+        return 'Hello! How can I help you today? I can assist you with creating vouchers, managing clients, viewing reports, and more. Just tell me what you need!';
+      }
+      if (cmd.includes('help')) {
+        return 'Here are things I can help you with:<br><ul style="margin: 8px 0; padding-left: 20px;"><li>Create vouchers and entries</li><li>View and manage clients</li><li>Access ledger and accounts</li><li>Generate reports (Trial Balance, Financials)</li><li>Manage stock/inventory</li><li>Navigate to any section</li></ul>Just type what you need!';
+      }
+      
+      return 'I understand you need help with: "' + command + '". Currently I can help with voucher entry, clients, accounts, reports, and stock. Type "help" to see all available commands.';
+    }
+    
+    function startVoiceInput() {
+      const voiceBtn = document.getElementById('voiceBtn');
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert('Voice recognition is not supported in your browser. Please type your request.');
+        return;
+      }
+      
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      
+      voiceBtn.innerHTML = '🔴';
+      voiceBtn.style.background = '#fee2e2';
+      
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('aiInput').value = transcript;
+        sendAIChat();
+        voiceBtn.innerHTML = '🎤';
+        voiceBtn.style.background = '#f1f5f9';
+      };
+      
+      recognition.onerror = function(event) {
+        voiceBtn.innerHTML = '🎤';
+        voiceBtn.style.background = '#f1f5f9';
+        alert('Voice recognition error: ' + event.error);
+      };
+      
+      recognition.onend = function() {
+        voiceBtn.innerHTML = '🎤';
+        voiceBtn.style.background = '#f1f5f9';
+      };
+      
+      recognition.start();
+    }
+    </script>
+
+</body>
+</html>
