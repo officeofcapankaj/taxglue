@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day Book | TaxGlue</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; color: #1e293b; }
+    .container { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); color: white; padding: 0; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-header { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .logo { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .sidebar-nav { padding: 20px 12px; }
+    .nav-section { margin-bottom: 24px; }
+    .nav-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; }
+    .sidebar a { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+    .sidebar a:hover { background: rgba(255,255,255,0.1); color: white; }
+    .sidebar a.active { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .main { flex: 1; margin-left: 260px; }
+    .topbar { background: white; padding: 16px 32px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .page-title { font-size: 20px; font-weight: 600; }
+    .btn-back { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn-back:hover { background: #e2e8f0; }
+    .content { padding: 32px; }
+    .toolbar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn-primary { background: #22c55e; color: white; }
+    .btn-primary:hover { background: #16a34a; }
+    .select-group { display: flex; gap: 16px; margin-bottom: 24px; }
+    .form-group { flex: 1; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+    .form-select, .form-input { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; }
+    .form-select:focus, .form-input:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
+    .form-row { display: flex; gap: 12px; align-items: center; }
+    .table-container { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f8fafc; padding: 14px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+    tr:hover { background: #f8fafc; }
+    .voucher-number { font-weight: 600; color: #3b82f6; }
+    .voucher-type { font-size: 12px; padding: 4px 8px; border-radius: 4px; font-weight: 500; }
+    .type-payment { background: #dbeafe; color: #1d4ed8; }
+    .type-receipt { background: #dcfce7; color: #16a34a; }
+    .type-journal { background: #fef3c7; color: #b45309; }
+    .type-contra { background: #f3e8ff; color: #7c3aed; }
+    .amount { text-align: right; font-weight: 500; }
+    .amount-debit { color: #dc2626; }
+    .amount-credit { color: #16a34a; }
+    .empty-state { text-align: center; padding: 48px; color: #64748b; }
+    .summary-row { background: #f8fafc; font-weight: 600; }
+    .tag { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+    .tag-success { background: #dcfce7; color: #16a34a; }
+    .tag-warning { background: #fef3c7; color: #b45309; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="sidebar">
+      <div class="sidebar-header"><div class="logo"><div class="logo-icon">📒</div>TaxGlue</div></div>
+      <div class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">Main</div>
+          <a href="/app/dashboard.html">🏠 Dashboard</a>
+          <a href="/app/clients.html">👥 Clients</a>
+        </div>
+        <div class="nav-section"><div class="nav-section-title">Accounting</div>
+          <a href="/modules/bookkeeping.html">📒 Book-Keeping</a>
+          <a href="/modules/trial-balance.html">📊 Trial Balance</a>
+          <a href="/modules/financial-statements.html">⚖️ Financial Statements</a>
+        </div>
+      </div>
+    </nav>
+    
+    <main class="main">
+      <header class="topbar">
+        <h1 class="page-title">📖 Day Book</h1>
+        <a href="/modules/bookkeeping.html" class="btn-back">← Back to Book-Keeping</a>
+      </header>
+      
+      <div class="content">
+        <div class="select-group">
+          <div class="form-group">
+            <label class="form-label">Select Client</label>
+            <select class="form-select" id="clientSelect" onchange="loadClientData()">
+              <option value="">-- Select Client --</option>
+              <option value="demo-1">Singla Steel Corporation</option>
+              <option value="demo-2">Rana Industries</option>
+              <option value="demo-3">Sharma Traders</option>
+              <option value="demo-4">Gupta Construction</option>
+              <option value="demo-5">Aggarwal Textiles</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Financial Year</label>
+            <select class="form-select" id="fySelect" onchange="loadClientData()">
+              <option value="2024-25">2024-25</option>
+              <option value="2023-24">2023-24</option>
+              <option value="2022-23">2022-23</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="toolbar">
+          <div class="form-row">
+            <input type="date" class="form-input" id="fromDate" value="2024-04-01">
+            <span>to</span>
+            <input type="date" class="form-input" id="toDate" value="2024-04-30">
+            <button class="btn btn-primary" onclick="loadDayBook()">Filter</button>
+          </div>
+          <button class="btn btn-primary" onclick="window.location.href='/modules/bookkeeping.html'">+ New Voucher</button>
+        </div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Vch No.</th>
+                <th>Type</th>
+                <th>Ledger</th>
+                <th>Narration</th>
+                <th style="text-align: right;">Debit</th>
+                <th style="text-align: right;">Credit</th>
+              </tr>
+            </thead>
+            <tbody id="daybookTable">
+              <tr><td colspan="7" class="empty-state">Select a client to view day book</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const demoVouchers = [
+      { id: 1, date: '2024-04-01', type: 'Payment', voucherNo: 'PV-001', ledger: 'Cash', narration: 'Opening balance', debit: 50000, credit: 0 },
+      { id: 2, date: '2024-04-01', type: 'Receipt', voucherNo: 'RV-001', ledger: 'HDFC Bank', narration: 'Capital introduced', debit: 0, credit: 500000 },
+      { id: 3, date: '2024-04-05', type: 'Payment', voucherNo: 'PV-002', ledger: 'Sharma Traders', narration: 'Purchase payment', debit: 25000, credit: 0 },
+      { id: 4, date: '2024-04-10', type: 'Receipt', voucherNo: 'RV-002', ledger: 'Singla Steel Corp', narration: 'Invoice #1 payment', debit: 0, credit: 100000 },
+      { id: 5, date: '2024-04-15', type: 'Journal', voucherNo: 'JV-001', ledger: 'Purchase A/c', narration: 'Purchase entry', debit: 50000, credit: 0 },
+      { id: 6, date: '2024-04-20', type: 'Contra', voucherNo: 'CV-001', ledger: 'Cash to Bank', narration: 'Bank deposit', debit: 25000, credit: 25000 },
+      { id: 7, date: '2024-04-25', type: 'Payment', voucherNo: 'PV-003', ledger: 'Salaries', narration: 'April salaries', debit: 75000, credit: 0 },
+      { id: 8, date: '2024-04-28', type: 'Receipt', voucherNo: 'RV-003', ledger: 'Sales', narration: 'Invoice #2', debit: 0, credit: 125000 }
+    ]
+    
+    let currentClientId = ''
+    let currentFY = '2024-25'
+    
+    function loadClientData() {
+      currentClientId = document.getElementById('clientSelect').value
+      currentFY = document.getElementById('fySelect').value
+      if (currentClientId) {
+        loadDayBook()
+      }
+    }
+    
+    function loadDayBook() {
+      const tbody = document.getElementById('daybookTable')
+      
+      if (!currentClientId) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Select a client to view day book</td></tr>'
+        return
+      }
+      
+      const fromDate = document.getElementById('fromDate').value
+      const toDate = document.getElementById('toDate').value
+      
+      let filtered = demoVouchers.filter(v => {
+        return (!fromDate || v.date >= fromDate) && (!toDate || v.date <= toDate)
+      }).sort((a, b) => a.date.localeCompare(b.date))
+      
+      let totalDebit = 0
+      let totalCredit = 0
+      
+      const rows = filtered.map(v => {
+        totalDebit += v.debit
+        totalCredit += v.credit
+        
+        const typeClass = v.type.toLowerCase()
+        return `<tr>
+          <td>${v.date}</td>
+          <td class="voucher-number">${v.voucherNo}</td>
+          <td><span class="voucher-type type-${typeClass}">${v.type}</span></td>
+          <td>${v.ledger}</td>
+          <td>${v.narration}</td>
+          <td class="amount amount-debit">${v.debit > 0 ? '₹' + v.debit.toLocaleString() : '-'}</td>
+          <td class="amount amount-credit">${v.credit > 0 ? '₹' + v.credit.toLocaleString() : '-'}</td>
+        </tr>`
+      }).join('')
+      
+      const summary = `<tr class="summary-row">
+        <td colspan="5">Total</td>
+        <td class="amount amount-debit">₹${totalDebit.toLocaleString()}</td>
+        <td class="amount amount-credit">₹${totalCredit.toLocaleString()}</td>
+      </tr>`
+      
+      tbody.innerHTML = rows + summary
+    }
+  </script>
+</body>
+</html>
