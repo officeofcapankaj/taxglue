@@ -236,58 +236,73 @@ select.fy-select, select.qtr-select { padding: 8px 12px; border: 1px solid #e2e8
 <div class="form-actions"><button type="button" class="btn btn-secondary" onclick="closeModal('computationModal')">Cancel</button><button type="submit" class="btn btn-primary">Calculate</button></div>
 </form>
 </div>
-</div>
-<script>
-const API_BASE = '';
+<script type="module">
+import { incomeTaxAPI } from '/js/supabase-api.js';
+
+let currentClientId = null;
+let currentFY = '2024-25';
 let itrFilings = [], form16List = [];
 
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+  initGlobalClientSelector();
+  loadData();
+});
+
 async function loadData() {
-try {
-const [itrRes, f16Res, sumRes] = await Promise.all([
-fetch(API_BASE + '/api/it/itr'),
-fetch(API_BASE + '/api/it/form16'),
-fetch(API_BASE + '/api/it/summary')
-]);
-itrFilings = await itrRes.json();
-form16List = await f16Res.json();
-const summary = await sumRes.json();
-document.getElementById('totalITR').textContent = summary.total_itr_filings;
-document.getElementById('totalForm16').textContent = summary.total_form16;
-document.getElementById('pendingITR').textContent = summary.pending_filings;
-renderITR();
-renderForm16();
-} catch(e) { console.error('Error loading data:', e); }
+  currentClientId = getSelectedClientId();
+  currentFY = document.getElementById('fySelect')?.value || getSelectedFY();
+  
+  try {
+    const [itr, f16, summary] = await Promise.all([
+      incomeTaxAPI.getITR(currentClientId, currentFY),
+      incomeTaxAPI.getForm16(currentClientId, currentFY),
+      incomeTaxAPI.getSummary(currentClientId, currentFY)
+    ]);
+    
+    itrFilings = itr || [];
+    form16List = f16 || [];
+    
+    document.getElementById('totalITR').textContent = summary.itr_count;
+    document.getElementById('totalForm16').textContent = summary.form16_count;
+    document.getElementById('pendingITR').textContent = summary.itr_count - summary.total_itr_filed;
+    
+    renderITR();
+    renderForm16();
+  } catch(e) { console.error('Error loading data:', e); }
 }
 
 function renderITR() {
-const tbody = document.getElementById('itrTable');
-if (itrFilings.length === 0) {
-tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fas fa-file-alt"></i><p>No ITR filings yet</p></td></tr>';
-return;
-}
-tbody.innerHTML = itrFilings.map(itr => `
-<tr>
-<td>${itr.itr_type || '-'}</td>
-<td>${itr.assessment_year || '-'}</td>
-<td>${itr.pan || '-'}</td>
-<td>${itr.taxpayer_name || '-'}</td>
-<td>₹${(itr.gross_income || 0).toLocaleString()}</td>
-<td>₹${(itr.tax || 0).toLocaleString()}</td>
-<td><span class="badge badge-${itr.status === 'filed' ? 'success' : itr.status === 'pending' ? 'warning' : 'info'}">${itr.status || 'pending'}</span></td>
-<td>${itr.filed_date || '-'}</td>
-<td class="actions">
-<button class="btn-icon edit"><i class="fas fa-edit"></i></button>
-</td>
-</tr>
-`).join('');
+  const tbody = document.getElementById('itrTable');
+  if (!tbody) return;
+  if (itrFilings.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fas fa-file-alt"></i><p>No ITR filings yet</p></td></tr>';
+    return;
+  }
+  tbody.innerHTML = itrFilings.map(itr => `
+    <tr class="border-b hover:bg-gray-50">
+      <td class="px-4 py-3">${itr.itr_type || itr.form_type || '-'}</td>
+      <td class="px-4 py-3">${itr.assessment_year || itr.fy || '-'}</td>
+      <td class="px-4 py-3">${itr.pan || '-'}</td>
+      <td class="px-4 py-3">${itr.taxpayer_name || itr.name || '-'}</td>
+      <td class="px-4 py-3 text-right">₹${(itr.gross_income || 0).toLocaleString()}</td>
+      <td class="px-4 py-3 text-right">₹${(itr.tax || 0).toLocaleString()}</td>
+      <td class="px-4 py-3"><span class="px-2 py-1 rounded-full text-xs ${itr.status === 'FILED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">${itr.status || 'PENDING'}</span></td>
+      <td class="px-4 py-3">${itr.filed_date || '-'}</td>
+      <td class="px-4 py-3">
+        <button class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></button>
+      </td>
+    </tr>
+  `).join('');
 }
 
 function renderForm16() {
-const tbody = document.getElementById('form16Table');
-if (form16List.length === 0) {
-tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-file-contract"></i><p>No Form 16 generated yet</p></td></tr>';
-return;
-}
+  const tbody = document.getElementById('form16Table');
+  if (!tbody) return;
+  if (form16List.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-file-contract"></i><p>No Form 16 generated yet</p></td></tr>';
+    return;
+  }
 tbody.innerHTML = form16List.map(f16 => `
 <tr>
 <td>${f16.certificate_no || '-'}</td>

@@ -383,4 +383,53 @@ export const caMasterAPI = {
   }
 }
 
+// Income Tax API
+export const incomeTaxAPI = {
+  async getITR(clientId, fy) {
+    let query = supabase.from('itr_forms').select('*').order('created_at', { ascending: false })
+    if (clientId) query = query.eq('client_id', clientId)
+    if (fy) query = query.eq('fy', fy)
+    const { data, error } = await query
+    if (error) throw error
+    return data
+  },
+
+  async createITR(itr) {
+    const { data, error } = await supabase.from('itr_forms').insert(itr).select()
+    if (error) throw error
+    return data[0]
+  },
+
+  async updateITR(id, itr) {
+    const { data, error } = await supabase.from('itr_forms').update(itr).eq('id', id).select()
+    if (error) throw error
+    return data[0]
+  },
+
+  async getForm16(clientId, fy) {
+    let query = supabase.from('form16').select('*').order('created_at', { ascending: false })
+    if (clientId) query = query.eq('client_id', clientId)
+    if (fy) query = query.eq('fy', fy)
+    const { data, error } = await query
+    if (error) throw error
+    return data
+  },
+
+  async createForm16(form16) {
+    const { data, error } = await supabase.from('form16').insert(form16).select()
+    if (error) throw error
+    return data[0]
+  },
+
+  async getSummary(clientId, fy) {
+    const itr = await this.getITR(clientId, fy)
+    const forms = await this.getForm16(clientId, fy)
+    return {
+      itr_count: (itr || []).length,
+      form16_count: (forms || []).length,
+      total_itr_filed: itr.filter(i => i.status === 'FILED').length
+    }
+  }
+}
+
 export default supabase
