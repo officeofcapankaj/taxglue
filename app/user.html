@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile | TaxGlue</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; color: #1e293b; }
+    .container { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); color: white; padding: 0; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-header { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .logo { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .sidebar-nav { padding: 20px 12px; }
+    .nav-section { margin-bottom: 24px; }
+    .nav-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; }
+    .sidebar a { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+    .sidebar a:hover { background: rgba(255,255,255,0.1); color: white; }
+    .sidebar a.active { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .main { flex: 1; margin-left: 260px; }
+    .topbar { background: white; padding: 16px 32px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .page-title { font-size: 20px; font-weight: 600; }
+    .btn-back { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn-back:hover { background: #e2e8f0; }
+    .content { padding: 32px; max-width: 800px; }
+    .card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 24px; margin-bottom: 24px; }
+    .card-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group.full-width { grid-column: 1 / -1; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+    .form-label .required { color: #dc2626; }
+    .form-input { width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; }
+    .form-input:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
+    .form-input::placeholder { color: #94a3b8; }
+    .form-select { width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: white; font-family: inherit; }
+    .form-select:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
+    .form-textarea { width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; min-height: 100px; }
+    .form-textarea:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
+    .btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn-primary { background: #22c55e; color: white; }
+    .btn-primary:hover { background: #16a34a; }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .avatar-section { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; }
+    .avatar { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); display: flex; align-items: center; justify-content: center; font-size: 40px; color: white; font-weight: 600; }
+    .avatar-info { flex: 1; }
+    .avatar-info h3 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .avatar-info p { font-size: 14px; color: #64748b; }
+    .avatar-upload { margin-top: 8px; }
+    .avatar-upload input[type="file"] { display: none; }
+    .avatar-upload label { display: inline-block; padding: 8px 16px; background: #f1f5f9; border-radius: 6px; font-size: 13px; color: #475569; cursor: pointer; transition: all 0.2s; }
+    .avatar-upload label:hover { background: #e2e8f0; }
+    .success-message { background: #dcfce7; color: #16a34a; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px; display: none; }
+    .success-message.show { display: block; }
+    .error-message { background: #fee2e2; color: #dc2626; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px; display: none; }
+    .error-message.show { display: block; }
+    .user-info { display: flex; gap: 12px; background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 24px; }
+    .user-info-icon { width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .user-info-details { flex: 1; }
+    .user-info-label { font-size: 12px; color: #64748b; margin-bottom: 2px; }
+    .user-info-value { font-size: 14px; font-weight: 500; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
+    .info-text { font-size: 13px; color: #64748b; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="sidebar">
+      <div class="sidebar-header"><div class="logo"><div class="logo-icon">📊</div>TaxGlue</div></div>
+      <div class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">Main</div>
+          <a href="/app/dashboard.html">🏠 Dashboard</a>
+          <a href="/app/clients.html">👥 Clients</a>
+          <a href="/app/ca-master.html">📚 CA Master</a>
+        </div>
+        <div class="nav-section"><div class="nav-section-title">Settings</div>
+          <a href="/app/organization.html">🏢 Organization</a>
+          <a href="/app/user.html" class="active">👤 My Profile</a>
+        </div>
+      </div>
+    </nav>
+
+    <main class="main">
+      <header class="topbar">
+        <h1 class="page-title">👤 My Profile</h1>
+        <a href="/app/dashboard.html" class="btn-back">← Back to Dashboard</a>
+      </header>
+
+      <div class="content">
+        <div id="successMessage" class="success-message">Profile updated successfully!</div>
+        <div id="errorMessage" class="error-message"></div>
+
+        <!-- User Account Info -->
+        <div class="card">
+          <h2 class="card-title">Account Information</h2>
+          <div class="user-info">
+            <div class="user-info-icon">📧</div>
+            <div class="user-info-details">
+              <div class="user-info-label">Email Address</div>
+              <div class="user-info-value" id="userEmail">Loading...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Form -->
+        <div class="card">
+          <h2 class="card-title">Profile Details</h2>
+          <form id="profileForm" onsubmit="saveProfile(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Full Name <span class="required">*</span></label>
+                <input type="text" class="form-input" id="fullName" name="full_name" required placeholder="Enter your full name">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" class="form-input" id="phone" name="phone" placeholder="Enter phone number">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Company Name</label>
+                <input type="text" class="form-input" id="companyName" name="company_name" placeholder="Enter company name">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Role / Designation</label>
+                <select class="form-select" id="role" name="role">
+                  <option value="">Select Role</option>
+                  <option value="admin">Admin</option>
+                  <option value="accountant">Accountant</option>
+                  <option value="auditor">Auditor</option>
+                  <option value="consultant">Consultant</option>
+                  <option value="client">Client</option>
+                </select>
+              </div>
+              <div class="form-group full-width">
+                <label class="form-label">Address</label>
+                <textarea class="form-textarea" id="address" name="address" placeholder="Enter your complete address"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">City</label>
+                <input type="text" class="form-input" id="city" name="city" placeholder="Enter city">
+              </div>
+              <div class="form-group">
+                <label class="form-label">State</label>
+                <input type="text" class="form-input" id="state" name="state" placeholder="Enter state">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Pincode</label>
+                <input type="text" class="form-input" id="pincode" name="pincode" placeholder="Enter pincode">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Country</label>
+                <input type="text" class="form-input" id="country" name="country" placeholder="Enter country" value="India">
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
+              <button type="submit" class="btn btn-primary">💾 Save Profile</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Organization Info -->
+        <div class="card" id="organizationCard">
+          <h2 class="card-title">Organization</h2>
+          <div id="organizationInfo">
+            <div style="padding: 20px; color: #64748b;">Loading organization info...</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Initialize Supabase
+    const SUPABASE_URL = 'https://jgjeuybgideeqcjxvlmn.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnamV1eWJnaWRlZXFjanh2bG1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxMjIxNDAsImV4cCI6MjA4ODY5ODE0MH0.etglAIrYa5r67QuS7qKMR-lYodu_jxeJaozwKESuiD0';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Load user profile on page load
+    async function loadProfile() {
+      try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError || !user) {
+          window.location.href = '/app/login.html';
+          return;
+        }
+
+        // Display user email
+        document.getElementById('userEmail').textContent = user.email;
+
+        // Load profile from profiles table
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profile) {
+          // Fill form with existing profile data
+          document.getElementById('fullName').value = profile.full_name || '';
+          document.getElementById('phone').value = profile.phone || '';
+          document.getElementById('companyName').value = profile.company_name || '';
+          document.getElementById('role').value = profile.role || '';
+          document.getElementById('address').value = profile.address || '';
+          document.getElementById('city').value = profile.city || '';
+          document.getElementById('state').value = profile.state || '';
+          document.getElementById('pincode').value = profile.pincode || '';
+          document.getElementById('country').value = profile.country || 'India';
+        }
+
+        // Load organization info
+        loadOrganizationInfo(user.id);
+
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        showError('Error loading profile data');
+      }
+    }
+
+    async function loadOrganizationInfo(userId) {
+      try {
+        // Get user's organization
+        const { data: members, error } = await supabase
+          .from('organization_members')
+          .select(`
+            role,
+            status,
+            organizations (
+              id,
+              name,
+              subscription_plan,
+              status
+            )
+          `)
+          .eq('user_id', userId);
+
+        if (error) throw error;
+
+        const orgContainer = document.getElementById('organizationInfo');
+        
+        if (members && members.length > 0) {
+          const member = members[0];
+          const org = member.organizations;
+          
+          orgContainer.innerHTML = `
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+              <div>
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Organization Name</div>
+                <div style="font-size: 14px; font-weight: 500;">${org.name || 'N/A'}</div>
+              </div>
+              <div>
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Your Role</div>
+                <div style="font-size: 14px; font-weight: 500;">${member.role}</div>
+              </div>
+              <div>
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Subscription Plan</div>
+                <div style="font-size: 14px; font-weight: 500; text-transform: capitalize;">${org.subscription_plan || 'free'}</div>
+              </div>
+              <div>
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Status</div>
+                <div style="font-size: 14px; font-weight: 500; text-transform: capitalize;">${member.status || 'active'}</div>
+              </div>
+            </div>
+            <div style="margin-top: 16px;">
+              <a href="/app/organization.html" style="color: #22c55e; text-decoration: none; font-size: 14px; font-weight: 500;">Manage Organization →</a>
+            </div>
+          `;
+        } else {
+          orgContainer.innerHTML = `
+            <div style="padding: 20px; text-align: center; color: #64748b;">
+              <p>You are not part of any organization yet.</p>
+              <a href="/app/organization.html" style="color: #22c55e; text-decoration: none; margin-top: 8px; display: inline-block;">Create Organization →</a>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Error loading organization:', error);
+      }
+    }
+
+    // Save profile
+    async function saveProfile(event) {
+      event.preventDefault();
+      
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          showError('Please login to save profile');
+          return;
+        }
+
+        const profileData = {
+          id: user.id,
+          email: user.email,
+          full_name: document.getElementById('fullName').value,
+          phone: document.getElementById('phone').value,
+          company_name: document.getElementById('companyName').value,
+          role: document.getElementById('role').value,
+          address: document.getElementById('address').value,
+          city: document.getElementById('city').value,
+          state: document.getElementById('state').value,
+          pincode: document.getElementById('pincode').value,
+          country: document.getElementById('country').value,
+          updated_at: new Date().toISOString()
+        };
+
+        // Remove empty fields
+        Object.keys(profileData).forEach(key => {
+          if (profileData[key] === '') profileData[key] = null;
+        });
+
+        const { data, error } = await supabase
+          .from('profiles')
+          .upsert(profileData)
+          .select();
+
+        if (error) throw error;
+
+        showSuccess();
+        loadProfile(); // Reload to show updated data
+
+      } catch (error) {
+        console.error('Error saving profile:', error);
+        showError('Error saving profile: ' + error.message);
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('profileForm').reset();
+      document.getElementById('country').value = 'India';
+    }
+
+    function showSuccess() {
+      const msg = document.getElementById('successMessage');
+      msg.classList.add('show');
+      setTimeout(() => msg.classList.remove('show'), 3000);
+    }
+
+    function showError(message) {
+      const msg = document.getElementById('errorMessage');
+      msg.textContent = message;
+      msg.classList.add('show');
+      setTimeout(() => msg.classList.remove('show'), 5000);
+    }
+
+    // Logout handling
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      localStorage.clear();
+      window.location.href = '/app/login.html';
+    });
+
+    // Auto logout after inactivity
+    let idleTime = 0;
+    const idleTimeout = 2 * 60 * 1000;
+    document.addEventListener('mousemove', () => { idleTime = 0 });
+    document.addEventListener('keypress', () => { idleTime = 0 });
+    document.addEventListener('click', () => { idleTime = 0 });
+    setInterval(() => {
+      idleTime += 1000;
+      if (idleTime >= idleTimeout) {
+        supabase.auth.signOut();
+        window.location.href = '/app/login.html';
+      }
+    }, 1000);
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', loadProfile);
+    window.addEventListener('load', loadProfile);
+    setTimeout(loadProfile, 500);
+  </script>
+</body>
+</html>
