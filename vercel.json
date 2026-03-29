@@ -2,6 +2,10 @@
   "version": 2,
   "builds": [
     {
+      "src": "server.py",
+      "use": "@vercel/python"
+    },
+    {
       "src": "index.html",
       "use": "@vercel/static"
     },
@@ -28,29 +32,12 @@
     {
       "src": "data/**",
       "use": "@vercel/static"
-    },
-    {
-      "src": "server.py",
-      "use": "@vercel/python",
-      "config": {"runtime": "python3.9"}
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
       "dest": "/server.py"
-    },
-    {
-      "src": "/app/tds.html",
-      "dest": "/app/tds.html"
-    },
-    {
-      "src": "/app/gst.html",
-      "dest": "/app/gst.html"
-    },
-    {
-      "src": "/app/incometax.html",
-      "dest": "/app/incometax.html"
     },
     {
       "src": "/app/(.*)",
@@ -77,31 +64,19 @@
       "dest": "/data/$1"
     },
     {
-      "src": "/tds",
-      "dest": "/app/tds.html"
-    },
-    {
-      "src": "/gst",
-      "dest": "/app/gst.html"
-    },
-    {
-      "src": "/incometax",
-      "dest": "/app/incometax.html"
-    },
-    {
-      "src": "/index.html",
-      "dest": "/index.html"
+      "src": "/(.*)\\.(png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$",
+      "dest": "/$1.$2"
     },
     {
       "src": "/",
       "dest": "/index.html"
     },
     {
-      "handle": "filesystem"
-    },
-    {
       "src": "/(.*)",
       "dest": "/app/$1"
     }
-  ]
+  ],
+  "env": {
+    "FLASK_ENV": "production"
+  }
 }
