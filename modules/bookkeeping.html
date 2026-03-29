@@ -1574,7 +1574,7 @@ function initApp() {
   setDefaultDates()
   loadDemoClients()
   // Set default tab to masters
-  switchTab('masters')
+  setTimeout(() => switchTab('masters'), 100)
 }
 
 document.addEventListener('DOMContentLoaded', initApp)
@@ -1660,6 +1660,12 @@ async function loadClientData() {
 
 // Switch tabs
 function switchTab(tab) {
+  console.log('Switching to tab:', tab)
+  
+  // Debug: Get section element
+  const sectionEl = document.getElementById(tab + 'Section')
+  console.log('Section element:', sectionEl)
+  
   // Get all tab buttons
   const allTabs = document.querySelectorAll('.tabs .tab')
   
