@@ -399,13 +399,6 @@ function renderFileList() {
 
 function removeFile(index) { uploadedFiles.splice(index, 1); renderFileList() }
 
-function showError(msg) {
-  const errorMsg = document.getElementById('errorMessage')
-  errorMsg.textContent = msg
-  errorMsg.classList.add('show')
-  setTimeout(() => errorMsg.classList.remove('show'), 3000)
-}
-
 async function saveClient() {
   // Dynamic form data collection - captures all fields automatically
   const formId = 'basicForm'
@@ -466,13 +459,21 @@ async function saveClient() {
     clients.push(newClient)
     localStorage.setItem('clients', JSON.stringify(clients))
     
-    // Hide modal and reset
-    hideClientModal()
-    renderClients()
+    // Reset and re-render
     resetForm()
+    renderClients()
+    showSuccess('Client saved successfully!')
   } catch (e) {
     console.error('Error saving client:', e)
     showError('Error saving client: ' + e.message)
+  }
+}
+
+// Hide the client modal
+function hideClientModal() {
+  const modal = document.getElementById('clientModal')
+  if (modal) {
+    modal.style.display = 'none'
   }
 }
 
