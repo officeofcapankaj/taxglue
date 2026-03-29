@@ -253,7 +253,7 @@ function showForm() {
   console.log('showForm called');
   const formCard = document.getElementById('caFormCard')
   if (formCard) {
-    formCard.style.display = 'block'
+    formCard.style.setProperty('display', 'block', 'important');
     editingCAId = null
     
     // Reset form title and button
@@ -432,7 +432,8 @@ function editCA(id) {
   const ca = caList.find(c => c.id === id)
   if (!ca) return
   editingCAId = id
-  document.getElementById('caFormCard').style.display = 'block'
+  const formCard = document.getElementById('caFormCard')
+  if (formCard) formCard.style.setProperty('display', 'block', 'important')
   document.getElementById('caFormTitle').textContent = 'Edit CA / Partner'
   document.getElementById('saveBtn').textContent = '💾 Update CA Details'
   document.getElementById('deleteBtn').style.display = 'inline-flex'
