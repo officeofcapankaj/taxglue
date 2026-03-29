@@ -1774,6 +1774,57 @@ function switchTab(tab) {
   if (tab === 'settings') loadSettings()
 }
 
+// EXPOSE TO GLOBAL SCOPE - Critical for onclick handlers in HTML
+window.switchTab = switchTab
+window.showVoucherTypeModal = showVoucherTypeModal
+window.showStockGroupModal = showStockGroupModal
+window.showGodownModal = showGodownModal
+window.showStateModal = showStateModal
+window.showCountryModal = showCountryModal
+window.showAddAccountModal = showAddAccountModal
+window.showAddGroupModal = showAddGroupModal
+window.showAddLedgerModal = showAddLedgerModal
+window.showAddStockItemModal = showAddStockItemModal
+window.showVoucherForm = showVoucherForm
+window.generateTrialBalance = generateTrialBalance
+window.loadBankFeed = loadBankFeed
+window.loadOCRHistory = loadOCRHistory
+window.loadWorkflows = loadWorkflows
+window.loadStockItems = loadStockItems
+window.loadReports = loadReports
+window.loadSettings = loadSettings
+window.saveVoucher = saveVoucher
+window.addVoucherLine = addVoucherLine
+window.hideVoucherForm = hideVoucherForm
+window.connectBank = connectBank
+window.reconcileSelected = reconcileSelected
+window.filterBankFeed = filterBankFeed
+window.saveAccount = saveAccount
+window.saveGroup = saveGroup
+window.saveLedger = saveLedger
+window.saveStockItem = saveStockItem
+window.deleteAccount = deleteAccount
+window.deleteStockItem = deleteStockItem
+window.deleteVoucher = deleteVoucher
+window.showAddUserModal = showAddUserModal
+window.showReport = showReport
+window.toggleAIChat = toggleAIChat
+window.toggleGroup = toggleGroup
+window.startVoiceInput = startVoiceInput
+window.scanDocument = scanDocument
+window.uploadInvoice = uploadInvoice
+window.createVoucherFromOCR = createVoucherFromOCR
+window.clearOCRData = clearOCRData
+window.sendAIChat = sendAIChat
+window.generateEINV = generateEINV
+window.generateEWayBill = generateEWayBill
+window.addEINVItem = addEINVItem
+window.saveEINVDraft = saveEINVDraft
+window.generateEInvoice = generateEInvoice
+window.bulkEInvoice = bulkEInvoice
+window.switchEInvoiceTab = switchEInvoiceTab
+window.switchGSTRTab = switchGSTRTab
+
 // ==================== MASTERS ====================
 function loadMastersData() {
   console.log('Loading Masters data...')

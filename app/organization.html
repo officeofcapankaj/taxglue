@@ -452,7 +452,14 @@ function renderMembers(members) {
       // TODO: Call API to update organization
       alert('Organization update would be implemented here.');
     }
-    
+
+    // Expose to global scope for onclick handlers
+    window.openInviteModal = openInviteModal;
+    window.closeInviteModal = closeInviteModal;
+    window.removeMember = removeMember;
+    window.cancelInvitation = cancelInvitation;
+    window.editOrganization = editOrganization;
+
     // Initialize on load
     init();
   </script>

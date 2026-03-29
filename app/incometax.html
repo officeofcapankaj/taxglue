@@ -365,6 +365,10 @@ if (res.ok) { closeModal('form16Modal'); e.target.reset(); loadData(); }
 function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
+// Expose to global scope for onclick handlers
+window.openModal = openModal;
+window.closeModal = closeModal;
+
 loadData();
 </script>
 </body>

@@ -479,9 +479,15 @@ async function deleteCA() {
   localStorage.setItem('caList', JSON.stringify(caList))
   renderCA()
   // Hide form after delete
-  document.getElementById('caFormCard').classList.add('hidden'); getElementById('caFormCard').style.display = 'none'
+  document.getElementById('caFormCard').classList.add('hidden');
+  document.getElementById('caFormCard').style.display = 'none';
   resetForm()
 }
+
+// Expose to global scope for onclick handlers
+window.resetForm = resetForm;
+window.deleteCA = deleteCA;
+window.editCA = editCA;
 
 document.getElementById('caForm').addEventListener('submit', async function(e) {
   e.preventDefault()

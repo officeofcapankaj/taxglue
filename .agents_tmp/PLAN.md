@@ -1,5 +1,99 @@
 # 1. OBJECTIVE
 
+Fix the "Add CA" button not working on the CA Master page.
+
+**Problem:** The "+ Add CA" button on the CA Master page (`/app/ca-master.html`) does nothing when clicked. The button has an `onclick` attribute calling `showForm()`, but this function doesn't exist in the JavaScript.
+
+---
+
+# 2. CONTEXT SUMMARY
+
+**File:** `/app/ca-master.html`
+
+**Issue:** The button is defined (line 91):
+```html
+<button type="button" class="btn btn-primary" id="addCaBtn" onclick="console.log('Button clicked!'); showForm();">+ Add CA</button>
+```
+
+But `showForm()` function is **missing** from the script section (lines 246-302). The form element with `id="caFormCard"` exists (line 106) and is hidden by default with `style="display: none;"`.
+
+**What should happen:** Clicking the button should display the form (toggle from hidden to visible).
+
+---
+
+# 3. APPROACH OVERVIEW
+
+**Method:** Add the missing `showForm()` function to the JavaScript section that reveals the form card by changing its display style from "none" to "block".
+
+The simplest fix is to add a function that:
+1. Shows the `caFormCard` element
+2. Resets any editing state (sets `editingCAId = null`)
+3. Resets the form for new entry
+
+---
+
+# 4. IMPLEMENTATION STEPS
+
+### Step 1: Add the missing `showForm()` function
+**Goal:** Create a function that shows the CA form when the button is clicked
+
+**Method:** Add the following function to the script section in `/app/ca-master.html`, after the variable declarations:
+
+```javascript
+function showForm() {
+  const formCard = document.getElementById('caFormCard')
+  if (formCard) {
+    formCard.style.display = 'block'
+    editingCAId = null
+    
+    // Reset form title and button
+    const titleEl = document.getElementById('caFormTitle')
+    if (titleEl) titleEl.textContent = 'Add New CA / Partner'
+    
+    const saveBtn = document.getElementById('saveBtn')
+    if (saveBtn) saveBtn.textContent = '💾 Save CA Details'
+    
+    const deleteBtn = document.getElementById('deleteBtn')
+    if (deleteBtn) deleteBtn.style.display = 'none'
+    
+    // Reset form
+    const form = document.getElementById('caForm')
+    if (form) form.reset()
+    
+    // Scroll to form
+    formCard.scrollIntoView({ behavior: 'smooth' })
+    console.log('Form should now be visible')
+  } else {
+    console.log('ERROR: caFormCard not found!')
+  }
+}
+```
+
+**Reference:** File `/app/ca-master.html`, insert after line 250 (after the variable declarations)
+
+---
+
+# 5. TESTING AND VALIDATION
+
+**Expected behavior:**
+1. Navigate to `/app/ca-master.html`
+2. Click the "+ Add CA" button
+3. The form should become visible (slide down/reveal)
+4. The form should be blank and ready for new entry
+5. Fill in some test data and click Save
+6. The CA should be added to the table
+
+**Success criteria:**
+- Button click shows the form immediately
+- Form displays all required fields (First Name, Last Name, etc.)
+- Save button creates a new CA entry
+
+---
+
+# OLD PLAN BELOW (for reference)
+
+---
+
 Implement critical data structure and architectural improvements for TaxGlue:
 
 **Phase 1 (Immediate):**

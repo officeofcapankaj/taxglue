@@ -287,10 +287,9 @@ document.addEventListener('DOMContentLoaded', function() {
 let contactPersonCount = 1
 let uploadedFiles = []
 
-// Tab switching - must be defined early
+// Tab switching - must be defined early AND exposed globally
 function switchTab(tabId) {
   console.log('switchTab called with:', tabId)
-  alert('DEBUG: switchTab called with ' + tabId)
   
   // Get all tab buttons and contents
   var allButtons = document.getElementsByTagName('button');
@@ -323,6 +322,13 @@ function switchTab(tabId) {
     console.log('Activated content:', tabId);
   }
 }
+
+// EXPOSE TO GLOBAL SCOPE - Critical for onclick handlers in HTML
+window.switchTab = switchTab
+window.addContactPerson = addContactPerson
+window.removeContactPerson = removeContactPerson
+window.removeFile = removeFile
+window.loadClient = loadClient
 
 // Then try to load from other sources
 async function loadClientsFromSupabase() {
