@@ -14,13 +14,43 @@ app = Flask(__name__, static_folder='frontend/dist', static_url_path='')
 CORS(app)
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
-os.makedirs(DATA_DIR, exist_ok=True)
+FRONTEND_DIR = os.path.join(os.path.dirname(__file__), 'app')
+
+# Initialize data directory
+def init_data_dirs():
+    """Initialize empty data files"""
+    os.makedirs(DATA_DIR, exist_ok=True)
+    
+    # Initialize empty users file if not exists
+    users_file = os.path.join(DATA_DIR, 'users.json')
+    if not os.path.exists(users_file):
+        with open(users_file, 'w') as f:
+            json.dump([{
+                "id": "ae65ed67-3dbe-4edc-8325-e409fa351992",
+                "email": "admin@taxglue.com",
+                "password": "admin123",
+                "name": "Admin",
+                "role": "admin"
+            }], f)
+    
+    # Initialize empty clients file - NEW USERS GET EMPTY LIST
+    clients_file = os.path.join(DATA_DIR, 'clients.json')
+    if os.path.getsize(clients_file) > 100:  # Has demo data (large file)
+        # Backup demo data
+        backup_file = os.path.join(DATA_DIR, 'clients_demo_backup.json')
+        shutil.copyfile(clients_file, backup_file)
+        # Start with empty list for new users
+        with open(clients_file, 'w') as f:
+            json.dump([], f)
 
 # Helper functions
 def load_json(filepath, default=[]):
     if os.path.exists(filepath):
-        with open(filepath, 'r') as f:
-            return json.load(f)
+        try:
+            with open(filepath, 'r') as f:
+                return json.load(f)
+        except:
+            return default
     return default
 
 def save_json(filepath, data):
@@ -594,6 +624,10 @@ def get_form_types():
     return jsonify(FORM_TYPES)
 
 def init_data():
+    # Initialize data dirs
+    init_data_dirs()
+    
+    # Initialize default user if not exists
     if not os.path.exists(USERS_FILE):
         save_json(USERS_FILE, [
             {"id": str(uuid.uuid4()), "email": "admin@taxglue.com", "password": "admin123", "name": "Admin", "role": "admin"}
