@@ -270,8 +270,23 @@ body {
 <script type="module">
 async function init() {
   try {
-    // Import config - credentials come from environment variables only
-    const { supabase } = await import("./config.js")
+    // Try to load config, but allow fallback to demo mode
+    let supabase = null;
+    try {
+      const config = await import("./config.js")
+      supabase = config.supabase || config.default?.supabase
+    } catch (e) {
+      console.log("Running in offline/demo mode")
+    }
+    
+    // Allow login without Supabase (demo mode)
+    if (!supabase) {
+      console.log("Demo mode - Supabase not configured")
+      // Store demo flag
+      localStorage.setItem('isDemo', 'true')
+      localStorage.setItem('userEmail', 'demo@taxglue.in')
+      localStorage.setItem('userName', 'Demo User')
+    }
     
     const loginForm = document.getElementById("loginForm")
     const errorMessage = document.getElementById("errorMessage")
@@ -327,6 +342,18 @@ async function init() {
       setLoading(loginBtn, true, "Sign In")
       
       try {
+        // Demo mode login - bypass Supabase
+        if (!supabase) {
+          // Simple demo login - just accept any credentials
+          if (email && password) {
+            localStorage.setItem('userEmail', email)
+            localStorage.setItem('userName', email.split('@')[0])
+            localStorage.setItem('isDemo', 'true')
+            window.location.href = "/app/dashboard.html"
+            return
+          }
+        }
+        
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password
@@ -376,6 +403,13 @@ async function init() {
       setLoading(signupBtn, true, "Create Account")
       
       try {
+        // Demo mode signup - bypass Supabase
+        if (!supabase) {
+          alert("Account creation is not available in offline mode. Please try the demo login.")
+          setLoading(signupBtn, false, "Create Account")
+          return
+        }
+        
         const { data, error } = await supabase.auth.signUp({
           email,
           password
@@ -403,6 +437,25 @@ async function init() {
     // Demo mode - check Supabase connection first
     demoBtn?.addEventListener("click", async () => {
       setLoading(demoBtn, true, "Loading Demo...")
+      
+      // Demo mode - works offline
+      if (!supabase) {
+        // Direct demo login without database
+        const demoUser = {
+          id: "demo-user-" + Date.now(),
+          email: "demo@taxglue.in",
+          user_metadata: { name: "Demo User" },
+          is_demo: true
+        }
+        
+        localStorage.setItem('userEmail', demoUser.email)
+        localStorage.setItem('userName', demoUser.user_metadata.name)
+        localStorage.setItem('isDemo', 'true')
+        localStorage.setItem('demoMode', 'true')
+        
+        window.location.href = "/app/dashboard.html"
+        return
+      }
       
       try {
         // Check if Supabase is available
