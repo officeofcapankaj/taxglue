@@ -394,3 +394,245 @@ CREATE INDEX IF NOT EXISTS idx_gst_invoices_client ON gst_invoices(client_id);
 CREATE INDEX IF NOT EXISTS idx_itr_forms_client ON itr_forms(client_id);
 CREATE INDEX IF NOT EXISTS idx_org_members_user ON organization_members(user_id);
 CREATE INDEX IF NOT EXISTS idx_org_members_org ON organization_members(organization_id);
+-- ============================================
+-- ADDITIONAL TABLES FOR MODULES
+-- Added to support all module functionality
+-- ============================================
+
+-- AUDIT MODULE TABLES
+CREATE TABLE IF NOT EXISTS audits (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id TEXT,
+    organization_id UUID,
+    client_id UUID REFERENCES clients(id),
+    start_date DATE,
+    end_date DATE,
+    status TEXT DEFAULT 'Planning',
+    findings JSONB DEFAULT '[]',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS audit_programs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id TEXT,
+    organization_id UUID,
+    name TEXT NOT NULL,
+    description TEXT,
+    procedures JSONB DEFAULT '[]',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS audit_checklists (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    audit_id UUID REFERENCES audits(id),
+    program_id UUID REFERENCES audit_programs(id),
+    area TEXT,
+    item TEXT,
+    status TEXT DEFAULT 'Pending',
+    response TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS working_papers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    audit_id UUID REFERENCES audits(id),
+    title TEXT NOT NULL,
+    description TEXT,
+    file_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- BOOKKEEPING MODULE TABLES
+CREATE TABLE IF NOT EXISTS account_groups (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id TEXT,
+    organization_id UUID,
+    client_id UUID REFERENCES clients(id),
+    name TEXT NOT NULL,
+    parent_id UUID REFERENCES account_groups(id),
+    nature TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS stock_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id TEXT,
+    organization_id UUID,
+    client_id UUID REFERENCES clients(id),
+    item_code TEXT,
+    item_name TEXT NOT NULL,
+    hsn_code TEXT,
+    unit TEXT,
+    opening_qty DECIMAL(10,2) DEFAULT 0,
+    opening_rate DECIMAL(15,2) DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- MCA MODULE TABLES
+CREATE TABLE IF NOT EXISTS mca_companies (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id TEXT,
+    organization_id UUID,
+    cin TEXT UNIQUE,
+    company_name TEXT NOT NULL,
+    incorporated_date DATE,
+    status TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS mca_filings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID REFERENCES mca_companies(id),
+    form TEXT NOT NULL,
+    filing_date DATE,
+    status TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS mca_documents (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    filing_id UUID REFERENCES mca_filings(id),
+    document_type TEXT,
+    file_url TEXT,
+    uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- PAYROLL MODULE TABLES
+CREATE TABLE IF NOT EXISTS employees (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id TEXT,
+    organization_id UUID,
+    client_id UUID REFERENCES clients(id),
+    employee_code TEXT,
+    first_name TEXT NOT NULL,
+    last_name TEXT,
+    designation TEXT,
+    doj DATE,
+    department TEXT,
+    status TEXT DEFAULT 'Active',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS attendance (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    employee_id UUID REFERENCES employees(id),
+    date DATE NOT NULL,
+    status TEXT DEFAULT 'Present',
+    late_hours DECIMAL(5,2) DEFAULT 0,
+    overtime_hours DECIMAL(5,2) DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- TASKS MODULE TABLES
+CREATE TABLE IF NOT EXISTS tasks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id TEXT,
+    organization_id UUID,
+    client_id UUID REFERENCES clients(id),
+    title TEXT NOT NULL,
+    description TEXT,
+    status TEXT DEFAULT 'Pending',
+    priority TEXT DEFAULT 'Medium',
+    due_date DATE,
+    completed_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS team_members (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    organization_id UUID,
+    user_id TEXT,
+    role TEXT DEFAULT 'Member',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- UPDATES MODULE TABLES
+CREATE TABLE IF NOT EXISTS tax_updates (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id TEXT,
+    organization_id UUID,
+    title TEXT NOT NULL,
+    category TEXT,
+    description TEXT,
+    url TEXT,
+    effective_date DATE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS deadlines (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id TEXT,
+    organization_id UUID,
+    client_id UUID REFERENCES clients(id),
+    due_date DATE NOT NULL,
+    compliance_type TEXT,
+    description TEXT,
+    status TEXT DEFAULT 'Pending',
+    reminder_date DATE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- TDS & PAYROLL TABLES
+CREATE TABLE IF NOT EXISTS tds_transactions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id TEXT,
+    organization_id UUID,
+    client_id UUID REFERENCES clients(id),
+    deductor_id UUID REFERENCES tds_deductors(id),
+    deductee_id UUID REFERENCES tds_deductees(id),
+    fy TEXT,
+    quarter TEXT,
+    payment_date DATE,
+    amount DECIMAL(15,2),
+    tds_amount DECIMAL(15,2),
+    section TEXT,
+    status TEXT DEFAULT 'Pending',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS tds_section_rates (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    section TEXT NOT NULL,
+    rate DECIMAL(5,2),
+    threshold_limit DECIMAL(15,2),
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS salary_structures (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id TEXT,
+    organization_id UUID,
+    name TEXT NOT NULL,
+    basic DECIMAL(15,2),
+    hra DECIMAL(15,2),
+    conveyances DECIMAL(15,2),
+    special_allowance DECIMAL(15,2),
+    epf DECIMAL(15,2),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS salary_payments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    employee_id UUID REFERENCES employees(id),
+    month DATE NOT NULL,
+    basic DECIMAL(15,2),
+    allowances DECIMAL(15,2),
+    deductions DECIMAL(15,2),
+    net_amount DECIMAL(15,2),
+    payment_date DATE,
+    status TEXT DEFAULT 'Pending',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS payroll_settings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    organization_id UUID,
+    epf_rate DECIMAL(5,2) DEFAULT 12.0,
+    esic_rate DECIMAL(5,2) DEFAULT 4.75,
+    pt_rate DECIMAL(5,2) DEFAULT 200,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

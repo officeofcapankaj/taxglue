@@ -1,26 +1,88 @@
 // ============================================
 // TaxGlue Supabase API Client
-// Direct Supabase calls - no backend server needed
+// Direct Supabase calls - uses config.js for credentials
 // ============================================
 
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+import { supabase } from "./config.js"
 
-// ============================================
-// CONFIGURATION - Update these values
-// For production, use environment variables or a config file
-// ============================================
-const CONFIG = {
-  // Supabase project URL
+// Re-export the client for other modules
+export { supabase }
+
+// Export configuration (for reference)
+export const config = { 
   supabaseUrl: "https://jgjeuybgideeqcjxvlmn.supabase.co",
-  // Supabase anonymous key (public - safe for client-side)
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnamV1eWJnaWRlZXFjanh2bG1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxMjIxNDAsImV4cCI6MjA4ODY5ODE0MH0.etglAIrYa5r67QuS7qKMR-lYodu_jxeJaozwKESuiD0"
 }
 
-// Initialize Supabase client
-const supabase = createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey)
+// ============================================
+// Error handling utilities
+// ============================================
 
-// Export configuration for external use
-export const config = CONFIG
+export class APIError extends Error {
+  constructor(message, code, details = null) {
+    super(message);
+    this.name = 'APIError';
+    this.code = code;
+    this.details = details;
+  }
+}
+
+export function handleAPIError(error, context = '') {
+  console.error(`API Error${context ? ` (${context})` : ''}:`, error);
+  
+  if (error.message && error.message.includes('fetch')) {
+    return new APIError('Network error. Please check your connection.', 'NETWORK_ERROR', error.message);
+  }
+  
+  if (error.code === 'PGRST116') {
+    return new APIError('Record not found.', 'NOT_FOUND', error.message);
+  }
+  
+  if (error.code === '23505') {
+    return new APIError('Duplicate entry. This record already exists.', 'DUPLICATE', error.message);
+  }
+  
+  return new APIError(error.message || 'An unexpected error occurred.', 'UNKNOWN_ERROR', error.message);
+}
+
+// Safe API wrapper with error handling
+export async function safeAPIcall(apiFunction, context = '') {
+  try {
+    return await apiFunction();
+  } catch (error) {
+    throw handleAPIError(error, context);
+  }
+}
+
+// ============================================
+// Input validation utilities
+// ============================================
+
+export function validateEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+export function validateRequired(value, fieldName) {
+  if (value === null || value === undefined || value === '') {
+    return new APIError(`${fieldName} is required.`, 'VALIDATION_ERROR', fieldName);
+  }
+  return null;
+}
+
+export function validateUUID(value, fieldName) {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(value)) {
+    return new APIError(`Invalid ${fieldName} format.`, 'VALIDATION_ERROR', fieldName);
+  }
+  return null;
+}
+
+export function sanitizeInput(value) {
+  if (typeof value !== 'string') return value;
+  // Basic XSS prevention - remove dangerous characters
+  return value.replace(/[<>]/g, '');
+}
 
 // TDS APIs
 export const tdsAPI = {
@@ -735,6 +797,44 @@ export const financialStatementsAPI = {
 // EXPORT APIS TO WINDOW FOR MODULE USAGE
 // ============================================
 
+// FY Utility functions
+function getCurrentFY() {
+  const now = new Date();
+  const month = now.getMonth();
+  const year = now.getFullYear();
+  if (month >= 3) {
+    return `${year}-${(year + 1).toString().slice(-2)}`;
+  } else {
+    return `${year - 1}-${year.toString().slice(-2)}`;
+  }
+}
+
+function generateFYOptions(startYearsBack = 5, startYearsAhead = 2) {
+  const currentYear = new Date().getFullYear();
+  const options = [];
+  for (let i = startYearsBack; i >= 0; i--) {
+    const startYr = currentYear - i;
+    options.push(`${startYr}-${(startYr + 1).toString().slice(-2)}`);
+  }
+  for (let i = 1; i <= startYearsAhead; i++) {
+    const startYr = currentYear + i;
+    options.push(`${startYr}-${(startYr + 1).toString().slice(-2)}`);
+  }
+  return options;
+}
+
+function initFYDropdowns() {
+  const fySelects = document.querySelectorAll('select.fy-select, select[id*="fy"], select[name*="fy"], select:not([id])');
+  const currentFY = getCurrentFY();
+  const fyOptions = generateFYOptions(5, 2);
+  const optionsHTML = fyOptions.map(fy => 
+    `<option value="${fy}" ${fy === currentFY ? 'selected' : ''}>FY ${fy}</option>`
+  ).join('');
+  fySelects.forEach(select => {
+    select.innerHTML = optionsHTML;
+  });
+}
+
 // Make APIs available globally for non-module scripts
 if (typeof window !== 'undefined') {
   window.supabase = supabase
@@ -746,5 +846,9 @@ if (typeof window !== 'undefined') {
   window.incomeTaxAPI = incomeTaxAPI
   window.caMasterAPI = caMasterAPI
   window.organizationAPI = organizationAPI
-  console.log('Supabase APIs exported to window')
+  // Add FY utilities
+  window.getCurrentFY = getCurrentFY
+  window.generateFYOptions = generateFYOptions
+  window.initFYDropdowns = initFYDropdowns
+  console.log('Supabase APIs and FY utilities exported to window')
 }

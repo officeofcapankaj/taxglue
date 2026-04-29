@@ -95,14 +95,27 @@ select.fy-select, select.qtr-select { padding: 8px 12px; border: 1px solid #e2e8
 <a href="app/index.html" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </div>
 </nav>
+<script type="module">
+// Generate FY options directly (no external file needed)
+const fySelect = document.getElementById("fySelect");
+if (fySelect) {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const currentFY = month >= 3 ? `${year}-${(year + 1).toString().slice(-2)}` : `${year - 1}-${year.toString().slice(-2)}`;
+  
+  const fyOptions = [];
+  for (let i = 5; i >= 0; i--) fyOptions.push(`${year - i}-${(year - i + 1).toString().slice(-2)}`);
+  for (let i = 1; i <= 2; i++) fyOptions.push(`${year + i}-${(year + i + 1).toString().slice(-2)}`);
+  
+  fySelect.innerHTML = fyOptions.map(fy => `<option value="${fy}" ${fy === currentFY ? "selected" : ""}>FY ${fy}</option>`).join("");
+}
+</script>
 <main class="main">
 <div class="topbar">
 <h1 class="page-title">Income Tax Management</h1>
 <div class="header-actions">
 <select class="fy-select" id="fySelect">
-<option value="2024-25">FY 2024-25</option>
-<option value="2025-26">FY 2025-26</option>
-<option value="2023-24">FY 2023-24</option>
 </select>
 <button class="btn btn-primary" onclick="openModal('itrModal')"><i class="fas fa-plus"></i> New ITR Filing</button>
 </div>
@@ -200,7 +213,7 @@ select.fy-select, select.qtr-select { padding: 8px 12px; border: 1px solid #e2e8
 <form id="form16Form">
 <div class="form-row">
 <div class="form-group"><label class="form-label">Certificate Number *</label><input type="text" class="form-input" name="certificate_no" required></div>
-<div class="form-group"><label class="form-label">Financial Year *</label><select class="form-select" name="fy" required><option value="2024-25">FY 2024-25</option><option value="2025-26">FY 2025-26</option></select></div>
+<div class="form-group"><label class="form-label">Financial Year *</label><select class="form-select" name="fy" required></select></div>
 </div>
 <div class="form-row">
 <div class="form-group"><label class="form-label">Employee Name *</label><input type="text" class="form-input" name="employee_name" required></div>
@@ -370,6 +383,24 @@ window.openModal = openModal;
 window.closeModal = closeModal;
 
 loadData();
+</script>
+
+<script src="dummy" data-remove> dropdowns
+(function() {
+  function initFY() {
+    const selects = document.querySelectorAll('select.fy-select, select[id*="fy"], select[name*="fy"]');
+    if (selects.length === 0) return;
+    const now = new Date();
+    const year = now.getFullYear(), month = now.getMonth();
+    const currentFY = month >= 3 ? `${year}-${(year+1).toString().slice(-2)}` : `${year-1}-${year.toString().slice(-2)}`;
+    const opts = [];
+    for(let i=5;i>=0;i--) opts.push(`${year-i}-${(year-i+1).toString().slice(-2)}`);
+    for(let i=1;i<=2;i++) opts.push(`${year+i}-${(year+i+1).toString().slice(-2)}`);
+    const html = opts.map(fy=>`<option value="${fy}" ${fy===currentFY?'selected':''}>FY ${fy}</option>`).join('');
+    selects.forEach(s=>s.innerHTML=html);
+  }
+  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',initFY):initFY();
+})();
 </script>
 </body>
 </html>

@@ -119,14 +119,35 @@ select.fy-select, select.qtr-select { padding: 8px 12px; border: 1px solid #e2e8
 <a href="/app/login.html" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </div>
 </nav>
+<script type="module">
+// Generate FY options directly (no external file needed)
+const fySelect = document.getElementById('fySelect');
+if (fySelect) {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const currentFY = month >= 3 ? `${year}-${(year + 1).toString().slice(-2)}` : `${year - 1}-${year.toString().slice(-2)}`;
+  
+  const fyOptions = [];
+  for (let i = 5; i >= 0; i--) {
+    const startYr = year - i;
+    fyOptions.push(`${startYr}-${(startYr + 1).toString().slice(-2)}`);
+  }
+  for (let i = 1; i <= 2; i++) {
+    const startYr = year + i;
+    fyOptions.push(`${startYr}-${(startYr + 1).toString().slice(-2)}`);
+  }
+  
+  fySelect.innerHTML = fyOptions.map(fy => 
+    `<option value="${fy}" ${fy === currentFY ? 'selected' : ''}>FY ${fy}</option>`
+  ).join('');
+}
+</script>
 <main class="main">
 <div class="topbar">
 <h1 class="page-title">GST Management</h1>
 <div class="header-actions">
 <select class="fy-select" id="fySelect">
-<option value="2024-25">FY 2024-25</option>
-<option value="2025-26">FY 2025-26</option>
-<option value="2023-24">FY 2023-24</option>
 </select>
 <select class="qtr-select" id="qtrSelect">
 <option value="">All Quarters</option>
@@ -610,11 +631,7 @@ async function initGlobalClientSelector() {
       try {
         // Load Supabase if not already loaded
         if (typeof supabase === 'undefined') {
-          const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm");
-          window.supabase = createClient(
-            "https://jgjeuybgideeqcjxvlmn.supabase.co",
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnSmV1eWJnaWRlZXFjanh2bG1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDY3OTc4NDMsImV4cCI6MjAyMjM3Mzg0M30.N2uZQjDBprDZr7SbkZ鄂B0aZVmqSvhM1-nMvYQJ7wU"
-          );
+          const { supabase } = await import("../config.js")
         }
         
         // Fetch clients from Supabase
@@ -742,6 +759,47 @@ window.openModal = openModal;
 window.closeModal = closeModal;
 window.editInvoice = editInvoice;
 window.deleteInvoice = deleteInvoice;
+
+
+<script>
+// Auto-initialize FY dropdowns - forcefully populate ALL FY selects
+(function() {
+  function initFY() {
+    // Target ALL select elements that might be FY dropdowns
+    const allSelects = document.querySelectorAll('select');
+    const now = new Date();
+    const year = now.getFullYear(), month = now.getMonth();
+    
+    // Calculate current FY
+    let currentFY;
+    if (month >= 3) currentFY = `${year}-${(year + 1).toString().slice(-2)}`;
+    else currentFY = `${year - 1}-${year.toString().slice(-2)}`;
+    
+    // Generate options (5 years back, 2 years ahead)
+    const opts = [];
+    for (let i = 5; i >= 0; i--) opts.push(`${year - i}-${(year - i + 1).toString().slice(-2)}`);
+    for (let i = 1; i <= 2; i++) opts.push(`${year + i}-${(year + i + 1).toString().slice(-2)}`);
+    
+    const html = opts.map(fy => `<option value="${fy}" ${fy === currentFY ? 'selected' : ''}>FY ${fy}</option>`).join('');
+    
+    // Update ALL selects on the page
+    allSelects.forEach(s => {
+      // Check if it looks like an FY selector
+      const options = s.options;
+      if (options.length > 0 && options[0].textContent.startsWith('FY')) {
+        s.innerHTML = html;
+      }
+    });
+    
+    console.log('FY dropdowns initialized');
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFY);
+  } else {
+    initFY();
+  }
+})();
+</script>
 
 </body>
 </html>

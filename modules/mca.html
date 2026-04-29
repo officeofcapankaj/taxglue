@@ -438,8 +438,8 @@ th { background: #f8fafc; font-weight: 600; color: #475569; }
 </div>
 
 <script>
-const supabaseUrl = 'https://jgjeuybgideeqcjxvlmn.supabase.co';
-const supabaseKey = 'sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j';
+// Import config - credentials come from environment variables only
+import { supabase } from "../config.js";
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 let companies = [];

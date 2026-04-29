@@ -302,6 +302,24 @@ and client documents in one secure cloud platform.
 
 </footer>
 
+<script>
+// Auto-initialize FY dropdowns
+(function() {
+  function initFY() {
+    const selects = document.querySelectorAll('select.fy-select, select[id*="fy"], select[name*="fy"]');
+    if (selects.length === 0) return;
+    const now = new Date();
+    const year = now.getFullYear(), month = now.getMonth();
+    const currentFY = month >= 3 ? `${year}-${(year+1).toString().slice(-2)}` : `${year-1}-${year.toString().slice(-2)}`;
+    const opts = [];
+    for(let i=5;i>=0;i--) opts.push(`${year-i}-${(year-i+1).toString().slice(-2)}`);
+    for(let i=1;i<=2;i++) opts.push(`${year+i}-${(year+i+1).toString().slice(-2)}`);
+    const html = opts.map(fy=>`<option value="${fy}" ${fy===currentFY?'selected':''}>FY ${fy}</option>`).join('');
+    selects.forEach(s=>s.innerHTML=html);
+  }
+  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',initFY):initFY();
+})();
+</script>
 
 </body>
 </html>

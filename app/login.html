@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="TaxGlue - Practice Management Platform for Chartered Accountants">
 <title>Login - TaxGlue</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -223,7 +224,7 @@ body {
   
   <div class="error-message" id="errorMessage"></div>
   
-  <form id="loginForm">
+  <form id="loginForm" aria-label="Sign in to your account">
     <div class="form-group">
       <label class="form-label" for="email">Email Address</label>
       <input 
@@ -231,7 +232,9 @@ body {
         id="email" 
         class="form-input" 
         placeholder="you@company.com"
+        autocomplete="email"
         required
+        aria-required="true"
       >
     </div>
     
@@ -242,14 +245,18 @@ body {
         id="password" 
         class="form-input" 
         placeholder="••••••••"
+        autocomplete="current-password"
         required
+        aria-required="true"
       >
     </div>
     
-    <button type="submit" class="btn-primary" id="loginBtn">Sign In</button>
+    <button type="submit" class="btn-primary" id="loginBtn" aria-describedby="errorMessage">Sign In</button>
     <button type="button" class="btn-secondary" id="signupBtn">Create Account</button>
-    <button type="button" class="btn-demo" id="demoBtn">Try Demo (No Login)</button>
+    <button type="button" class="btn-demo" id="demoBtn" aria-describedby="demoDesc">Try Demo (No Login)</button>
   </form>
+  
+  <p id="demoDesc" class="visually-hidden">Try a demo of TaxGlue without creating an account</p>
   
   <div class="divider">
     <span>or</span>
@@ -263,16 +270,22 @@ body {
 <script type="module">
 async function init() {
   try {
-    const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm")
-    
-    const supabase = createClient(
-      "https://jgjeuybgideeqcjxvlmn.supabase.co",
-      "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
-    )
+    // Import config - credentials come from environment variables only
+    const { supabase } = await import("./config.js")
     
     const loginForm = document.getElementById("loginForm")
     const errorMessage = document.getElementById("errorMessage")
+    const loginBtn = document.getElementById("loginBtn")
+    const signupBtn = document.getElementById("signupBtn")
+    const demoBtn = document.getElementById("demoBtn")
     
+    // Loading state helper
+    function setLoading(button, isLoading, originalText) {
+      button.disabled = isLoading
+      button.textContent = isLoading ? 'Please wait...' : originalText
+    }
+    
+    // Error display helpers
     function showError(msg) {
       errorMessage.textContent = msg
       errorMessage.classList.add("show")
@@ -282,50 +295,67 @@ async function init() {
       errorMessage.classList.remove("show")
     }
     
+    // Validate email format
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    }
+    
+    // Validate password
+    function isValidPassword(password) {
+      return password && password.length >= 6
+    }
+    
+    // Login form handler
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault()
       hideError()
       
-      const email = document.getElementById("email").value
+      const email = document.getElementById("email").value.trim()
       const password = document.getElementById("password").value
       
-      document.getElementById("loginBtn").textContent = "Signing in..."
+      // Client-side validation
+      if (!email || !password) {
+        showError("Please enter email and password")
+        return
+      }
       
-      // Demo login - bypass Supabase auth for specific demo credentials
-      if (email === 'singlacapankaj@gmail.com' && password === '1234') {
-        const demoUser = {
-          id: "demo-capankaj",
-          email: "singlacapankaj@gmail.com",
-          user_metadata: { name: "C Pankaj" }
+      if (!isValidEmail(email)) {
+        showError("Please enter a valid email address")
+        return
+      }
+      
+      setLoading(loginBtn, true, "Sign In")
+      
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        })
+        
+        if (error) {
+          showError(error.message)
+          setLoading(loginBtn, false, "Sign In")
+          return
         }
-        localStorage.setItem('supabase.auth.token', JSON.stringify({
-          access_token: "demo_token",
-          user: demoUser
-        }))
-        localStorage.setItem('userEmail', demoUser.email)
-        localStorage.setItem('userName', "C Pankaj")
+        
+        // Store user info
+        localStorage.setItem('userEmail', email)
+        localStorage.setItem('userName', data.user?.user_metadata?.name || email.split('@')[0])
+        
+        // Redirect to dashboard
         window.location.href = "/app/dashboard.html"
-        return
+      } catch (err) {
+        console.error("Login error:", err)
+        showError("An unexpected error occurred. Please try again.")
+        setLoading(loginBtn, false, "Sign In")
       }
-      
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      })
-      
-      if (error) {
-        showError(error.message)
-        document.getElementById("loginBtn").textContent = "Sign In"
-        return
-      }
-      
-      window.location.href = "/app/dashboard.html"
     })
     
-    document.getElementById("signupBtn").addEventListener("click", async () => {
+    // Signup handler
+    signupBtn.addEventListener("click", async () => {
       hideError()
       
-      const email = document.getElementById("email").value
+      const email = document.getElementById("email").value.trim()
       const password = document.getElementById("password").value
       
       if (!email || !password) {
@@ -333,42 +363,85 @@ async function init() {
         return
       }
       
-      document.getElementById("signupBtn").textContent = "Creating account..."
-      
-      const { error } = await supabase.auth.signUp({
-        email,
-        password
-      })
-      
-      if (error) {
-        showError(error.message)
-        document.getElementById("signupBtn").textContent = "Create Account"
+      if (!isValidEmail(email)) {
+        showError("Please enter a valid email address")
         return
       }
       
-      alert("Account created! Please check your email to verify, then sign in.")
-      document.getElementById("signupBtn").textContent = "Create Account"
+      if (!isValidPassword(password)) {
+        showError("Password must be at least 6 characters")
+        return
+      }
+      
+      setLoading(signupBtn, true, "Create Account")
+      
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password
+        })
+        
+        if (error) {
+          showError(error.message)
+          setLoading(signupBtn, false, "Create Account")
+          return
+        }
+        
+        if (data.user) {
+          alert("Account created! Please check your email to verify, then sign in.")
+        } else {
+          alert("Check your email to confirm your account, then sign in.")
+        }
+        setLoading(signupBtn, false, "Create Account")
+      } catch (err) {
+        console.error("Signup error:", err)
+        showError("An unexpected error occurred. Please try again.")
+        setLoading(signupBtn, false, "Create Account")
+      }
     })
     
-    // Demo mode - bypass auth for testing
-    document.getElementById("demoBtn")?.addEventListener("click", () => {
-      // Create demo session data
-      const demoUser = {
-        id: "demo-user-id",
-        email: "demo@taxglue.com",
-        user_metadata: { name: "Demo User" }
+    // Demo mode - check Supabase connection first
+    demoBtn?.addEventListener("click", async () => {
+      setLoading(demoBtn, true, "Loading Demo...")
+      
+      try {
+        // Check if Supabase is available
+        const { data: testData, error: testError } = await supabase.from('clients').select('id').limit(1)
+        
+        if (testError && testError.message.includes('Failed to fetch')) {
+          alert("Demo unavailable. Please connect to the internet and try again.")
+          setLoading(demoBtn, false, "Try Demo (No Login)")
+          return
+        }
+        
+        // Create demo session
+        const demoUser = {
+          id: "demo-user-" + Date.now(),
+          email: "demo@taxglue.in",
+          user_metadata: { name: "Demo User" },
+          is_demo: true
+        }
+        
+        localStorage.setItem('supabase.auth.token', JSON.stringify({
+          access_token: "demo_token_" + Date.now(),
+          user: demoUser
+        }))
+        localStorage.setItem('userEmail', demoUser.email)
+        localStorage.setItem('userName', demoUser.user_metadata.name)
+        localStorage.setItem('isDemo', 'true')
+        
+        window.location.href = "/app/dashboard.html"
+      } catch (err) {
+        console.error("Demo error:", err)
+        showError("Demo mode is temporarily unavailable.")
+        setLoading(demoBtn, false, "Try Demo (No Login)")
       }
-      localStorage.setItem('supabase.auth.token', JSON.stringify({
-        access_token: "demo_token",
-        user: demoUser
-      }))
-      localStorage.setItem('userEmail', demoUser.email)
-      localStorage.setItem('userName', "Demo User")
-      window.location.href = "/app/dashboard.html"
     })
     
   } catch(e) {
     console.error("Error initializing:", e)
+    document.getElementById("errorMessage").textContent = "Configuration error. Please contact support."
+    document.getElementById("errorMessage").classList.add("show")
   }
 }
 

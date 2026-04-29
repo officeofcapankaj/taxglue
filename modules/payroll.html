@@ -625,8 +625,8 @@ th { background: #f8fafc; font-weight: 600; }
 
 <script>
 // Supabase client - inline for browser compatibility
-const supabaseUrl = 'https://jgjeuybgideeqcjxvlmn.supabase.co';
-const supabaseKey = 'sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j';
+// Import config - credentials come from environment variables only
+import { supabase } from "../config.js";
 let supabase = null;
 
 // Try to initialize Supabase

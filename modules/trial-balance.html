@@ -402,8 +402,8 @@ input[type="number"] {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 // Supabase config
-const supabaseUrl = "https://jgjeuybgideeqcjxvlmn.supabase.co"
-const supabaseKey = "sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j"
+// Import config - credentials come from environment variables only
+import { supabase } from "../config.js";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
 
 // Account Classification Data

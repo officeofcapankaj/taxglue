@@ -256,8 +256,8 @@ body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
 </div>
 
 <script>
-const supabaseUrl = 'https://jgjeuybgideeqcjxvlmn.supabase.co';
-const supabaseKey = 'sb_publishable_8nwimD4up__9jnxr6RoDpg_8_Gy5w7j';
+// Import config - credentials come from environment variables only
+import { supabase } from "../config.js";
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 let updates = [];
